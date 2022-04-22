@@ -22,7 +22,7 @@ export default async function parseRef(schemaName) {
     mergedSchema.metadata.schema.push(linked_schema)
     schemas
       .filter((_, index) => index !== 0)
-      .forEach((val, i) => {
+      .forEach(val => {
         // properties
         Object.keys(val.properties).forEach(schemasName => {
           if (!(schemasName in mergedSchema.properties)) {
