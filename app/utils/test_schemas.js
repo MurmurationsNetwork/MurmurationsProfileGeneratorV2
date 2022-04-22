@@ -135,3 +135,30 @@ export const test_schema_4 = {
   required: ['linked_schemas', 'single_choice', 'multiple_choice'],
   metadata: metadata
 }
+
+export const test_schema_5 = {
+  ...schemaHeader,
+  properties: {
+    linked_schemas: linked_schemas,
+    wrapping_object: {
+      type: 'object',
+      properties: {
+        single_choice: {
+          type: 'string',
+          enum: ['zero', 'one', 'two', 'three', 'four'],
+          enumNames: ['None', 'First', 'Second', 'Third', 'Fourth']
+        },
+        multiple_choice: {
+          type: 'array',
+          items: {
+            type: 'string',
+            enum: ['one', 'two', 'three', 'four', 'five'],
+            enumNames: ['First', 'Second', 'Third', 'Fourth', 'Fifth']
+          }
+        }
+      }
+    }
+  },
+  required: ['linked_schemas', 'wrapping_object'],
+  metadata: metadata
+}

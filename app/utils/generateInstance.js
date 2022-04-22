@@ -26,8 +26,8 @@ export default function generateInstance(schema, data) {
 // When the field name has "-" symbol, it has objects or arrays.
 //
 // For example,
-// oaosn-some_arr-0-some_string
-// We split into ['oaosn', 'some_arr', '0', 'some_string']
+// some_obj-some_arr-0-some_string
+// We split into ['some_obj', 'some_arr', '0', 'some_string']
 // There are two ways to determining the field is array type.
 // (1) field name is number(multiple arrays)
 // (2) schema type is array
@@ -52,13 +52,13 @@ function parseArrayObject(fieldName, fieldData, schema, profile) {
           currentProfile.push(fieldData)
         }
       } else if (
-        currentSchema.properties[arrayFields[i]]?.type === 'array' &&
+        currentSchema?.properties[arrayFields[i]]?.type === 'array' &&
         currentSchema.properties[arrayFields[i]].items.enum === undefined
       ) {
         let newArray = []
         newArray.push(fieldData)
         currentProfile[arrayFields[i]] = newArray
-      } else if (currentSchema.properties[arrayFields[i]]?.type === 'number') {
+      } else if (currentSchema?.properties[arrayFields[i]]?.type === 'number') {
         currentProfile[arrayFields[i]] = parseFloat(fieldData)
       } else {
         currentProfile[arrayFields[i]] = fieldData

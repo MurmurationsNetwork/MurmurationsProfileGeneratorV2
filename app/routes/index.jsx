@@ -5,7 +5,7 @@ import { json } from '@remix-run/node'
 import fetchPost from '~/utils/fetchPost'
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
-import parseRef from '~/utils/parseRef.server'
+import parseRef from '~/utils/parseRef'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -15,7 +15,7 @@ export async function action({ request }) {
       ? (rawData[key] = formData._fields[key])
       : (rawData[key] = formData._fields[key][0])
   }
-  let { _action, _url, ...data } = rawData
+  let { _action, ...data } = rawData
   if (_action === 'submit') {
     let schema = await parseRef(data.linked_schemas)
     let profile = generateInstance(schema, data)
