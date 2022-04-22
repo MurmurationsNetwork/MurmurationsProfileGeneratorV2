@@ -4,19 +4,19 @@ export default async function parseRef(schemaName) {
   if (schemaName.includes(',')) {
     schemaName = schemaName.split(',')
   }
+  let mergedSchema
   if (Array.isArray(schemaName)) {
     let schemas = []
     // need to wait all results and then return the data
     await Promise.all(
       schemaName.map(async name => {
-        let url = `https://test-cdn.murmurations.network/schemas/${name}.json`
-        let res = await refParser.dereference(url)
+        let res = await retrieveSchema(name)
         schemas.push(res)
       })
     )
     // Remove duplicate properties
     // todo: we only merge properties, required and schema here. If we need the other properties here, we should add it here.
-    let mergedSchema = schemas[0]
+    mergedSchema = schemas[0]
     let linked_schema = schemas[0].metadata.schema.name
     mergedSchema.metadata.schema = []
     mergedSchema.metadata.schema.push(linked_schema)
@@ -47,14 +47,18 @@ export default async function parseRef(schemaName) {
         // metadata-schema
         mergedSchema.metadata.schema.push(val.metadata.schema.name)
       })
-    return mergedSchema
   } else {
-    let url = `https://test-cdn.murmurations.network/schemas/${schemaName}.json`
-    let res = await refParser.dereference(url)
+    mergedSchema = await retrieveSchema(schemaName)
     // replace schema
-    let linked_schema = res.metadata.schema.name
-    res.metadata.schema = []
-    res.metadata.schema.push(linked_schema)
-    return res
+    let linked_schema = mergedSchema.metadata.schema.name
+    mergedSchema.metadata.schema = []
+    mergedSchema.metadata.schema.push(linked_schema)
   }
+
+  return mergedSchema
+}
+
+async function retrieveSchema(schemaName) {
+  let url = `https://test-cdn.murmurations.network/schemas/${schemaName}.json`
+  return await refParser.dereference(url)
 }
