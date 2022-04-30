@@ -88,4 +88,21 @@ describe('generateInstance tests', () => {
     let received = generateInstance(test_schema_4, formData)
     expect(received).toEqual(expected)
   })
+
+  it('Should handle single and multiple input enumerated input lists embedded in an object', () => {
+    let formData = {
+      linked_schemas: 'test_schema',
+      'wrapping_object-single_choice': 'zero',
+      'wrapping_object-multi_choice': ['zero', 'one']
+    }
+    let expected = {
+      linked_schemas: ['test_schema'],
+      wrapping_object: {
+        single_choice: 'zero',
+        multi_choice: ['zero', 'one']
+      }
+    }
+    let received = generateInstance(test_schema_4, formData)
+    expect(received).toEqual(expected)
+  })
 })
