@@ -1,4 +1,4 @@
-export default function fetchPost(url, body) {
+export default async function fetchPost(url, body) {
   return fetch(url, {
     method: 'POST',
     headers: {
@@ -6,5 +6,7 @@ export default function fetchPost(url, body) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify(body)
+  }).catch(error => {
+    throw error
   })
 }

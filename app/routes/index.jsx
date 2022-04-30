@@ -23,17 +23,15 @@ export async function action({ request }) {
       'https://test-index.murmurations.network/v2/validate',
       profile
     )
-    let body = await validation.json()
-    if (validation.status === 400) {
-      return json(body, { status: 400 })
-    } else if (validation.status === 200) {
-      if (body.status === 400) {
-        return json(body, { status: 400 })
-      }
-      return json(profile, { status: 200 })
-    } else {
+    // The target url exists, but the response status is not what we expected.
+    if (validation.status !== 400 && validation.status !== 200) {
       return json('Some other validation response error', { status: 400 })
     }
+    let body = await validation.json()
+    if (validation.status === 400 || body.status === 400) {
+      return json(body, { status: 400 })
+    }
+    return json(profile, { status: 200 })
   }
   if (_action === 'select') {
     return await parseRef(data.schema)
