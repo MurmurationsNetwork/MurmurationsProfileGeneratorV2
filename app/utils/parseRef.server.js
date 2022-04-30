@@ -31,15 +31,15 @@ export default async function parseRef(schemaName) {
         })
 
         // required
+        let isDuplicated
         val.required.forEach(requiredField => {
-          let isNotDuplicated = false
           for (let i = 0; i < mergedSchema.required.length; i++) {
-            if (mergedSchema.required[i] !== requiredField) {
-              isNotDuplicated = true
+            if (mergedSchema.required[i] === requiredField) {
+              isDuplicated = true
               break
             }
           }
-          if (isNotDuplicated) {
+          if (!isDuplicated) {
             mergedSchema.required.push(requiredField)
           }
         })
