@@ -1,4 +1,4 @@
-import { Form, useActionData, useLoaderData } from '@remix-run/react'
+import { Form, useActionData, useCatch, useLoaderData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { json } from '@remix-run/node'
 
@@ -101,5 +101,18 @@ export default function Index() {
           ))
         : null}
     </>
+  )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return (
+    <div className="error-container">
+      <p>
+        {caught.status} {caught.statusText} <br />
+        {caught.data}
+      </p>
+    </div>
   )
 }

@@ -7,6 +7,8 @@ export default async function fetchPost(url, body) {
     },
     body: JSON.stringify(body)
   }).catch(error => {
-    throw error
+    throw new Response(`fetchPost error: ${error}`, {
+      status: 500
+    })
   })
 }
