@@ -6,6 +6,7 @@ import fetchPost from '~/utils/fetchPost'
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
+import fetchGet from '~/utils/fetchGet'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -39,7 +40,7 @@ export async function action({ request }) {
 }
 
 export async function loader() {
-  let response = await fetch(
+  let response = await fetchGet(
     'https://test-library.murmurations.network/v1/schemas'
   )
   return await response.json()
