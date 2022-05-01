@@ -1,4 +1,4 @@
-import { Form, useActionData, useLoaderData } from '@remix-run/react'
+import { Form, useActionData, useCatch, useLoaderData } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { json } from '@remix-run/node'
 
@@ -6,6 +6,7 @@ import fetchPost from '~/utils/fetchPost'
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
+import fetchGet from '~/utils/fetchGet'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -19,21 +20,23 @@ export async function action({ request }) {
   if (_action === 'submit') {
     let schema = await parseRef(data.linked_schemas)
     let profile = generateInstance(schema, data)
-    let validation = await fetchPost(
+    let response = await fetchPost(
       'https://test-index.murmurations.network/v2/validate',
       profile
     )
-    let body = await validation.json()
-    if (validation.status === 400) {
-      return json(body, { status: 400 })
-    } else if (validation.status === 200) {
-      if (body.status === 400) {
-        return json(body, { status: 400 })
-      }
-      return json(profile, { status: 200 })
-    } else {
-      return json('Some other validation response error', { status: 400 })
+    if (!response.ok) {
+      throw new Response('Profile validation error', {
+        status: response.status
+      })
     }
+    let body = await response.json()
+    if (body.status === 400) {
+      return json(body, { status: 400 })
+    }
+    if (body.status === 404) {
+      return json(body, { status: 404 })
+    }
+    return json(profile, { status: 200 })
   }
   if (_action === 'select') {
     return await parseRef(data.schema)
@@ -41,7 +44,7 @@ export async function action({ request }) {
 }
 
 export async function loader() {
-  let response = await fetch(
+  let response = await fetchGet(
     'https://test-library.murmurations.network/v1/schemas'
   )
   return await response.json()
@@ -103,5 +106,19 @@ export default function Index() {
           ))
         : null}
     </>
+  )
+}
+
+export function CatchBoundary() {
+  const caught = useCatch()
+
+  return (
+    <div className="error-boundary">
+      <span className="kaboom">💥🤬</span>
+      <br />
+      <h2>
+        {caught.status} - {caught.statusText} - {caught.data}
+      </h2>
+    </div>
   )
 }

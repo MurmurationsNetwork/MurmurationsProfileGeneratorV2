@@ -53,11 +53,9 @@ export function ErrorBoundary({ error }) {
       </head>
       <body>
         <div className="error-boundary">
-          <p>
-            <span className="kaboom">💥🤬</span>
-            <br />
-            {JSON.stringify(error.message)}
-          </p>
+          <span className="kaboom">💥😱</span>
+          <br />
+          <h2>{error.message}</h2>
         </div>
         <Scripts />
       </body>
