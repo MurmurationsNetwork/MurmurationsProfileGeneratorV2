@@ -60,5 +60,9 @@ export default async function parseRef(schemaName) {
 
 async function retrieveSchema(schemaName) {
   let url = `https://test-cdn.murmurations.network/schemas/${schemaName}.json`
-  return await refParser.dereference(url)
+  return await refParser.dereference(url).catch(error => {
+    throw new Response(`parseRef error: ${error}`, {
+      status: 500
+    })
+  })
 }

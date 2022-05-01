@@ -20,17 +20,21 @@ export async function action({ request }) {
   if (_action === 'submit') {
     let schema = await parseRef(data.linked_schemas)
     let profile = generateInstance(schema, data)
-    let validation = await fetchPost(
+    let response = await fetchPost(
       'https://test-index.murmurations.network/v2/validate',
       profile
     )
-    // The target url exists, but the response status is not what we expected.
-    if (validation.status !== 400 && validation.status !== 200) {
-      return json('Some other validation response error', { status: 400 })
+    if (!response.ok) {
+      throw new Response('Profile validation error', {
+        status: response.status
+      })
     }
-    let body = await validation.json()
-    if (validation.status === 400 || body.status === 400) {
+    let body = await response.json()
+    if (body.status === 400) {
       return json(body, { status: 400 })
+    }
+    if (body.status === 404) {
+      return json(body, { status: 404 })
     }
     return json(profile, { status: 200 })
   }
@@ -109,11 +113,12 @@ export function CatchBoundary() {
   const caught = useCatch()
 
   return (
-    <div className="error-container">
-      <p>
-        {caught.status} {caught.statusText} <br />
-        {caught.data}
-      </p>
+    <div className="error-boundary">
+      <span className="kaboom">💥🤬</span>
+      <br />
+      <h2>
+        {caught.status} - {caught.statusText} - {caught.data}
+      </h2>
     </div>
   )
 }
