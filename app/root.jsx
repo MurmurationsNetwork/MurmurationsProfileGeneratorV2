@@ -28,7 +28,7 @@ export default function App() {
       </head>
       <body className="leading-normal">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-row mx-auto justify-center mb-5">
+          <div className="grid grid-cols-1 mx-auto text-center mb-5">
             <h1 className="text-3xl font-bold">
               Murmurations Profile Generator (version 2)
             </h1>
@@ -55,12 +55,14 @@ export function ErrorBoundary({ error }) {
         <Links />
       </head>
       <body>
-        <div className="error-boundary">
-          <span className="kaboom">💥😱</span>
-          <br />
-          <h2>{error.message}</h2>
+        <div className="container mx-auto px-4 py-4">
+          <div className="error-boundary grid grid-cols-1 mx-auto text-center mb-5">
+            <span className="kaboom">💥😱</span>
+            <br />
+            <h2>{error.message}</h2>
+          </div>
+          <Scripts />
         </div>
-        <Scripts />
       </body>
     </html>
   )
