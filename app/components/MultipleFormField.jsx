@@ -105,8 +105,13 @@ export default function MultipleFormField({
             }
             if (enumList) {
               return (
-                <label className="block text-sm font-bold my-2" key={objIndex}>
-                  {title ? title + ':' : ''}
+                <div key={objIndex}>
+                  <label
+                    className="block text-sm font-bold my-2"
+                    key={objIndex}
+                  >
+                    {title ? title + ':' : ''}
+                  </label>
                   <select
                     className="form-select"
                     aria-label={fieldName}
@@ -129,14 +134,13 @@ export default function MultipleFormField({
                   <span className="text-sm">
                     {description ? description : ''}
                   </span>
-                  <br />
-                </label>
+                </div>
               )
             }
 
             return (
-              <div>
-                <label className="block text-sm font-bold mb-2" key={objIndex}>
+              <div key={objIndex}>
+                <label className="block text-sm font-bold mb-2">
                   {title ? title + ':' : ''}
                 </label>
                 <input
