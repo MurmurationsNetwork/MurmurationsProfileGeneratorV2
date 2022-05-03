@@ -1,88 +1,13 @@
-/*@tailwind base;*/
-/*@tailwind components;*/
-/*@tailwind utilities;*/
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #1f1f1f;
-        color: #e9e9e9;
+@layer base {
+    html {
+        font-family: system-ui, sans-serif;
     }
-
-    img {
-        opacity: 0.75;
-        transition: opacity 0.5s ease-in-out;
-    }
-
-    img:hover {
-        opacity: 1;
-    }
-
-    button,
-    input,
-    select,
-    textarea {
-        background-color: #363636;
-        color: #fcfcfc;
-    }
-
-    a {
-        color: orange;
-    }
-}
-
-body {
-    font-family: system-ui, sans-serif;
-    line-height: 1.5;
-}
-
-section {
-    display: grid;
-    justify-items: center;
-    align-items: center;
-    gap: 1rem;
-    grid-auto-flow: column;
-}
-
-div {
-    display: inline-block;
-    padding: 2rem;
-    vertical-align: top;
-}
-
-button,
-hr,
-input,
-select,
-textarea {
-    margin: 1rem 0.5rem;
-}
-
-label::before {
-    content: '\A';
-    white-space: pre;
-}
-
-button {
-    margin: 1rem 0.25rem;
-    padding: 0.25rem;
-}
-
-.key {
-    padding-right: 0.25rem;
-}
-
-.error {
-    color: red;
-}
-
-.error-boundary {
-    display: grid;
-    height: 100vh;
-    margin: 0;
-    place-items: center center;
 }
 
 .kaboom {
-    font-size: 20rem;
+    @apply text-6xl
 }
-

@@ -70,19 +70,16 @@ export default function MultipleFormField({
         <label>
           {i === 0 && title !== undefined && (
             <>
-              <span className="key">{title}:</span>
-              <br />
-              <span>{description}</span>
-              <br />
-              <br />
+              <span className="key block text-sm font-bold my-2">{title}:</span>
+              <span className="block text-sm">{description}</span>
             </>
           )}
           {objTitle !== undefined && (
             <>
-              <span className="key">{objTitle}:</span>
-              <br />
-              <span>{objDescription}</span>
-              <br />
+              <span className="key block text-sm font-bold my-2">
+                {objTitle}:
+              </span>
+              <span className="block text-sm">{objDescription}</span>
             </>
           )}
           {Object.keys(objects).map((obj, objIndex) => {
@@ -108,9 +105,10 @@ export default function MultipleFormField({
             }
             if (enumList) {
               return (
-                <label key={objIndex}>
+                <label className="block text-sm font-bold my-2" key={objIndex}>
                   {title ? title + ':' : ''}
                   <select
+                    className="form-select"
                     aria-label={fieldName}
                     name={fieldName}
                     id={fieldName}
@@ -128,16 +126,21 @@ export default function MultipleFormField({
                     ))}
                   </select>
                   <br />
-                  <span>{description ? description : ''}</span>
+                  <span className="text-sm">
+                    {description ? description : ''}
+                  </span>
                   <br />
                 </label>
               )
             }
 
             return (
-              <label key={objIndex}>
-                {title ? title + ':' : ''}
+              <div>
+                <label className="block text-sm font-bold mb-2" key={objIndex}>
+                  {title ? title + ':' : ''}
+                </label>
                 <input
+                  className="form-input"
                   key={objIndex}
                   type={objType}
                   aria-label={fieldName}
@@ -151,13 +154,15 @@ export default function MultipleFormField({
                   onChange={e => handleChange(e, i)}
                 />
                 <br />
-                <span>{description ? description : ''}</span>
-                <br />
-              </label>
+                <span className="text-sm">
+                  {description ? description : ''}
+                </span>
+              </div>
             )
           })}
           {inputList.length !== 1 && (
             <input
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 mt-2"
               type="button"
               value="Remove"
               onClick={() => handleRemoveInput(i)}
@@ -166,13 +171,14 @@ export default function MultipleFormField({
           {inputList.length - 1 === i &&
             (maxItems === undefined || inputList.length < maxItems) && (
               <input
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 mt-2"
                 type="button"
                 value="Add"
                 onClick={() => handleAddInput(i)}
               />
             )}
         </label>
-        <br />
+        {inputList.length - 1 === i && <hr className="mt-4" />}
       </span>
     )
   })

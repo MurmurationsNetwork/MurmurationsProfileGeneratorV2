@@ -11,19 +11,18 @@ export default function EnumField({
   objectDescription
 }) {
   return (
-    <span>
-      {objectTitle ? (
-        <>
-          <br />
-          {objectTitle} --
-        </>
-      ) : (
-        ''
-      )}
+    <span className="block text-sm font-bold my-2">
+      {objectTitle ? <>{objectTitle} --</> : ''}
       {objectDescription ? objectDescription : ''}
       <label>
-        <span className="key">{title}:</span>
-        <select aria-label={name} name={name} id={name} multiple={multi}>
+        <span className="key block text-sm font-bold my-2">{title}:</span>
+        <select
+          className="form-select"
+          aria-label={name}
+          name={name}
+          id={name}
+          multiple={multi}
+        >
           {multi ? null : <option value="" key="0"></option>}
           {enumList.map((item, index) => (
             <option value={item} key={item}>
@@ -34,7 +33,6 @@ export default function EnumField({
       </label>
       <br />
       <span>{description}</span>
-      <br />
     </span>
   )
 }

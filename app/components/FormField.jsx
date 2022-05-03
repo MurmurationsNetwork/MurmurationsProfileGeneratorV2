@@ -26,8 +26,9 @@ export default function FormField({
       )}
       {objectDescription ? ` -- ${objectDescription}` : ''}
       <label>
-        <span className="key">{title}:</span>
+        <span className="key block text-sm font-bold my-2">{title}:</span>
         <input
+          className="form-input"
           type={type}
           aria-label={name}
           name={name}
@@ -40,8 +41,8 @@ export default function FormField({
         />
       </label>
       <br />
-      <span>{description}</span>
-      <br />
+      <span className="block mb-2">{description}</span>
+      <hr />
     </span>
   )
 }

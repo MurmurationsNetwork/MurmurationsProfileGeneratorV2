@@ -72,39 +72,65 @@ export default function Index() {
   }, [data])
   return (
     <>
-      <Form method="post">
-        <select id="schema" name="schema" multiple={true} required={true}>
-          {schemas.data.map(schema => (
-            <option value={schema.name} key={schema.name}>
-              {schema.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit" name="_action" value="select">
-          Select
-        </button>
-      </Form>
-      <hr />
-      {schema ? (
-        <Form method="post">
-          {generateForm(schema)}
-          <button type="submit" name="_action" value="submit">
-            Submit
+      <div>
+        <Form className="mb-2" method="post">
+          <select
+            className="mb-2 block w-full border-black border-2 py-2 px-4"
+            id="schema"
+            name="schema"
+            multiple={true}
+            required={true}
+          >
+            {schemas.data.map(schema => (
+              <option
+                className="text-xl mb-1 border-b-2 border-blue-50 py-2 px-4"
+                value={schema.name}
+                key={schema.name}
+              >
+                {schema.name}
+              </option>
+            ))}
+          </select>
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mb-5"
+            type="submit"
+            name="_action"
+            value="select"
+          >
+            Select
           </button>
         </Form>
-      ) : (
-        'Select a schema...'
-      )}
-      {instance && !errors[0] ? (
-        <pre>{JSON.stringify(instance, null, 2)}</pre>
-      ) : null}
-      {errors
-        ? errors.map(error => (
-            <p className="error" key={error}>
-              {error}
-            </p>
-          ))
-        : null}
+        <hr />
+        {schema ? (
+          <Form className="my-2" method="post">
+            {generateForm(schema)}
+            <button
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full"
+              type="submit"
+              name="_action"
+              value="submit"
+            >
+              Submit
+            </button>
+          </Form>
+        ) : (
+          <h2 className="text-xl">Select a schema...</h2>
+        )}
+      </div>
+      <div>
+        {instance && !errors[0] ? (
+          <pre className="bg-slate-200 py-2 px-4">
+            {JSON.stringify(instance, null, 2)}
+          </pre>
+        ) : null}
+        {errors
+          ? errors.map(error => (
+              <p className="error text-xl text-red-500" key={error}>
+                {error}
+              </p>
+            ))
+          : null}
+      </div>
     </>
   )
 }
