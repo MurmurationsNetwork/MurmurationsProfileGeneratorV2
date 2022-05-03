@@ -72,39 +72,70 @@ export default function Index() {
   }, [data])
   return (
     <>
-      <Form method="post">
-        <select id="schema" name="schema" multiple={true} required={true}>
-          {schemas.data.map(schema => (
-            <option value={schema.name} key={schema.name}>
-              {schema.name}
-            </option>
-          ))}
-        </select>
-        <button type="submit" name="_action" value="select">
-          Select
-        </button>
-      </Form>
-      <hr />
-      {schema ? (
-        <Form method="post">
-          {generateForm(schema)}
-          <button type="submit" name="_action" value="submit">
-            Submit
+      <div>
+        <Form className="mb-2" method="post">
+          <select
+            className="bg-white dark:bg-slate-700 block w-full border-black border-2 py-2 px-4"
+            id="schema"
+            name="schema"
+            multiple={true}
+            required={true}
+            size={6}
+          >
+            {schemas.data.map(schema => (
+              <option
+                className="text-sm mb-1 border-blue-50 py-0 px-2"
+                value={schema.name}
+                key={schema.name}
+              >
+                {schema.name}
+              </option>
+            ))}
+          </select>
+          <button
+            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+            type="submit"
+            name="_action"
+            value="select"
+          >
+            Select
           </button>
         </Form>
-      ) : (
-        'Select a schema...'
-      )}
-      {instance && !errors[0] ? (
-        <pre>{JSON.stringify(instance, null, 2)}</pre>
-      ) : null}
-      {errors
-        ? errors.map(error => (
-            <p className="error" key={error}>
-              {error}
-            </p>
-          ))
-        : null}
+        {schema ? (
+          <Form method="post">
+            {generateForm(schema)}
+            <button
+              className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+              type="submit"
+              name="_action"
+              value="submit"
+            >
+              Submit
+            </button>
+          </Form>
+        ) : (
+          <h2 className="text-xl mt-4">
+            Select one or more schemas from the list above.
+          </h2>
+        )}
+      </div>
+      <div>
+        {instance && !errors[0] ? (
+          <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4">
+            {JSON.stringify(instance, null, 2)}
+          </pre>
+        ) : null}
+        {errors
+          ? errors.map(error => (
+              <p
+                className="error text-xl text-red-500 dark:text-red-400"
+                key={error}
+              >
+                {error}
+              </p>
+            ))
+          : null}
+      </div>
     </>
   )
 }

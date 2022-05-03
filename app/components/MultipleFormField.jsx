@@ -14,6 +14,40 @@ export default function MultipleFormField({
   objDescription,
   maxItems
 }) {
+  return (
+    <fieldset className="border-dotted border-4 border-slate-300 p-4 my-4">
+      <legend className="block text-md font-bold mt-2">{title}</legend>
+      <span className="block text-md mb-4">{description}</span>
+      <MultipleFormFieldItems
+        name={name}
+        description={description}
+        max={max}
+        maxlength={maxlength}
+        min={min}
+        minlength={minlength}
+        pattern={pattern}
+        title={title}
+        objects={objects}
+        objTitle={objTitle}
+        objDescription={objDescription}
+        maxItems={maxItems}
+      />
+    </fieldset>
+  )
+}
+
+function MultipleFormFieldItems({
+  name,
+  max,
+  maxlength,
+  min,
+  minlength,
+  pattern,
+  objects,
+  objTitle,
+  objDescription,
+  maxItems
+}) {
   // Initialize an empty object
   // Format is fieldName-id-objectName
   let fields = {}
@@ -67,112 +101,114 @@ export default function MultipleFormField({
   return inputList.map((item, i) => {
     return (
       <span key={i}>
-        <label>
+        {/* <fieldset className="border-dotted border-2 p-4 my-4">
           {i === 0 && title !== undefined && (
             <>
-              <span className="key">{title}:</span>
-              <br />
-              <span>{description}</span>
-              <br />
-              <br />
+              <legend className="block text-md font-bold mt-2">{title}:</legend>
+              <span className="block text-md mb-4">{description}</span>
             </>
-          )}
-          {objTitle !== undefined && (
-            <>
-              <span className="key">{objTitle}:</span>
-              <br />
-              <span>{objDescription}</span>
-              <br />
-            </>
-          )}
-          {Object.keys(objects).map((obj, objIndex) => {
-            let value = item[name + '-' + i + '-' + obj]
-            let fieldName = name + '-' + i + '-' + obj
-            if (obj === 'ARRAY_TYPE') {
-              value = item[name + '-' + i]
-              fieldName = name + '-' + i
-            }
+          )} */}
+        {objTitle !== undefined && (
+          <>
+            <span className="block text-md font-bold mt-2">{objTitle}:</span>
+            <span className="block text-md mb-4">{objDescription}</span>
+          </>
+        )}
+        {Object.keys(objects).map((obj, objIndex) => {
+          let value = item[name + '-' + i + '-' + obj]
+          let fieldName = name + '-' + i + '-' + obj
+          if (obj === 'ARRAY_TYPE') {
+            value = item[name + '-' + i]
+            fieldName = name + '-' + i
+          }
 
-            let objProperties = objects[obj]
-            let title = objProperties.title
-            let description = objProperties.description
-            let objType = objProperties.type
-            let enumList = objProperties.enum
-            let enumNamesList = objProperties?.enumNames
-            let multi = false
-            if (objType === 'array') {
-              objType = objProperties.items.type
-              enumList = objProperties.items.enum
-              enumNamesList = objProperties.items?.enumNames
-              multi = true
-            }
-            if (enumList) {
-              return (
-                <label key={objIndex}>
-                  {title ? title + ':' : ''}
-                  <select
-                    aria-label={fieldName}
-                    name={fieldName}
-                    id={fieldName}
-                    multiple={multi}
-                  >
-                    {multi ? null : (
-                      <option value="" key="0">
-                        Select
-                      </option>
-                    )}
-                    {enumList.map((enumV, enumI) => (
-                      <option value={enumV} key={enumV}>
-                        {enumNamesList ? enumNamesList[enumI] : enumV}
-                      </option>
-                    ))}
-                  </select>
-                  <br />
-                  <span>{description ? description : ''}</span>
-                  <br />
-                </label>
-              )
-            }
-
+          let objProperties = objects[obj]
+          let title = objProperties.title
+          let description = objProperties.description
+          let objType = objProperties.type
+          let enumList = objProperties.enum
+          let enumNamesList = objProperties?.enumNames
+          let multi = false
+          if (objType === 'array') {
+            objType = objProperties.items.type
+            enumList = objProperties.items.enum
+            enumNamesList = objProperties.items?.enumNames
+            multi = true
+          }
+          if (enumList) {
             return (
-              <label key={objIndex}>
-                {title ? title + ':' : ''}
-                <input
-                  key={objIndex}
-                  type={objType}
+              <div key={objIndex}>
+                <label className="block text-sm font-bold my-2" key={objIndex}>
+                  {title ? title + ':' : ''}
+                </label>
+                <select
+                  className="form-select dark:bg-slate-700"
                   aria-label={fieldName}
                   name={fieldName}
-                  max={max}
-                  maxLength={maxlength}
-                  min={min}
-                  minLength={minlength}
-                  pattern={pattern}
-                  value={value}
-                  onChange={e => handleChange(e, i)}
-                />
+                  id={fieldName}
+                  multiple={multi}
+                >
+                  {multi ? null : (
+                    <option value="" key="0">
+                      Select
+                    </option>
+                  )}
+                  {enumList.map((enumV, enumI) => (
+                    <option value={enumV} key={enumV}>
+                      {enumNamesList ? enumNamesList[enumI] : enumV}
+                    </option>
+                  ))}
+                </select>
                 <br />
-                <span>{description ? description : ''}</span>
-                <br />
-              </label>
+                <span className="text-xs">
+                  {description ? description : ''}
+                </span>
+              </div>
             )
-          })}
-          {inputList.length !== 1 && (
+          }
+
+          return (
+            <div key={objIndex}>
+              <label className="block text-sm font-bold my-2">
+                {title ? title + ':' : ''}
+              </label>
+              <input
+                className="form-input dark:bg-slate-700"
+                key={objIndex}
+                type={objType}
+                aria-label={fieldName}
+                name={fieldName}
+                max={max}
+                maxLength={maxlength}
+                min={min}
+                minLength={minlength}
+                pattern={pattern}
+                value={value}
+                onChange={e => handleChange(e, i)}
+              />
+              <br />
+              <span className="text-xs">{description ? description : ''}</span>
+            </div>
+          )
+        })}
+        {inputList.length !== 1 && (
+          <input
+            className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bk-red-700 text-white font-bold py-2 px-4 my-4"
+            type="button"
+            value="Remove"
+            onClick={() => handleRemoveInput(i)}
+          />
+        )}
+        {inputList.length - 1 === i &&
+          (maxItems === undefined || inputList.length < maxItems) && (
             <input
+              className="bg-green-500 hover:bg-green-700 dark:bg-green-900 dark:hover:bg-green-700 text-white font-bold py-2 px-4 my-4"
               type="button"
-              value="Remove"
-              onClick={() => handleRemoveInput(i)}
+              value="Add"
+              onClick={() => handleAddInput(i)}
             />
           )}
-          {inputList.length - 1 === i &&
-            (maxItems === undefined || inputList.length < maxItems) && (
-              <input
-                type="button"
-                value="Add"
-                onClick={() => handleAddInput(i)}
-              />
-            )}
-        </label>
-        <br />
+        {/* </fieldset> */}
       </span>
     )
   })

@@ -7,15 +7,10 @@ import {
   ScrollRestoration
 } from '@remix-run/react'
 
-import globalStylesUrl from '~/styles/global.css'
+import styles from '~/styles/app.css'
 
-export const links = () => {
-  return [
-    {
-      rel: 'stylesheet',
-      href: globalStylesUrl
-    }
-  ]
+export function links() {
+  return [{ rel: 'stylesheet', href: styles }]
 }
 
 export function meta() {
@@ -27,16 +22,24 @@ export default function App() {
     <html lang="en">
       <head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <Meta />
         <Links />
       </head>
-      <body>
-        <h1>Murmurations Profile Generator (version 2)</h1>
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-        {process.env.NODE_ENV === 'development' && <LiveReload />}
+      <body className="bg-white dark:bg-slate-600 text-black dark:text-white leading-normal">
+        <div className="container mx-auto px-4 py-4">
+          <div className="grid grid-cols-1 mx-auto text-center mb-5">
+            <h1 className="text-3xl font-bold">
+              Murmurations Profile Generator (version 2)
+            </h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-cols-max justify-center w-full">
+            <Outlet />
+            <ScrollRestoration />
+            <Scripts />
+            {process.env.NODE_ENV === 'development' && <LiveReload />}
+          </div>
+        </div>
       </body>
     </html>
   )
@@ -52,12 +55,14 @@ export function ErrorBoundary({ error }) {
         <Links />
       </head>
       <body>
-        <div className="error-boundary">
-          <span className="kaboom">💥😱</span>
-          <br />
-          <h2>{error.message}</h2>
+        <div className="container mx-auto px-4 py-4">
+          <div className="error-boundary grid grid-cols-1 mx-auto text-center mb-5">
+            <span className="kaboom">💥😱</span>
+            <br />
+            <h2>{error.message}</h2>
+          </div>
+          <Scripts />
         </div>
-        <Scripts />
       </body>
     </html>
   )
