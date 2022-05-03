@@ -18,34 +18,29 @@ export default function FormField({
     type = 'text'
   }
   return (
-    <span>
-      {objectTitle ? (
-        <>
-          <br />
-          {objectTitle}
-        </>
-      ) : (
-        ''
-      )}
-      {objectDescription ? ` -- ${objectDescription}` : ''}
-      <label>
-        <span className="key block text-sm font-bold my-2">{title}:</span>
-        <input
-          className="form-input"
-          type={type}
-          aria-label={name}
-          name={name}
-          max={max}
-          maxLength={maxlength}
-          min={min}
-          minLength={minlength}
-          pattern={pattern}
-          step={step}
-        />
-      </label>
-      <br />
-      <span className="block mb-2">{description}</span>
-      <hr />
-    </span>
+    <>
+      <div className="block text-sm my-2">
+        <div className="text-lg my-4">
+          {objectTitle ? objectTitle : ''}
+          {objectDescription ? ` - ${objectDescription}` : ''}
+        </div>
+        <label>
+          <div className="font-bold mt-4">{title}:</div>
+          <input
+            className="form-input dark:bg-slate-700 mt-2"
+            type={type}
+            aria-label={name}
+            name={name}
+            max={max}
+            maxLength={maxlength}
+            min={min}
+            minLength={minlength}
+            pattern={pattern}
+            step={step}
+          />
+        </label>
+      </div>
+      <div className="text-xs">{description}</div>
+    </>
   )
 }

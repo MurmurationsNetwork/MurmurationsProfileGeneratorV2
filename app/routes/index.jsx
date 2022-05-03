@@ -75,15 +75,16 @@ export default function Index() {
       <div>
         <Form className="mb-2" method="post">
           <select
-            className="mb-2 block w-full border-black border-2 py-2 px-4"
+            className="bg-white dark:bg-slate-700 block w-full border-black border-2 py-2 px-4"
             id="schema"
             name="schema"
             multiple={true}
             required={true}
+            size={6}
           >
             {schemas.data.map(schema => (
               <option
-                className="text-xl mb-1 border-b-2 border-blue-50 py-2 px-4"
+                className="text-sm mb-1 border-blue-50 py-0 px-2"
                 value={schema.name}
                 key={schema.name}
               >
@@ -92,7 +93,7 @@ export default function Index() {
             ))}
           </select>
           <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mb-5"
+            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
             type="submit"
             name="_action"
             value="select"
@@ -100,12 +101,11 @@ export default function Index() {
             Select
           </button>
         </Form>
-        <hr />
         {schema ? (
-          <Form className="my-2" method="post">
+          <Form method="post">
             {generateForm(schema)}
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 w-full"
+              className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
               type="submit"
               name="_action"
               value="submit"
@@ -114,18 +114,23 @@ export default function Index() {
             </button>
           </Form>
         ) : (
-          <h2 className="text-xl">Select a schema...</h2>
+          <h2 className="text-xl mt-4">
+            Select one or more schemas from the list above.
+          </h2>
         )}
       </div>
       <div>
         {instance && !errors[0] ? (
-          <pre className="bg-slate-200 py-2 px-4">
+          <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4">
             {JSON.stringify(instance, null, 2)}
           </pre>
         ) : null}
         {errors
           ? errors.map(error => (
-              <p className="error text-xl text-red-500" key={error}>
+              <p
+                className="error text-xl text-red-500 dark:text-red-400"
+                key={error}
+              >
                 {error}
               </p>
             ))

@@ -26,7 +26,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="leading-normal">
+      <body className="bg-white dark:bg-slate-600 text-black dark:text-white leading-normal">
         <div className="container mx-auto px-4 py-4">
           <div className="grid grid-cols-1 mx-auto text-center mb-5">
             <h1 className="text-3xl font-bold">
