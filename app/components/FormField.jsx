@@ -14,6 +14,9 @@ export default function FormField({
   objectDescription,
   step
 }) {
+  if (type === 'string') {
+    type = 'text'
+  }
   return (
     <span>
       {objectTitle ? (

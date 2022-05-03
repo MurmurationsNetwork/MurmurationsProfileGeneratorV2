@@ -60,7 +60,7 @@ export default function generateForm(schema, objName) {
         <FormField
           name={strName}
           description={description}
-          type={type}
+          type="text"
           title={title}
           maxlength={maxLength}
           minlength={minLength}
