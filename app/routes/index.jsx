@@ -20,10 +20,7 @@ export async function action({ request }) {
   if (_action === 'submit') {
     let schema = await parseRef(data.linked_schemas)
     let profile = generateInstance(schema, data)
-    let response = await fetchPost(
-      'https://test-index.murmurations.network/v2/validate',
-      profile
-    )
+    let response = await fetchPost(process.env.VALIDATE_URL, profile)
     if (!response.ok) {
       throw new Response('Profile validation error', {
         status: response.status
@@ -44,9 +41,15 @@ export async function action({ request }) {
 }
 
 export async function loader() {
-  let response = await fetchGet(
-    'https://test-library.murmurations.network/v1/schemas'
-  )
+  const fs = require('fs')
+
+  if (!fs.existsSync('.env')) {
+    throw new Response('Cannot find .env file', {
+      status: 500
+    })
+  }
+
+  let response = await fetchGet(process.env.LIBRARY_URL)
   if (!response.ok) {
     throw new Response('Schema list loading error', {
       status: response.status
