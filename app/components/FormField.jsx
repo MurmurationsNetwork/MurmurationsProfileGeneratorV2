@@ -13,7 +13,8 @@ export default function FormField({
   objectTitle,
   objectDescription,
   step,
-  required
+  requiredForLabel,
+  requiredForInput
 }) {
   if (type === 'string') {
     type = 'text'
@@ -28,7 +29,7 @@ export default function FormField({
         <label>
           <div className="font-bold mt-4">
             {title}
-            {required ? '*' : ''}:
+            {requiredForLabel ? '*' : ''}:
           </div>
           <input
             className="form-input dark:bg-slate-700 mt-2"
@@ -41,7 +42,7 @@ export default function FormField({
             minLength={minlength}
             pattern={pattern}
             step={step}
-            required={required}
+            required={requiredForInput}
           />
         </label>
       </div>

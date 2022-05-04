@@ -7,6 +7,7 @@ import MultipleFormField from '../components/MultipleFormField'
 export default function generateForm(
   schema,
   objName,
+  requiredField = schema.required,
   parentObjRequired = true
 ) {
   if (!schema.properties) return null
@@ -23,6 +24,17 @@ export default function generateForm(
       )
     }
     // Define data for root schema
+    let requiredForLabel = false
+    if (requiredField && requiredField.includes(name)) {
+      requiredForLabel = true
+    }
+
+    let requiredForInput = requiredForLabel
+    // if the parent is not required, set input required to false
+    if (!parentObjRequired) {
+      requiredForInput = false
+    }
+
     let title = schema.properties[name].title
     let description = schema.properties[name].description
     let type = schema.properties[name].type
@@ -33,18 +45,10 @@ export default function generateForm(
     let objectDescription
     if (index === 0) {
       objectTitle = schema.title
+      if (requiredForLabel) {
+        objectTitle += '*'
+      }
       objectDescription = schema.description
-    }
-
-    let required = false
-    if (schema.required.includes(name)) {
-      required = true
-    }
-
-    let requiredForInput = required
-    // if the parent is not required, set input required to false
-    if (!parentObjRequired) {
-      requiredForInput = false
     }
 
     if (type === 'boolean' || type === 'null') return null
@@ -63,7 +67,8 @@ export default function generateForm(
             key={strName}
             objectTitle={objectTitle}
             objectDescription={objectDescription}
-            required={requiredForInput}
+            requiredForLabel={requiredForLabel}
+            requiredForInput={requiredForInput}
           />
         )
       }
@@ -84,7 +89,8 @@ export default function generateForm(
           key={strName}
           objectTitle={objectTitle}
           objectDescription={objectDescription}
-          required={requiredForInput}
+          requiredForLabel={requiredForLabel}
+          requiredForInput={requiredForInput}
         />
       )
     }
@@ -105,7 +111,8 @@ export default function generateForm(
           objectTitle={objectTitle}
           objectDescription={objectDescription}
           step="any"
-          required={requiredForInput}
+          requiredForLabel={requiredForLabel}
+          requiredForInput={requiredForInput}
         />
       )
     }
@@ -123,23 +130,27 @@ export default function generateForm(
             enumNamesList={enumNamesList}
             key={strName}
             multi={true}
-            required={requiredForInput}
+            requiredForLabel={requiredForLabel}
+            requiredForInput={requiredForInput}
           />
         )
       }
 
       let objProperties = {
-        ARRAY_TYPE: schema.properties[name].items.type
+        ARRAY_TYPE: schema.properties[name].items.type,
+        requiredForLabel: requiredForLabel,
+        requiredForInput: requiredForInput
       }
       let maxItems = schema.properties[name].maxItems
       let objTitle = schema.properties[name].items.title
       let objDescription = schema.properties[name].items.description
-      let objRequired = schema.properties[name].items.required
 
       if (schema.properties[name].items?.type === 'object') {
         objProperties = replaceObjNames(
           schema.properties[name].items.properties,
-          {}
+          {},
+          schema.properties[name].items.required,
+          requiredForInput
         )
       }
 
@@ -153,8 +164,7 @@ export default function generateForm(
           objTitle={objTitle}
           objDescription={objDescription}
           maxItems={maxItems}
-          objRequired={objRequired}
-          required={requiredForInput}
+          requiredForLabel={requiredForLabel}
         />
       )
     }
@@ -162,9 +172,19 @@ export default function generateForm(
     if (type === 'object') {
       if (objName) {
         objName += '-' + name
-        return generateForm(schema.properties[name], objName, required)
+        return generateForm(
+          schema.properties[name],
+          objName,
+          schema.properties.required,
+          requiredForInput
+        )
       }
-      return generateForm(schema.properties[name], name, required)
+      return generateForm(
+        schema.properties[name],
+        name,
+        schema.properties.required,
+        requiredForInput
+      )
     }
 
     console.error('Undefined type in generateForm')
@@ -179,7 +199,13 @@ export default function generateForm(
 // obj_a: { obj_b : {xxx}} will be replaced with the following format
 // obj_a: { obj_a-obj_b : {xxx}}
 */
-function replaceObjNames(objProperties, newObjProperties, parentName) {
+function replaceObjNames(
+  objProperties,
+  newObjProperties,
+  required,
+  requiredForInput,
+  parentName
+) {
   if (objProperties === undefined) {
     return newObjProperties
   }
@@ -188,10 +214,25 @@ function replaceObjNames(objProperties, newObjProperties, parentName) {
     let type = objProperties[name].type
     let newObjName = name
     if (parentName) newObjName = parentName + '-' + name
+
+    let isRequired = false
+    if (required && required.includes(name)) {
+      isRequired = true
+    }
+
+    if (!isRequired) {
+      requiredForInput = false
+    }
+
+    objProperties[name]['requiredForLabel'] = isRequired
+    objProperties[name]['requiredForInput'] = requiredForInput
+
     if (type === 'object') {
       newObjProperties = replaceObjNames(
         objProperties[name].properties,
         newObjProperties,
+        objProperties[name].required,
+        requiredForInput,
         newObjName
       )
     } else if (type === 'array') {

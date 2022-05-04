@@ -9,7 +9,8 @@ export default function EnumField({
   title,
   objectTitle,
   objectDescription,
-  required
+  requiredForLabel,
+  requiredForInput
 }) {
   return (
     <>
@@ -21,7 +22,7 @@ export default function EnumField({
         <label>
           <div className="font-bold mt-4">
             {title}
-            {required ? '*' : ''}:
+            {requiredForLabel ? '*' : ''}:
           </div>
           <select
             className="form-select dark:bg-slate-700 mt-2"
@@ -29,7 +30,7 @@ export default function EnumField({
             name={name}
             id={name}
             multiple={multi}
-            required={required}
+            required={requiredForInput}
           >
             {multi ? null : <option value="" key="0"></option>}
             {enumList.map((item, index) => (

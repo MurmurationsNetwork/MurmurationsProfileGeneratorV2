@@ -13,14 +13,13 @@ export default function MultipleFormField({
   objTitle,
   objDescription,
   maxItems,
-  objRequired,
-  required
+  requiredForLabel
 }) {
   return (
     <fieldset className="border-dotted border-4 border-slate-300 p-4 my-4">
       <legend className="block text-md font-bold mt-2">
         {title}
-        {required ? '*' : ''}
+        {requiredForLabel ? '*' : ''}
       </legend>
       <span className="block text-md mb-4">{description}</span>
       <MultipleFormFieldItems
@@ -36,8 +35,7 @@ export default function MultipleFormField({
         objTitle={objTitle}
         objDescription={objDescription}
         maxItems={maxItems}
-        objRequired={objRequired}
-        required={required}
+        requiredForLabel={requiredForLabel}
       />
     </fieldset>
   )
@@ -54,8 +52,7 @@ function MultipleFormFieldItems({
   objTitle,
   objDescription,
   maxItems,
-  objRequired,
-  required
+  requiredForLabel
 }) {
   // Initialize an empty object
   // Format is fieldName-id-objectName
@@ -121,7 +118,7 @@ function MultipleFormFieldItems({
           <>
             <span className="block text-md font-bold mt-2">
               {objTitle}
-              {required ? '*' : ''}:
+              {requiredForLabel ? '*' : ''}:
             </span>
             <span className="block text-md mb-4">{objDescription}</span>
           </>
@@ -148,24 +145,13 @@ function MultipleFormFieldItems({
             multi = true
           }
 
-          let fieldRequired = false
-          if (objRequired && objRequired.includes(obj)) {
-            fieldRequired = true
-          }
-
           let fieldLabel = ''
-          if (title && fieldRequired) {
+          if (title && objProperties.requiredForLabel) {
             fieldLabel = title + '*:'
-          } else if (title && !fieldRequired) {
+          } else if (title && !objProperties.requiredForLabel) {
             fieldLabel = title + ':'
-          } else if (!title && fieldRequired) {
+          } else if (!title && objProperties.requiredForLabel) {
             fieldLabel = '*'
-          }
-
-          // if the whole array/object is not required, don't set required to the input
-          let fieldRequiredForInput = fieldRequired
-          if (!required) {
-            fieldRequiredForInput = false
           }
 
           if (enumList) {
@@ -180,7 +166,7 @@ function MultipleFormFieldItems({
                   name={fieldName}
                   id={fieldName}
                   multiple={multi}
-                  required={fieldRequiredForInput}
+                  required={objProperties.requiredForInput}
                 >
                   {multi ? null : (
                     <option value="" key="0">
@@ -218,7 +204,7 @@ function MultipleFormFieldItems({
                 minLength={minlength}
                 pattern={pattern}
                 value={value}
-                required={fieldRequiredForInput}
+                required={objProperties.requiredForInput}
                 onChange={e => handleChange(e, i)}
               />
               <br />
