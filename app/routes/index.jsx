@@ -142,14 +142,15 @@ export default function Index() {
 
 export function CatchBoundary() {
   const caught = useCatch()
-
+  console.error(caught)
   return (
-    <div className="error-boundary">
-      <span className="kaboom">💥🤬</span>
-      <br />
-      <h2>
-        {caught.status} - {caught.statusText} - {caught.data}
+    <div className="container mx-auto px-4 h-screen flex items-center flex-col">
+      <span className="text-5xl mb-8">💥🤬</span>
+      <h1 className="text-xl font-bold mb-8">An error has occurred</h1>
+      <h2 className="text-lg mb-4">
+        {caught.status} - {caught.statusText}
       </h2>
+      <code className="text-md">{caught.data}</code>
     </div>
   )
 }
