@@ -137,9 +137,7 @@ export default function generateForm(
       }
 
       let objProperties = {
-        ARRAY_TYPE: schema.properties[name].items.type,
-        requiredForLabel: requiredForLabel,
-        requiredForInput: requiredForInput
+        ARRAY_TYPE: schema.properties[name].items.type
       }
       let maxItems = schema.properties[name].maxItems
       let objTitle = schema.properties[name].items.title
@@ -202,7 +200,7 @@ export default function generateForm(
 function replaceObjNames(
   objProperties,
   newObjProperties,
-  required,
+  requiredFields,
   requiredForInput,
   parentName
 ) {
@@ -215,16 +213,22 @@ function replaceObjNames(
     let newObjName = name
     if (parentName) newObjName = parentName + '-' + name
 
-    let isRequired = false
-    if (required && required.includes(name)) {
-      isRequired = true
+    // requiredFields is an array, if it's true, show * in the front-end
+    let requiredForLabel = false
+    if (requiredFields && requiredFields.includes(name)) {
+      requiredForLabel = true
     }
 
-    if (!isRequired) {
+    // requiredForInput inherent from root. There are four situations for requiredForInput.
+    // 1. requiredForInput root is true, current label is false => set current requiredForInput to false.
+    // 2. requiredForInput root is true, current label is true => Don't do anything, requiredForInput is true.
+    // 3. requiredForInput root is false, current label is true => Don't do anything, requiredForInput is false.
+    // 4. requiredForInput root is false, current label is false => Don't do anything, requiredForInput is false.
+    if (!requiredForLabel) {
       requiredForInput = false
     }
 
-    objProperties[name]['requiredForLabel'] = isRequired
+    objProperties[name]['requiredForLabel'] = requiredForLabel
     objProperties[name]['requiredForInput'] = requiredForInput
 
     if (type === 'object') {
