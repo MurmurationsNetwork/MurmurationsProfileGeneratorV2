@@ -47,6 +47,11 @@ export async function loader() {
   let response = await fetchGet(
     'https://test-library.murmurations.network/v1/schemas'
   )
+  if (!response.ok) {
+    throw new Response('Schema list loading error', {
+      status: response.status
+    })
+  }
   return await response.json()
 }
 
