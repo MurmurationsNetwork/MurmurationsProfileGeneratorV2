@@ -20,7 +20,10 @@ export async function action({ request }) {
   if (_action === 'submit') {
     let schema = await parseRef(data.linked_schemas)
     let profile = generateInstance(schema, data)
-    let response = await fetchPost(process.env.VALIDATE_URL, profile)
+    let response = await fetchPost(
+      process.env.PUBLIC_PROFILE_VALIDATION_URL,
+      profile
+    )
     if (!response.ok) {
       throw new Response('Profile validation error', {
         status: response.status
@@ -49,7 +52,7 @@ export async function loader() {
     })
   }
 
-  let response = await fetchGet(process.env.SCHEMA_LIST_URL)
+  let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
   if (!response.ok) {
     throw new Response('Schema list loading error', {
       status: response.status

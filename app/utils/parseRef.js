@@ -59,7 +59,7 @@ export default async function parseRef(schemaName) {
 }
 
 async function retrieveSchema(schemaName) {
-  let url = `${process.env.SCHEMA_URL}/${schemaName}.json`
+  let url = `${process.env.PUBLIC_SCHEMA_CDN_URL}/${schemaName}.json`
   return await refParser.dereference(url).catch(error => {
     throw new Response(`parseRef error: ${error}`, {
       status: 500
