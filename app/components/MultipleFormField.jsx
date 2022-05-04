@@ -12,11 +12,16 @@ export default function MultipleFormField({
   objects,
   objTitle,
   objDescription,
-  maxItems
+  maxItems,
+  objRequired,
+  required
 }) {
   return (
     <fieldset className="border-dotted border-4 border-slate-300 p-4 my-4">
-      <legend className="block text-md font-bold mt-2">{title}</legend>
+      <legend className="block text-md font-bold mt-2">
+        {title}
+        {required ? '*' : ''}
+      </legend>
       <span className="block text-md mb-4">{description}</span>
       <MultipleFormFieldItems
         name={name}
@@ -31,6 +36,8 @@ export default function MultipleFormField({
         objTitle={objTitle}
         objDescription={objDescription}
         maxItems={maxItems}
+        objRequired={objRequired}
+        required={required}
       />
     </fieldset>
   )
@@ -46,7 +53,9 @@ function MultipleFormFieldItems({
   objects,
   objTitle,
   objDescription,
-  maxItems
+  maxItems,
+  objRequired,
+  required
 }) {
   // Initialize an empty object
   // Format is fieldName-id-objectName
@@ -110,7 +119,10 @@ function MultipleFormFieldItems({
           )} */}
         {objTitle !== undefined && (
           <>
-            <span className="block text-md font-bold mt-2">{objTitle}:</span>
+            <span className="block text-md font-bold mt-2">
+              {objTitle}
+              {required ? '*' : ''}:
+            </span>
             <span className="block text-md mb-4">{objDescription}</span>
           </>
         )}
@@ -135,11 +147,32 @@ function MultipleFormFieldItems({
             enumNamesList = objProperties.items?.enumNames
             multi = true
           }
+
+          let fieldRequired = false
+          if (objRequired && objRequired.includes(obj)) {
+            fieldRequired = true
+          }
+
+          let fieldLabel = ''
+          if (title && fieldRequired) {
+            fieldLabel = title + '*:'
+          } else if (title && !fieldRequired) {
+            fieldLabel = title + ':'
+          } else if (!title && fieldRequired) {
+            fieldLabel = '*'
+          }
+
+          // if the whole array/object is not required, don't set required to the input
+          let fieldRequiredForInput = fieldRequired
+          if (!required) {
+            fieldRequiredForInput = false
+          }
+
           if (enumList) {
             return (
               <div key={objIndex}>
                 <label className="block text-sm font-bold my-2" key={objIndex}>
-                  {title ? title + ':' : ''}
+                  {fieldLabel}
                 </label>
                 <select
                   className="form-select dark:bg-slate-700"
@@ -147,6 +180,7 @@ function MultipleFormFieldItems({
                   name={fieldName}
                   id={fieldName}
                   multiple={multi}
+                  required={fieldRequiredForInput}
                 >
                   {multi ? null : (
                     <option value="" key="0">
@@ -170,7 +204,7 @@ function MultipleFormFieldItems({
           return (
             <div key={objIndex}>
               <label className="block text-sm font-bold my-2">
-                {title ? title + ':' : ''}
+                {fieldLabel}
               </label>
               <input
                 className="form-input dark:bg-slate-700"
@@ -184,6 +218,7 @@ function MultipleFormFieldItems({
                 minLength={minlength}
                 pattern={pattern}
                 value={value}
+                required={fieldRequiredForInput}
                 onChange={e => handleChange(e, i)}
               />
               <br />

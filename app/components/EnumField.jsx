@@ -8,7 +8,8 @@ export default function EnumField({
   name,
   title,
   objectTitle,
-  objectDescription
+  objectDescription,
+  required
 }) {
   return (
     <>
@@ -18,13 +19,17 @@ export default function EnumField({
           {objectDescription ? ` - ${objectDescription}` : ''}
         </div>
         <label>
-          <div className="font-bold mt-4">{title}:</div>
+          <div className="font-bold mt-4">
+            {title}
+            {required ? '*' : ''}:
+          </div>
           <select
             className="form-select dark:bg-slate-700 mt-2"
             aria-label={name}
             name={name}
             id={name}
             multiple={multi}
+            required={required}
           >
             {multi ? null : <option value="" key="0"></option>}
             {enumList.map((item, index) => (

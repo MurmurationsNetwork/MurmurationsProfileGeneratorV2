@@ -32,6 +32,11 @@ export default function generateForm(schema, objName) {
       objectDescription = schema.description
     }
 
+    let required = false
+    if (schema.required.includes(name)) {
+      required = true
+    }
+
     if (type === 'boolean' || type === 'null') return null
 
     if (type === 'string') {
@@ -48,6 +53,7 @@ export default function generateForm(schema, objName) {
             key={strName}
             objectTitle={objectTitle}
             objectDescription={objectDescription}
+            required={required}
           />
         )
       }
@@ -68,6 +74,7 @@ export default function generateForm(schema, objName) {
           key={strName}
           objectTitle={objectTitle}
           objectDescription={objectDescription}
+          required={required}
         />
       )
     }
@@ -88,6 +95,7 @@ export default function generateForm(schema, objName) {
           objectTitle={objectTitle}
           objectDescription={objectDescription}
           step="any"
+          required={required}
         />
       )
     }
@@ -105,6 +113,7 @@ export default function generateForm(schema, objName) {
             enumNamesList={enumNamesList}
             key={strName}
             multi={true}
+            required={required}
           />
         )
       }
@@ -115,6 +124,7 @@ export default function generateForm(schema, objName) {
       let maxItems = schema.properties[name].maxItems
       let objTitle = schema.properties[name].items.title
       let objDescription = schema.properties[name].items.description
+      let objRequired = schema.properties[name].items.required
 
       if (schema.properties[name].items?.type === 'object') {
         objProperties = replaceObjNames(
@@ -133,6 +143,8 @@ export default function generateForm(schema, objName) {
           objTitle={objTitle}
           objDescription={objDescription}
           maxItems={maxItems}
+          objRequired={objRequired}
+          required={required}
         />
       )
     }
