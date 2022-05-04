@@ -76,8 +76,13 @@ export default function Index() {
     }
   }, [data])
   return (
-    <>
-      <div>
+    <div className="relative">
+      <div className="w-full md:w-6/12 ml-auto py-2 md:py-8">
+        {schema ? null : (
+          <h2 className="text-md md:text-xl mb-2 md:mb-8">
+            Select one or more schemas from the list:
+          </h2>
+        )}
         <Form className="mb-2" method="post">
           <select
             className="bg-white dark:bg-slate-700 block w-full border-black border-2 py-2 px-4"
@@ -118,30 +123,45 @@ export default function Index() {
               Submit
             </button>
           </Form>
-        ) : (
-          <h2 className="text-xl mt-4">
-            Select one or more schemas from the list above.
-          </h2>
-        )}
-      </div>
-      <div>
-        {instance && !errors[0] ? (
-          <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4">
-            {JSON.stringify(instance, null, 2)}
-          </pre>
         ) : null}
-        {errors
-          ? errors.map(error => (
-              <p
-                className="error text-xl text-red-500 dark:text-red-400"
-                key={error}
-              >
-                {error}
-              </p>
-            ))
-          : null}
       </div>
-    </>
+      <div className="relative md:fixed w-full md:w-6/12 inset-0 py-2 md:py-8">
+        <div className="md:absolute top-0 left-0 py-4 md:py-12 md:px-4">
+          <h1 className="hidden md:contents text-3xl">
+            Murmurations Profile Generator
+          </h1>
+          <div className="md:mt-8">
+            {instance && !errors[0] ? (
+              <>
+                <p className="text-xl mb-2 md:mb-4">
+                  Your profile has been generated:
+                </p>
+                <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4">
+                  {JSON.stringify(instance, null, 2)}
+                </pre>
+              </>
+            ) : null}
+            {errors[0] ? (
+              <>
+                <p className="text-xl text-red-500 dark:text-red-400">
+                  There were errors in your submission:
+                </p>
+                <ul className="list-disc px-4">
+                  {errors.map(error => (
+                    <li
+                      className="text-lg text-red-500 dark:text-red-400"
+                      key={error}
+                    >
+                      {error}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 
