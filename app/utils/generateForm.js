@@ -24,17 +24,6 @@ export default function generateForm(
       )
     }
     // Define data for root schema
-    let requiredForLabel = false
-    if (requiredField && requiredField.includes(name)) {
-      requiredForLabel = true
-    }
-
-    let requiredForInput = requiredForLabel
-    // if the parent is not required, set input required to false
-    if (!parentObjRequired) {
-      requiredForInput = false
-    }
-
     let title = schema.properties[name].title
     let description = schema.properties[name].description
     let type = schema.properties[name].type
@@ -45,10 +34,21 @@ export default function generateForm(
     let objectDescription
     if (index === 0) {
       objectTitle = schema.title
-      if (requiredForLabel) {
+      if (parentObjRequired) {
         objectTitle += '*'
       }
       objectDescription = schema.description
+    }
+
+    let requiredForLabel = false
+    if (requiredField && requiredField.includes(name)) {
+      requiredForLabel = true
+    }
+
+    let requiredForInput = requiredForLabel
+    // if the parent is not required, set input required to false
+    if (!parentObjRequired) {
+      requiredForInput = false
     }
 
     if (type === 'boolean' || type === 'null') return null
