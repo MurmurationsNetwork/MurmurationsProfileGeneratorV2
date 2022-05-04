@@ -7,6 +7,7 @@ _This project is licensed under the terms of the GNU General Public License v3.0
 ```sh
 npm install
 npm run prepare
+# Don't forget to set your environment variables in the .env file!
 npm run dev
 ```
 
