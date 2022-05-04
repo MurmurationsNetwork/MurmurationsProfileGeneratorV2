@@ -21,7 +21,7 @@ export async function action({ request }) {
     let schema = await parseRef(data.linked_schemas)
     let profile = generateInstance(schema, data)
     let response = await fetchPost(
-      'https://test-index.murmurations.network/v2/validate',
+      process.env.PUBLIC_PROFILE_VALIDATION_URL,
       profile
     )
     if (!response.ok) {
@@ -44,9 +44,7 @@ export async function action({ request }) {
 }
 
 export async function loader() {
-  let response = await fetchGet(
-    'https://test-library.murmurations.network/v1/schemas'
-  )
+  let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
   if (!response.ok) {
     throw new Response('Schema list loading error', {
       status: response.status
