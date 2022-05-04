@@ -4,7 +4,11 @@ import EnumField from '../components/EnumField'
 import FormField from '../components/FormField'
 import MultipleFormField from '../components/MultipleFormField'
 
-export default function generateForm(schema, objName) {
+export default function generateForm(
+  schema,
+  objName,
+  parentObjRequired = true
+) {
   if (!schema.properties) return null
   // eslint-disable-next-line array-callback-return
   return Object.keys(schema.properties).map((name, index) => {
@@ -37,6 +41,12 @@ export default function generateForm(schema, objName) {
       required = true
     }
 
+    let requiredForInput = required
+    // if the parent is not required, set input required to false
+    if (!parentObjRequired) {
+      requiredForInput = false
+    }
+
     if (type === 'boolean' || type === 'null') return null
 
     if (type === 'string') {
@@ -53,7 +63,7 @@ export default function generateForm(schema, objName) {
             key={strName}
             objectTitle={objectTitle}
             objectDescription={objectDescription}
-            required={required}
+            required={requiredForInput}
           />
         )
       }
@@ -74,7 +84,7 @@ export default function generateForm(schema, objName) {
           key={strName}
           objectTitle={objectTitle}
           objectDescription={objectDescription}
-          required={required}
+          required={requiredForInput}
         />
       )
     }
@@ -95,7 +105,7 @@ export default function generateForm(schema, objName) {
           objectTitle={objectTitle}
           objectDescription={objectDescription}
           step="any"
-          required={required}
+          required={requiredForInput}
         />
       )
     }
@@ -113,7 +123,7 @@ export default function generateForm(schema, objName) {
             enumNamesList={enumNamesList}
             key={strName}
             multi={true}
-            required={required}
+            required={requiredForInput}
           />
         )
       }
@@ -144,7 +154,7 @@ export default function generateForm(schema, objName) {
           objDescription={objDescription}
           maxItems={maxItems}
           objRequired={objRequired}
-          required={required}
+          required={requiredForInput}
         />
       )
     }
@@ -152,9 +162,9 @@ export default function generateForm(schema, objName) {
     if (type === 'object') {
       if (objName) {
         objName += '-' + name
-        return generateForm(schema.properties[name], objName)
+        return generateForm(schema.properties[name], objName, required)
       }
-      return generateForm(schema.properties[name], name)
+      return generateForm(schema.properties[name], name, required)
     }
 
     console.error('Undefined type in generateForm')
