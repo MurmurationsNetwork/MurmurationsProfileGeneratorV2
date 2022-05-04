@@ -49,7 +49,7 @@ export async function loader() {
     })
   }
 
-  let response = await fetchGet(process.env.LIBRARY_URL)
+  let response = await fetchGet(process.env.SCHEMA_LIST_URL)
   if (!response.ok) {
     throw new Response('Schema list loading error', {
       status: response.status
