@@ -44,14 +44,6 @@ export async function action({ request }) {
 }
 
 export async function loader() {
-  const fs = require('fs')
-
-  if (!fs.existsSync('.env')) {
-    throw new Response('Cannot find .env file', {
-      status: 500
-    })
-  }
-
   let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
   if (!response.ok) {
     throw new Response('Schema list loading error', {
