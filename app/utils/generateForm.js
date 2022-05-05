@@ -31,11 +31,12 @@ export default function generateForm(
     if (objName) strName = objName + '-' + name
 
     let objectTitle
+    let objectTitleRequired
     let objectDescription
     if (index === 0) {
       objectTitle = schema.title
       if (parentObjRequired) {
-        objectTitle += '*'
+        objectTitleRequired = true
       }
       objectDescription = schema.description
     }
@@ -66,6 +67,7 @@ export default function generateForm(
             enumNamesList={enumNamesList}
             key={strName}
             objectTitle={objectTitle}
+            objectTitleRequired={objectTitleRequired}
             objectDescription={objectDescription}
             requiredForLabel={requiredForLabel}
             requiredForInput={requiredForInput}
@@ -88,6 +90,7 @@ export default function generateForm(
           pattern={pattern}
           key={strName}
           objectTitle={objectTitle}
+          objectTitleRequired={objectTitleRequired}
           objectDescription={objectDescription}
           requiredForLabel={requiredForLabel}
           requiredForInput={requiredForInput}
@@ -109,6 +112,7 @@ export default function generateForm(
           min={min}
           key={strName}
           objectTitle={objectTitle}
+          objectTitleRequired={objectTitleRequired}
           objectDescription={objectDescription}
           step="any"
           requiredForLabel={requiredForLabel}

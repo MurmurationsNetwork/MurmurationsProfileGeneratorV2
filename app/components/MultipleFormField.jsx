@@ -19,7 +19,11 @@ export default function MultipleFormField({
     <fieldset className="border-dotted border-4 border-slate-300 p-4 my-4">
       <legend className="block text-md font-bold mt-2">
         {title}
-        {requiredForLabel ? '*' : ''}
+        {requiredForLabel ? (
+          <span className="text-red-500 dark:text-red-400">&nbsp;*</span>
+        ) : (
+          ''
+        )}
       </legend>
       <span className="block text-md mb-4">{description}</span>
       <MultipleFormFieldItems
@@ -118,7 +122,11 @@ function MultipleFormFieldItems({
           <>
             <span className="block text-md font-bold mt-2">
               {objTitle}
-              {requiredForLabel ? '*' : ''}:
+              {requiredForLabel ? (
+                <span className="text-red-500 dark:text-red-400">&nbsp;*</span>
+              ) : (
+                ''
+              )}
             </span>
             <span className="block text-md mb-4">{objDescription}</span>
           </>
@@ -145,20 +153,19 @@ function MultipleFormFieldItems({
             multi = true
           }
 
-          let fieldLabel = ''
-          if (title && objProperties.requiredForLabel) {
-            fieldLabel = title + '*:'
-          } else if (title && !objProperties.requiredForLabel) {
-            fieldLabel = title + ':'
-          } else if (!title && objProperties.requiredForLabel) {
-            fieldLabel = '*'
+          let fieldRequired
+          if (objProperties.requiredForLabel) {
+            fieldRequired = true
           }
 
           if (enumList) {
             return (
               <div key={objIndex}>
                 <label className="block text-sm font-bold my-2" key={objIndex}>
-                  {fieldLabel}
+                  {title}:{' '}
+                  {fieldRequired && (
+                    <span className="text-red-500 dark:text-red-400">*</span>
+                  )}
                 </label>
                 <select
                   className="form-select dark:bg-slate-700"
@@ -190,7 +197,10 @@ function MultipleFormFieldItems({
           return (
             <div key={objIndex}>
               <label className="block text-sm font-bold my-2">
-                {fieldLabel}
+                {title}:{' '}
+                {fieldRequired && (
+                  <span className="text-red-500 dark:text-red-400">*</span>
+                )}
               </label>
               <input
                 className="form-input dark:bg-slate-700"

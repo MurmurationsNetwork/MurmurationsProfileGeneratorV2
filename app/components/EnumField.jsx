@@ -8,6 +8,7 @@ export default function EnumField({
   name,
   title,
   objectTitle,
+  objectTitleRequired,
   objectDescription,
   requiredForLabel,
   requiredForInput
@@ -16,13 +17,32 @@ export default function EnumField({
     <>
       <div className="block text-sm my-2">
         <div className="text-lg my-4">
-          {objectTitle ? objectTitle : ''}
-          {objectDescription ? ` - ${objectDescription}` : ''}
+          {objectTitle ? (
+            objectTitleRequired ? (
+              <span>
+                {objectTitle}{' '}
+                <span className="text-red-500 dark:text-red-400">*</span>
+              </span>
+            ) : (
+              objectTitle
+            )
+          ) : (
+            ''
+          )}
+          {objectDescription ? (
+            <div className="text-sm">{objectDescription}</div>
+          ) : (
+            ''
+          )}
         </div>
         <label>
           <div className="font-bold mt-4">
-            {title}
-            {requiredForLabel ? '*' : ''}:
+            {title}:{' '}
+            {requiredForLabel ? (
+              <span className="text-red-500 dark:text-red-400">*</span>
+            ) : (
+              ''
+            )}
           </div>
           <select
             className="form-select dark:bg-slate-700 mt-2"
