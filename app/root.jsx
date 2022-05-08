@@ -27,7 +27,7 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-white dark:bg-slate-600 text-black dark:text-white leading-normal">
-        <div className="container mx-auto px-2 py-2 md:px-4 md:py-4">
+        <div className="container max-w-full mx-auto px-2 py-2 md:px-4 md:py-4">
           <Outlet />
           <ScrollRestoration />
           <Scripts />
