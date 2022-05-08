@@ -30,14 +30,8 @@ export default function generateForm(
     let strName = name
     if (objName) strName = objName + '-' + name
 
-    let objectTitle
-    let objectTitleRequired
     let objectDescription
     if (index === 0) {
-      objectTitle = schema.title
-      if (parentObjRequired) {
-        objectTitleRequired = true
-      }
       objectDescription = schema.description
     }
 
@@ -66,8 +60,6 @@ export default function generateForm(
             enumList={enumList}
             enumNamesList={enumNamesList}
             key={strName}
-            objectTitle={objectTitle}
-            objectTitleRequired={objectTitleRequired}
             objectDescription={objectDescription}
             requiredForLabel={requiredForLabel}
             requiredForInput={requiredForInput}
@@ -89,8 +81,6 @@ export default function generateForm(
           minlength={minLength}
           pattern={pattern}
           key={strName}
-          objectTitle={objectTitle}
-          objectTitleRequired={objectTitleRequired}
           objectDescription={objectDescription}
           requiredForLabel={requiredForLabel}
           requiredForInput={requiredForInput}
@@ -111,8 +101,6 @@ export default function generateForm(
           max={max}
           min={min}
           key={strName}
-          objectTitle={objectTitle}
-          objectTitleRequired={objectTitleRequired}
           objectDescription={objectDescription}
           step="any"
           requiredForLabel={requiredForLabel}
@@ -174,18 +162,48 @@ export default function generateForm(
     if (type === 'object') {
       if (objName) {
         objName += '-' + name
-        return generateForm(
-          schema.properties[name],
-          objName,
-          schema.properties.required,
-          requiredForInput
+        return (
+          <fieldset
+            key={index}
+            className="border-dotted border-4 border-slate-300 p-4 my-4"
+          >
+            <legend className="block text-md font-bold mt-2">
+              {schema.properties[name].title}
+              {requiredForLabel ? (
+                <span className="text-red-500 dark:text-red-400">*</span>
+              ) : (
+                ''
+              )}
+            </legend>
+            {generateForm(
+              schema.properties[name],
+              objName,
+              schema.properties.required,
+              requiredForInput
+            )}
+          </fieldset>
         )
       }
-      return generateForm(
-        schema.properties[name],
-        name,
-        schema.properties.required,
-        requiredForInput
+      return (
+        <fieldset
+          key={index}
+          className="border-dotted border-4 border-slate-300 p-4 my-4"
+        >
+          <legend className="block text-md font-bold mt-2">
+            {schema.properties[name].title}
+            {requiredForLabel ? (
+              <span className="text-red-500 dark:text-red-400">*</span>
+            ) : (
+              ''
+            )}
+          </legend>
+          {generateForm(
+            schema.properties[name],
+            name,
+            schema.properties.required,
+            requiredForInput
+          )}
+        </fieldset>
       )
     }
 

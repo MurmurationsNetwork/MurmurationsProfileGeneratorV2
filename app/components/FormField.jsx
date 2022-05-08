@@ -10,8 +10,6 @@ export default function FormField({
   pattern,
   title,
   type,
-  objectTitle,
-  objectTitleRequired,
   objectDescription,
   step,
   requiredForLabel,
@@ -23,19 +21,7 @@ export default function FormField({
   return (
     <>
       <div className="block text-sm my-2">
-        <div className="text-lg my-4">
-          {objectTitle ? (
-            objectTitleRequired ? (
-              <span>
-                {objectTitle}{' '}
-                <span className="text-red-500 dark:text-red-400">*</span>
-              </span>
-            ) : (
-              objectTitle
-            )
-          ) : (
-            ''
-          )}
+        <div className="text-lg mb-4">
           {objectDescription ? (
             <div className="text-sm">{objectDescription}</div>
           ) : (
