@@ -75,7 +75,7 @@ export default function Index() {
   }, [data])
   return (
     <div className="flex flex-col md:flex-row box-border">
-      <div className="basis-full md:basis-1/2 mx-2 py-2 md:py-8 order-last">
+      <div className="basis-full md:basis-1/2 mx-2 py-2 md:py-8 md:order-last">
         {schema ? null : (
           <h2 className="text-md md:text-xl mb-2 md:mb-8">
             Select one or more schemas from the list:
@@ -123,7 +123,7 @@ export default function Index() {
           </Form>
         ) : null}
       </div>
-      <div className="basis-full md:basis-1/2 inset-0 py-2 md:py-8 overflow-y-scroll h-screen sticky top-0">
+      <div className="basis-full md:basis-1/2 inset-0 py-2 md:py-8 md:overflow-y-scroll md:h-screen md:sticky md:top-0">
         <div className="px-4">
           <h1 className="hidden md:contents text-3xl">
             Murmurations Profile Generator
