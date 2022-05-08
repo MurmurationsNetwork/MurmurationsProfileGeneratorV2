@@ -45,7 +45,7 @@ export default function EnumField({
             )}
           </div>
           <select
-            className="form-select dark:bg-slate-700 mt-2"
+            className="form-select w-full dark:bg-slate-700 mt-2 text-ellipsis"
             aria-label={name}
             name={name}
             id={name}

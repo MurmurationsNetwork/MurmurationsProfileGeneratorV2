@@ -74,8 +74,8 @@ export default function Index() {
     }
   }, [data])
   return (
-    <div className="relative">
-      <div className="w-full md:w-6/12 ml-auto py-2 md:py-8">
+    <div className="flex flex-col md:flex-row box-border">
+      <div className="basis-full md:basis-1/2 mx-2 py-2 md:py-8 order-last">
         {schema ? null : (
           <h2 className="text-md md:text-xl mb-2 md:mb-8">
             Select one or more schemas from the list:
@@ -123,8 +123,8 @@ export default function Index() {
           </Form>
         ) : null}
       </div>
-      <div className="relative md:fixed w-full md:w-6/12 inset-0 py-2 md:py-8">
-        <div className="md:absolute top-0 left-0 py-4 md:py-12 md:px-4">
+      <div className="basis-full md:basis-1/2 inset-0 py-2 md:py-8 overflow-y-scroll h-screen sticky top-0">
+        <div className="px-4">
           <h1 className="hidden md:contents text-3xl">
             Murmurations Profile Generator
           </h1>
@@ -134,7 +134,7 @@ export default function Index() {
                 <p className="text-xl mb-2 md:mb-4">
                   Your profile has been generated:
                 </p>
-                <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4">
+                <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4 overflow-x-auto">
                   {JSON.stringify(instance, null, 2)}
                 </pre>
               </>

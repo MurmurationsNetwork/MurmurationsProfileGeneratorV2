@@ -168,7 +168,7 @@ function MultipleFormFieldItems({
                   )}
                 </label>
                 <select
-                  className="form-select dark:bg-slate-700"
+                  className="form-select w-full dark:bg-slate-700 text-ellipsis"
                   aria-label={fieldName}
                   name={fieldName}
                   id={fieldName}
@@ -203,7 +203,7 @@ function MultipleFormFieldItems({
                 )}
               </label>
               <input
-                className="form-input dark:bg-slate-700"
+                className="form-input w-full dark:bg-slate-700"
                 key={objIndex}
                 type={objType}
                 aria-label={fieldName}

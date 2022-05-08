@@ -52,7 +52,7 @@ export default function FormField({
             )}
           </div>
           <input
-            className="form-input dark:bg-slate-700 mt-2"
+            className="form-input w-full dark:bg-slate-700 mt-2"
             type={type}
             aria-label={name}
             name={name}
