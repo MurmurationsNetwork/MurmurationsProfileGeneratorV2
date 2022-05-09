@@ -1,4 +1,10 @@
-import { Form, useActionData, useCatch, useLoaderData } from '@remix-run/react'
+import {
+  Form,
+  Link,
+  useActionData,
+  useCatch,
+  useLoaderData
+} from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { json } from '@remix-run/node'
 
@@ -128,6 +134,9 @@ export default function Index() {
           <h1 className="hidden md:contents text-3xl">
             Murmurations Profile Generator
           </h1>
+          <div>
+            <Link to="/login">Login</Link>
+          </div>
           <div className="md:mt-8">
             {instance && !errors[0] ? (
               <>
