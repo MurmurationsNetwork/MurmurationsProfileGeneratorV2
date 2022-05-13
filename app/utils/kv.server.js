@@ -10,8 +10,8 @@ const headers = {
   'X-Auth-Key': process.env.PRIVATE_CLOUDFLARE_API_KEY
 }
 
-export async function kvGetUser(email) {
-  const formattedUrl = url + '/values/' + email
+export async function kvGetUser(hashedEmail) {
+  const formattedUrl = url + '/values/' + hashedEmail
   const res = await fetch(formattedUrl, {
     headers: headers
   }).catch(error => {
@@ -22,8 +22,8 @@ export async function kvGetUser(email) {
   return res.json()
 }
 
-export async function kvSaveUser(email, password) {
-  const formattedUrl = url + '/values/' + email
+export async function kvSaveUser(hashedEmail, password) {
+  const formattedUrl = url + '/values/' + hashedEmail
   let data = {
     profiles: {},
     last_login: Date.now(),
@@ -41,9 +41,9 @@ export async function kvSaveUser(email, password) {
   return res.json()
 }
 
-export async function kvUpdateUserLogin(email) {
-  let data = await kvGetUser(email)
-  const formattedUrl = url + '/values/' + email
+export async function kvUpdateUserLogin(hashedEmail) {
+  let data = await kvGetUser(hashedEmail)
+  const formattedUrl = url + '/values/' + hashedEmail
   data.last_login = Date.now()
 
   const res = await fetch(formattedUrl, {
@@ -58,8 +58,8 @@ export async function kvUpdateUserLogin(email) {
   return res.json()
 }
 
-export async function kvReadUser(email, password) {
-  const formattedUrl = url + '/metadata/' + email
+export async function kvReadUser(hashedEmail) {
+  const formattedUrl = url + '/metadata/' + hashedEmail
   const res = await fetch(formattedUrl, {
     headers: headers
   }).catch(error => {

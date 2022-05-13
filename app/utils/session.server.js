@@ -94,7 +94,7 @@ export async function checkUser(email) {
 
 export async function logout(request) {
   const session = await getUserSession(request)
-  return redirect('/login', {
+  return redirect('/', {
     headers: {
       'Set-Cookie': await storage.destroySession(session)
     }

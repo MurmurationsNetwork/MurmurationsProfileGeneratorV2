@@ -60,7 +60,7 @@ export const action = async ({ request }) => {
       if (!user) {
         return badRequest({
           fields,
-          formError: `Username/Password combination is incorrect`
+          formError: `Email/password combination is incorrect.`
         })
       }
       return createUserSession(user.userEmail, redirectTo)
@@ -70,7 +70,7 @@ export const action = async ({ request }) => {
       if (userExists) {
         return badRequest({
           fields,
-          formError: `User with email ${email} already exists`
+          formError: `User with email ${email} already exists.`
         })
       }
       const user = await register(email, password)
