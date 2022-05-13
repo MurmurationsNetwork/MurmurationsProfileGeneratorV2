@@ -96,7 +96,7 @@ export default function Login() {
   const [searchParams] = useSearchParams()
   return (
     <div className="flex flex-col h-screen justify-center items-center">
-      <div className="top-0 mx-auto w-96 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+      <div className="top-0 mx-auto w-96 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col dark:text-black">
         <h1 className="text-3xl text-center">Login</h1>
         <form method="post">
           <input
