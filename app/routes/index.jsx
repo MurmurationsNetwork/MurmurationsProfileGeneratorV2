@@ -1,4 +1,10 @@
-import { Form, useActionData, useCatch, useLoaderData } from '@remix-run/react'
+import {
+  Form,
+  Link,
+  useActionData,
+  useCatch,
+  useLoaderData
+} from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { json } from '@remix-run/node'
 
@@ -7,6 +13,7 @@ import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
 import fetchGet from '~/utils/fetchGet'
+import { getUser } from '~/utils/session.server'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -43,18 +50,22 @@ export async function action({ request }) {
   }
 }
 
-export async function loader() {
+export async function loader(request) {
   let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
   if (!response.ok) {
     throw new Response('Schema list loading error', {
       status: response.status
     })
   }
-  return await response.json()
+  const schema = await response.json()
+  const user = await getUser(request)
+  return json({ schema: schema, user: user })
 }
 
 export default function Index() {
-  let schemas = useLoaderData()
+  let loaderData = useLoaderData()
+  let schemas = loaderData.schema
+  let user = loaderData.user
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [instance, setInstance] = useState('')
@@ -128,6 +139,20 @@ export default function Index() {
           <h1 className="hidden md:contents text-3xl">
             Murmurations Profile Generator
           </h1>
+          {user ? (
+            <div className="user-info">
+              <span>{`Your last_login time: ${user.last_login}`}</span>
+              <form action="/logout" method="post">
+                <button type="submit" className="button">
+                  Logout
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div>
+              <Link to="/login">Login</Link>
+            </div>
+          )}
           <div className="md:mt-8">
             {instance && !errors[0] ? (
               <>
