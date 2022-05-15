@@ -1,5 +1,29 @@
-import { kvDelete, kvDeleteUserProfile, kvRead } from '~/utils/kv.server'
 import crypto from 'crypto'
+import { kvDelete, kvRead, kvSave } from '~/utils/kv.server'
+import { addUserProfile, deleteUserProfile } from '~/utils/user.server'
+
+export async function saveProfile(userEmail, profileData) {
+  const hashedEmail = crypto
+    .createHash('sha256')
+    .update(userEmail)
+    .digest('hex')
+  const profileHash = crypto
+    .createHash('sha256')
+    .update(profileData)
+    .digest('hex')
+  let res = await kvSave(profileHash, profileData)
+  if (!res.success) {
+    throw new Response('saveProfile failed:' + JSON.stringify(res), {
+      status: 500
+    })
+  }
+  res = await addUserProfile(hashedEmail, profileHash)
+  if (!res.success) {
+    throw new Response('saveProfile failed:' + JSON.stringify(res), {
+      status: 500
+    })
+  }
+}
 
 export async function deleteProfile(userEmail, profileHash) {
   const hashedEmail = crypto
@@ -12,7 +36,7 @@ export async function deleteProfile(userEmail, profileHash) {
       status: 404
     })
   }
-  let res = await kvDeleteUserProfile(hashedEmail, profileHash)
+  let res = await deleteUserProfile(hashedEmail, profileHash)
   if (!res.success) {
     throw new Response('kvDeleteUserProfile failed:' + JSON.stringify(res), {
       status: 500

@@ -13,8 +13,8 @@ import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
 import fetchGet from '~/utils/fetchGet'
-import { getUser, requireUserEmail } from '~/utils/session.server'
-import { deleteProfile } from '~/utils/profile.server'
+import { requireUserEmail, retrieveUser } from '~/utils/session.server'
+import { deleteProfile, saveProfile } from '~/utils/profile.server'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -49,6 +49,12 @@ export async function action({ request }) {
   if (_action === 'select') {
     return await parseRef(data.schema)
   }
+  if (_action === 'save') {
+    const userEmail = await requireUserEmail(request)
+    const profileData = formData.get('instance')
+    await saveProfile(userEmail, profileData)
+    return redirect('/')
+  }
   if (_action === 'delete') {
     const userEmail = await requireUserEmail(request)
     const profileHash = formData.get('profile_hash')
@@ -65,7 +71,7 @@ export async function loader(request) {
     })
   }
   const schema = await response.json()
-  const user = await getUser(request)
+  const user = await retrieveUser(request)
   return json({ schema: schema, user: user })
 }
 
@@ -169,14 +175,21 @@ export default function Index() {
                 <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4 overflow-x-auto">
                   {JSON.stringify(instance, null, 2)}
                 </pre>
-                <button
-                  className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
-                  type="submit"
-                  name="_action"
-                  value="save"
-                >
-                  Save Profile
-                </button>
+                <form method="post">
+                  <input
+                    type="hidden"
+                    name="instance"
+                    value={JSON.stringify(instance)}
+                  />
+                  <button
+                    className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+                    type="submit"
+                    name="_action"
+                    value="save"
+                  >
+                    Save Profile
+                  </button>
+                </form>
               </>
             ) : null}
             {errors[0] ? (
@@ -216,7 +229,6 @@ export default function Index() {
                           Update Profile
                         </button>
                         <form method="post">
-                          <input type="hidden" name="_method" value="delete" />
                           <input
                             type="hidden"
                             name="profile_hash"

@@ -1,29 +1,29 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
-import {
-  kvGetUser,
-  kvRead,
-  kvSaveUser,
-  kvUpdateUserLogin
-} from '~/utils/kv.server'
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
+import {
+  getUser,
+  readUser,
+  saveUser,
+  updateUserLogin
+} from '~/utils/user.server'
 
 export async function register(email, password) {
   const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
   const passwordHash = await bcrypt.hash(password, 10)
-  const res = await kvSaveUser(hashedEmail, passwordHash)
+  const res = await saveUser(hashedEmail, passwordHash)
   if (res.success !== true) return null
   return { userEmail: email }
 }
 
 export async function login(email, password) {
   const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
-  const user = await kvGetUser(hashedEmail)
+  const user = await getUser(hashedEmail)
   if (user.password === undefined) return null
   const isCorrectPassword = await bcrypt.compare(password, user.password)
   if (!isCorrectPassword) return null
   // save login time
-  const res = await kvUpdateUserLogin(hashedEmail)
+  const res = await updateUserLogin(hashedEmail)
   if (res.success !== true) return null
   return { userEmail: email }
 }
@@ -69,7 +69,7 @@ export async function requireUserEmail(request, redirectTo) {
   return userEmail
 }
 
-export async function getUser(request) {
+export async function retrieveUser(request) {
   const userEmail = await getUserEmail(request)
   if (typeof userEmail !== 'string') {
     return null
@@ -80,7 +80,7 @@ export async function getUser(request) {
       .createHash('sha256')
       .update(userEmail)
       .digest('hex')
-    return await kvGetUser(hashedEmail)
+    return await getUser(hashedEmail)
   } catch {
     throw await logout(request)
   }
@@ -88,7 +88,7 @@ export async function getUser(request) {
 
 export async function checkUser(email) {
   const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
-  let res = await kvRead(hashedEmail)
+  let res = await readUser(hashedEmail)
   return res.success
 }
 
