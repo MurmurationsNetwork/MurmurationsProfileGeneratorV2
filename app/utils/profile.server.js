@@ -32,13 +32,13 @@ export async function deleteProfile(userEmail, profileHash) {
   }
   let res = await deleteUserProfile(emailHash, profileHash)
   if (!res.success) {
-    throw new Response('kvDeleteUserProfile failed:' + JSON.stringify(res), {
+    throw new Response('deleteProfile failed:' + JSON.stringify(res), {
       status: 500
     })
   }
   res = await kvDelete(profileHash)
   if (!res.success) {
-    throw new Response('kvDeleteUserProfile failed:' + JSON.stringify(res), {
+    throw new Response('deleteProfile failed:' + JSON.stringify(res), {
       status: 500
     })
   }
