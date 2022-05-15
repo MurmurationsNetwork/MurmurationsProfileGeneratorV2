@@ -25,41 +25,38 @@ export async function action({ request }) {
       : (rawData[key] = formData._fields[key][0])
   }
   let { _action, ...data } = rawData
-  if (_action === 'submit') {
-    let schema = await parseRef(data.linked_schemas)
-    let profile = generateInstance(schema, data)
-    let response = await fetchPost(
-      process.env.PUBLIC_PROFILE_VALIDATION_URL,
-      profile
-    )
-    if (!response.ok) {
-      throw new Response('Profile validation error', {
-        status: response.status
-      })
-    }
-    let body = await response.json()
-    if (body.status === 400) {
-      return json(body, { status: 400 })
-    }
-    if (body.status === 404) {
-      return json(body, { status: 404 })
-    }
-    return json(profile, { status: 200 })
-  }
-  if (_action === 'select') {
-    return await parseRef(data.schema)
-  }
-  if (_action === 'save') {
-    const userEmail = await requireUserEmail(request)
-    const profileData = formData.get('instance')
-    await saveProfile(userEmail, profileData)
-    return redirect('/')
-  }
-  if (_action === 'delete') {
-    const userEmail = await requireUserEmail(request)
-    const profileHash = formData.get('profile_hash')
-    await deleteProfile(userEmail, profileHash)
-    return redirect('/')
+  const userEmail = await requireUserEmail(request)
+  switch (_action) {
+    case 'submit':
+      let schema = await parseRef(data.linked_schemas)
+      let profile = generateInstance(schema, data)
+      let response = await fetchPost(
+        process.env.PUBLIC_PROFILE_VALIDATION_URL,
+        profile
+      )
+      if (!response.ok) {
+        throw new Response('Profile validation error', {
+          status: response.status
+        })
+      }
+      let body = await response.json()
+      if (body.status === 400) {
+        return json(body, { status: 400 })
+      }
+      if (body.status === 404) {
+        return json(body, { status: 404 })
+      }
+      return json(profile, { status: 200 })
+    case 'select':
+      return await parseRef(data.schema)
+    case 'save':
+      const profileData = formData.get('instance')
+      await saveProfile(userEmail, profileData)
+      return redirect('/')
+    case 'delete':
+      const profileHash = formData.get('profile_hash')
+      await deleteProfile(userEmail, profileHash)
+      return redirect('/')
   }
 }
 
@@ -175,7 +172,7 @@ export default function Index() {
                 <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4 overflow-x-auto">
                   {JSON.stringify(instance, null, 2)}
                 </pre>
-                <form method="post">
+                <Form method="post">
                   <input
                     type="hidden"
                     name="instance"
@@ -189,7 +186,7 @@ export default function Index() {
                   >
                     Save Profile
                   </button>
-                </form>
+                </Form>
               </>
             ) : null}
             {errors[0] ? (
@@ -209,7 +206,7 @@ export default function Index() {
                 </ul>
               </>
             ) : null}
-            {user.profiles ? (
+            {user?.profiles ? (
               <div className="mt-5">
                 <h1 className="text-2xl">User Profile List</h1>
                 {user.profiles.map((_, index) => {
@@ -228,7 +225,7 @@ export default function Index() {
                         >
                           Update Profile
                         </button>
-                        <form method="post">
+                        <Form method="post">
                           <input
                             type="hidden"
                             name="profile_hash"
@@ -242,7 +239,7 @@ export default function Index() {
                           >
                             Delete Profile
                           </button>
-                        </form>
+                        </Form>
                       </div>
                     </div>
                   )
