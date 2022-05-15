@@ -6,14 +6,15 @@ import {
   useLoaderData
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 
 import fetchPost from '~/utils/fetchPost'
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
 import fetchGet from '~/utils/fetchGet'
-import { getUser } from '~/utils/session.server'
+import { getUser, requireUserEmail } from '~/utils/session.server'
+import { deleteProfile } from '~/utils/profile.server'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -47,6 +48,12 @@ export async function action({ request }) {
   }
   if (_action === 'select') {
     return await parseRef(data.schema)
+  }
+  if (_action === 'delete') {
+    const userEmail = await requireUserEmail(request)
+    const profileHash = formData.get('profile_hash')
+    await deleteProfile(userEmail, profileHash)
+    return redirect('/')
   }
 }
 
@@ -162,6 +169,14 @@ export default function Index() {
                 <pre className="bg-slate-200 dark:bg-slate-900 py-2 px-4 overflow-x-auto">
                   {JSON.stringify(instance, null, 2)}
                 </pre>
+                <button
+                  className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+                  type="submit"
+                  name="_action"
+                  value="save"
+                >
+                  Save Profile
+                </button>
               </>
             ) : null}
             {errors[0] ? (
@@ -180,6 +195,47 @@ export default function Index() {
                   ))}
                 </ul>
               </>
+            ) : null}
+            {user.profiles ? (
+              <div className="mt-5">
+                <h1 className="text-2xl">User Profile List</h1>
+                {user.profiles.map((_, index) => {
+                  return (
+                    <div
+                      className="max-w rounded overflow-hidden border-2 mt-2"
+                      key={index}
+                    >
+                      <div className="px-6 py-4">
+                        <div className="font-bold text-xl mb-2">
+                          {user.profiles[index]?.profile_hash}
+                        </div>
+                        <button
+                          className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
+                          type="submit"
+                        >
+                          Update Profile
+                        </button>
+                        <form method="post">
+                          <input type="hidden" name="_method" value="delete" />
+                          <input
+                            type="hidden"
+                            name="profile_hash"
+                            value={user.profiles[index]?.profile_hash}
+                          />
+                          <button
+                            className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
+                            type="submit"
+                            name="_action"
+                            value="delete"
+                          >
+                            Delete Profile
+                          </button>
+                        </form>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
             ) : null}
           </div>
         </div>

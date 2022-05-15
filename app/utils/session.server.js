@@ -2,7 +2,7 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import {
   kvGetUser,
-  kvReadUser,
+  kvRead,
   kvSaveUser,
   kvUpdateUserLogin
 } from '~/utils/kv.server'
@@ -88,7 +88,7 @@ export async function getUser(request) {
 
 export async function checkUser(email) {
   const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
-  let res = await kvReadUser(hashedEmail)
+  let res = await kvRead(hashedEmail)
   return res.success
 }
 
