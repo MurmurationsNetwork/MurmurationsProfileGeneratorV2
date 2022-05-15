@@ -1,41 +1,41 @@
 import { kvGet, kvRead, kvSave } from '~/utils/kv.server'
 
-export async function getUser(hashedEmail) {
-  return await kvGet(hashedEmail)
+export async function getUser(emailHash) {
+  return await kvGet(emailHash)
 }
 
-export async function readUser(hashedEmail) {
-  return await kvRead(hashedEmail)
+export async function readUser(emailHash) {
+  return await kvRead(emailHash)
 }
 
-export async function saveUser(hashedEmail, password) {
+export async function saveUser(emailHash, password) {
   let data = {
     profiles: [],
     last_login: Date.now(),
     password: password
   }
 
-  return await kvSave(hashedEmail, data)
+  return await kvSave(emailHash, data)
 }
 
-export async function updateUserLogin(hashedEmail) {
-  let data = await getUser(hashedEmail)
+export async function updateUserLogin(emailHash) {
+  let data = await getUser(emailHash)
   data.last_login = Date.now()
 
-  return await kvSave(hashedEmail, data)
+  return await kvSave(emailHash, data)
 }
 
-export async function addUserProfile(hashedEmail, hashedProfile) {
-  let data = await getUser(hashedEmail)
+export async function addUserProfile(emailHash, hashedProfile) {
+  let data = await getUser(emailHash)
   let newProfile = {
     profile_hash: hashedProfile
   }
   data.profiles.push(newProfile)
-  return await kvSave(hashedEmail, data)
+  return await kvSave(emailHash, data)
 }
 
-export async function deleteUserProfile(hashedEmail, hashedProfile) {
-  let data = await getUser(hashedEmail)
+export async function deleteUserProfile(emailHash, hashedProfile) {
+  let data = await getUser(emailHash)
   let filteredProfiles = data.profiles.filter(value => {
     return value.profile_hash !== hashedProfile
   })
@@ -48,5 +48,5 @@ export async function deleteUserProfile(hashedEmail, hashedProfile) {
 
   data.profiles = filteredProfiles
 
-  return await kvSave(hashedEmail, data)
+  return await kvSave(emailHash, data)
 }

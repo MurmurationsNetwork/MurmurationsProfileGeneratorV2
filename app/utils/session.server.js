@@ -9,21 +9,21 @@ import {
 } from '~/utils/user.server'
 
 export async function register(email, password) {
-  const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
+  const emailHash = crypto.createHash('sha256').update(email).digest('hex')
   const passwordHash = await bcrypt.hash(password, 10)
-  const res = await saveUser(hashedEmail, passwordHash)
+  const res = await saveUser(emailHash, passwordHash)
   if (res.success !== true) return null
   return { userEmail: email }
 }
 
 export async function login(email, password) {
-  const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
-  const user = await getUser(hashedEmail)
+  const emailHash = crypto.createHash('sha256').update(email).digest('hex')
+  const user = await getUser(emailHash)
   if (user.password === undefined) return null
   const isCorrectPassword = await bcrypt.compare(password, user.password)
   if (!isCorrectPassword) return null
   // save login time
-  const res = await updateUserLogin(hashedEmail)
+  const res = await updateUserLogin(emailHash)
   if (res.success !== true) return null
   return { userEmail: email }
 }
@@ -76,19 +76,19 @@ export async function retrieveUser(request) {
   }
 
   try {
-    const hashedEmail = crypto
+    const emailHash = crypto
       .createHash('sha256')
       .update(userEmail)
       .digest('hex')
-    return await getUser(hashedEmail)
+    return await getUser(emailHash)
   } catch {
     throw await logout(request)
   }
 }
 
 export async function checkUser(email) {
-  const hashedEmail = crypto.createHash('sha256').update(email).digest('hex')
-  let res = await readUser(hashedEmail)
+  const emailHash = crypto.createHash('sha256').update(email).digest('hex')
+  let res = await readUser(emailHash)
   return res.success
 }
 
