@@ -49,11 +49,11 @@ const storage = createCookieSessionStorage({
 })
 
 function getUserSession(request) {
-  return storage.getSession(request.headers.get('Cookie'))
+  return storage.getSession(request?.headers?.get('Cookie'))
 }
 
 export async function getUserEmail(request) {
-  const session = await getUserSession(request.request)
+  const session = await getUserSession(request?.request)
   const userEmail = session.get('userEmail')
   if (!userEmail || typeof userEmail !== 'string') return null
   return userEmail

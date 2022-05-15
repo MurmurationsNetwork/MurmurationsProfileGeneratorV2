@@ -15,14 +15,14 @@ export async function saveUser(emailHash, password) {
     password: password
   }
 
-  return await kvSave(emailHash, data)
+  return await kvSave(emailHash, JSON.stringify(data))
 }
 
 export async function updateUserLogin(emailHash) {
   let data = await getUser(emailHash)
   data.last_login = Date.now()
 
-  return await kvSave(emailHash, data)
+  return await kvSave(emailHash, JSON.stringify(data))
 }
 
 export async function addUserProfile(emailHash, hashedProfile) {
@@ -31,7 +31,7 @@ export async function addUserProfile(emailHash, hashedProfile) {
     profile_hash: hashedProfile
   }
   data.profiles.push(newProfile)
-  return await kvSave(emailHash, data)
+  return await kvSave(emailHash, JSON.stringify(data))
 }
 
 export async function deleteUserProfile(emailHash, hashedProfile) {
@@ -48,5 +48,5 @@ export async function deleteUserProfile(emailHash, hashedProfile) {
 
   data.profiles = filteredProfiles
 
-  return await kvSave(emailHash, data)
+  return await kvSave(emailHash, JSON.stringify(data))
 }

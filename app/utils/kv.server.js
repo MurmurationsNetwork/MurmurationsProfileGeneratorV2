@@ -39,7 +39,7 @@ export async function kvSave(key, value) {
   const res = await fetch(formattedUrl, {
     method: 'PUT',
     headers: headers,
-    body: JSON.stringify(value)
+    body: value
   }).catch(error => {
     throw new Response(`kvSave error: ${error}`, {
       status: 500
