@@ -176,12 +176,12 @@ export default function Index() {
         {data?.schema && data.profileData ? (
           <Form method="post">
             <h3>
-              For the following schemas:{' '}
-              {data.schema.metadata.schema.map((schemaName, index) => (
-                <span className="text-red-500" key={index}>
-                  {schemaName}{' '}
-                </span>
-              ))}
+              Schemas selected:{' '}
+              <ol>
+                {data.schema.metadata.schema.map((schemaName, index) => (
+                  <li key={index}>{schemaName}</li>
+                ))}
+              </ol>
             </h3>
             <input type="hidden" name="profile_hash" value={data.profileHash} />
             {generateForm(data.schema, data.profileData)}
@@ -197,12 +197,12 @@ export default function Index() {
         ) : schema ? (
           <Form method="post">
             <h3>
-              For the following schemas:{' '}
-              {schema.metadata.schema.map((schemaName, index) => (
-                <span className="text-red-500" key={index}>
-                  {schemaName}{' '}
-                </span>
-              ))}
+              Schemas selected:{' '}
+              <ol>
+                {schema.metadata.schema.map((schemaName, index) => (
+                  <li key={index}>{schemaName}</li>
+                ))}
+              </ol>
             </h3>
             {generateForm(schema)}
             <button
