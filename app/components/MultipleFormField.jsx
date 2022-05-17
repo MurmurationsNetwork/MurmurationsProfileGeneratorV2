@@ -103,9 +103,7 @@ function MultipleFormFieldItems({
   if (defaultValue !== undefined) {
     for (let i = 0; i < defaultValue.length; i++) {
       let filtered = Object.fromEntries(
-        Object.entries(defaultFields).filter(([key]) =>
-          key.includes('-' + i + '-')
-        )
+        Object.entries(defaultFields).filter(([key]) => key.includes('-' + i))
       )
       initialStateArray.push(filtered)
     }
