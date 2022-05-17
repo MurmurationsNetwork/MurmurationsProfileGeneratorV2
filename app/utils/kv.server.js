@@ -22,12 +22,12 @@ export async function kvGet(key) {
   return res.json()
 }
 
-export async function kvRead(key) {
+export async function kvGetMetadata(key) {
   const formattedUrl = url + '/metadata/' + key
   const res = await fetch(formattedUrl, {
     headers: headers
   }).catch(error => {
-    throw new Response(`kvRead error: ${error}`, {
+    throw new Response(`kvGetMetadata error: ${error}`, {
       status: 500
     })
   })

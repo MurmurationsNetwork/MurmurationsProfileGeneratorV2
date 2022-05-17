@@ -1,11 +1,11 @@
-import { kvGet, kvRead, kvSave } from '~/utils/kv.server'
+import { kvGet, kvGetMetadata, kvSave } from '~/utils/kv.server'
 
 export async function getUser(emailHash) {
   return await kvGet(emailHash)
 }
 
-export async function readUser(emailHash) {
-  return await kvRead(emailHash)
+export async function getUserMetadata(emailHash) {
+  return await kvGetMetadata(emailHash)
 }
 
 export async function saveUser(emailHash, password) {

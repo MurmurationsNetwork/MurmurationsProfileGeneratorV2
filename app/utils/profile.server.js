@@ -2,14 +2,17 @@ import crypto from 'crypto'
 import {
   kvDelete,
   kvGet,
-  kvRead,
-  kvSave,
+  kvGetMetadata,
   kvSaveWithMetadata
 } from '~/utils/kv.server'
-import { addUserProfile, deleteUserProfile, getUser } from '~/utils/user.server'
+import { addUserProfile, deleteUserProfile } from '~/utils/user.server'
 
 export async function getProfile(profileHash) {
   return await kvGet(profileHash)
+}
+
+export async function getProfileMetadata(profileHash) {
+  return await kvGetMetadata(profileHash)
 }
 
 export async function saveProfile(userEmail, profileData) {
@@ -18,15 +21,20 @@ export async function saveProfile(userEmail, profileData) {
     .createHash('sha256')
     .update(profileData)
     .digest('hex')
-  let res = await getUser(emailHash)
-  for (let i = 0; i < res.profiles.length; i++) {
-    if (res.profiles[i].profile_hash === profileHash) {
+  let res = await getProfileMetadata(profileHash)
+  if (res.success) {
+    if (res.result?.author !== emailHash) {
       return {
         success: false,
-        error: 'Cannot save to server, you already have the same profile.'
+        error: "Same profile exists, you cannot modify other people's data"
       }
     }
+    return {
+      success: false,
+      error: 'Cannot save to server, you already have the same profile.'
+    }
   }
+
   let metaData = {
     last_updated: Date.now(),
     author: emailHash
@@ -63,7 +71,7 @@ export async function updateProfile(userEmail, oldProfileHash, profileData) {
 
 export async function deleteProfile(userEmail, profileHash) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
-  const profile = await kvRead(profileHash)
+  const profile = await kvGetMetadata(profileHash)
   if (!profile.success) {
     throw new Response("Can't delete what does not exist", {
       status: 404

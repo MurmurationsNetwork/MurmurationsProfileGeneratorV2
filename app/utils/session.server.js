@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
 import {
   getUser,
-  readUser,
+  getUserMetadata,
   saveUser,
   updateUserLogin
 } from '~/utils/user.server'
@@ -88,7 +88,7 @@ export async function retrieveUser(request) {
 
 export async function checkUser(email) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
-  let res = await readUser(emailHash)
+  let res = await getUserMetadata(emailHash)
   return res.success
 }
 
