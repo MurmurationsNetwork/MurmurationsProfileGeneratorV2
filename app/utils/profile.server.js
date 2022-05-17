@@ -15,9 +15,10 @@ export async function saveProfile(userEmail, profileData) {
   let res = await getUser(emailHash)
   for (let i = 0; i < res.profiles.length; i++) {
     if (res.profiles[i].profile_hash === profileHash) {
-      throw new Response('You already have the same profile.', {
-        status: 409
-      })
+      return {
+        success: false,
+        error: 'Cannot save to server, you already have the same profile.'
+      }
     }
   }
   res = await kvSave(profileHash, profileData)
@@ -32,6 +33,7 @@ export async function saveProfile(userEmail, profileData) {
       status: 500
     })
   }
+  return { success: true }
 }
 
 export async function updateProfile(userEmail, oldProfileHash, profileData) {
