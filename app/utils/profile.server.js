@@ -26,12 +26,13 @@ export async function saveProfile(userEmail, profileData) {
     if (res.result?.author !== emailHash) {
       return {
         success: false,
-        error: "Same profile exists, you cannot modify other people's data"
+        error:
+          "This profile already exists. You cannot modify other people's data."
       }
     }
     return {
       success: false,
-      error: 'Cannot save to server, you already have the same profile.'
+      error: 'You have already created this profile.'
     }
   }
 
