@@ -48,6 +48,23 @@ export async function kvSave(key, value) {
   return res.json()
 }
 
+export async function kvSaveWithMetadata(key, value, metadata) {
+  const formattedUrl = url + '/values/' + key
+  const formData = new FormData()
+  formData.append('value', value)
+  formData.append('metadata', metadata)
+  const res = await fetch(formattedUrl, {
+    method: 'PUT',
+    headers: headers,
+    body: formData
+  }).catch(error => {
+    throw new Response(`kvSaveWithMetadata error: ${error}`, {
+      status: 500
+    })
+  })
+  return res.json()
+}
+
 export async function kvDelete(key) {
   const formattedUrl = url + '/values/' + key
   const res = await fetch(formattedUrl, {

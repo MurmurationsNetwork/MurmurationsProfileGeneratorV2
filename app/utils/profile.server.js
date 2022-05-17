@@ -1,5 +1,11 @@
 import crypto from 'crypto'
-import { kvDelete, kvGet, kvRead, kvSave } from '~/utils/kv.server'
+import {
+  kvDelete,
+  kvGet,
+  kvRead,
+  kvSave,
+  kvSaveWithMetadata
+} from '~/utils/kv.server'
 import { addUserProfile, deleteUserProfile, getUser } from '~/utils/user.server'
 
 export async function getProfile(profileHash) {
@@ -21,7 +27,15 @@ export async function saveProfile(userEmail, profileData) {
       }
     }
   }
-  res = await kvSave(profileHash, profileData)
+  let metaData = {
+    last_updated: Date.now(),
+    author: emailHash
+  }
+  res = await kvSaveWithMetadata(
+    profileHash,
+    profileData,
+    JSON.stringify(metaData)
+  )
   if (!res.success) {
     throw new Response('saveProfile failed:' + JSON.stringify(res), {
       status: 500
