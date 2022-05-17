@@ -14,7 +14,12 @@ import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
 import fetchGet from '~/utils/fetchGet'
 import { requireUserEmail, retrieveUser } from '~/utils/session.server'
-import { deleteProfile, saveProfile } from '~/utils/profile.server'
+import {
+  deleteProfile,
+  getProfile,
+  saveProfile,
+  updateProfile
+} from '~/utils/profile.server'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -26,11 +31,12 @@ export async function action({ request }) {
   }
   let { _action, ...data } = rawData
   const userEmail = await requireUserEmail(request)
+  let schema, profileHash, profileData, profile, response, body
   switch (_action) {
     case 'submit':
-      let schema = await parseRef(data.linked_schemas)
-      let profile = generateInstance(schema, data)
-      let response = await fetchPost(
+      schema = await parseRef(data.linked_schemas)
+      profile = generateInstance(schema, data)
+      response = await fetchPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )
@@ -39,7 +45,7 @@ export async function action({ request }) {
           status: response.status
         })
       }
-      let body = await response.json()
+      body = await response.json()
       if (body.status === 400) {
         return json(body, { status: 400 })
       }
@@ -50,11 +56,43 @@ export async function action({ request }) {
     case 'select':
       return await parseRef(data.schema)
     case 'save':
-      const profileData = formData.get('instance')
+      profileData = formData.get('instance')
       await saveProfile(userEmail, profileData)
       return redirect('/')
+    case 'edit':
+      profileHash = formData.get('profile_hash')
+      profileData = await getProfile(profileHash)
+      schema = await parseRef(profileData.linked_schemas)
+      return json({
+        schema: schema,
+        profileData: profileData,
+        profileHash: profileHash
+      })
+    case 'update':
+      profileHash = formData.get('profile_hash')
+      schema = await parseRef(data.linked_schemas)
+      delete data.profile_hash
+      profile = generateInstance(schema, data)
+      response = await fetchPost(
+        process.env.PUBLIC_PROFILE_VALIDATION_URL,
+        profile
+      )
+      if (!response.ok) {
+        throw new Response('Profile validation error', {
+          status: response.status
+        })
+      }
+      body = await response.json()
+      if (body.status === 400) {
+        return json(body, { status: 400 })
+      }
+      if (body.status === 404) {
+        return json(body, { status: 404 })
+      }
+      await updateProfile(userEmail, profileHash, JSON.stringify(profile))
+      return redirect('/')
     case 'delete':
-      const profileHash = formData.get('profile_hash')
+      profileHash = formData.get('profile_hash')
       await deleteProfile(userEmail, profileHash)
       return redirect('/')
   }
@@ -143,6 +181,20 @@ export default function Index() {
             </button>
           </Form>
         ) : null}
+        {data?.schema && data.profileData ? (
+          <Form method="post">
+            <input type="hidden" name="profile_hash" value={data.profileHash} />
+            {generateForm(data.schema, data.profileData)}
+            <button
+              className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+              type="submit"
+              name="_action"
+              value="update"
+            >
+              Submit
+            </button>
+          </Form>
+        ) : null}
       </div>
       <div className="basis-full md:basis-1/2 inset-0 py-2 md:py-8 md:overflow-y-scroll md:h-screen md:sticky md:top-0">
         <div className="px-4">
@@ -219,12 +271,21 @@ export default function Index() {
                         <div className="font-bold text-xl mb-2">
                           {user.profiles[index]?.profile_hash}
                         </div>
-                        <button
-                          className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
-                          type="submit"
-                        >
-                          Update Profile
-                        </button>
+                        <Form method="post">
+                          <input
+                            type="hidden"
+                            name="profile_hash"
+                            value={user.profiles[index]?.profile_hash}
+                          />
+                          <button
+                            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
+                            type="submit"
+                            name="_action"
+                            value="edit"
+                          >
+                            Edit Profile
+                          </button>
+                        </Form>
                         <Form method="post">
                           <input
                             type="hidden"

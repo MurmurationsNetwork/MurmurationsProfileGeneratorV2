@@ -13,7 +13,8 @@ export default function MultipleFormField({
   objTitle,
   objDescription,
   maxItems,
-  requiredForLabel
+  requiredForLabel,
+  value
 }) {
   return (
     <fieldset className="border-dotted border-4 border-slate-300 p-4 my-4">
@@ -40,6 +41,7 @@ export default function MultipleFormField({
         objDescription={objDescription}
         maxItems={maxItems}
         requiredForLabel={requiredForLabel}
+        value={value}
       />
     </fieldset>
   )
@@ -56,20 +58,48 @@ function MultipleFormFieldItems({
   objTitle,
   objDescription,
   maxItems,
-  requiredForLabel
+  requiredForLabel,
+  value
 }) {
   // Initialize an empty object
   // Format is fieldName-id-objectName
-  let fields = {}
+  let objName,
+    fields = {},
+    defaultFields = {},
+    initialStateArray = []
   Object.keys(objects).forEach(obj => {
-    let objName = name + '-0-' + obj
-    if (obj === 'ARRAY_TYPE') {
-      objName = name + '-0'
+    if (value !== undefined) {
+      Object.keys(objects).forEach(obj => {
+        for (let i = 0; i < value.length; i++) {
+          if (obj === 'ARRAY_TYPE') {
+            objName = name + '-' + i
+            defaultFields[objName] = value[i]
+          } else {
+            let objName = name + '-' + i + '-' + obj
+            defaultFields[objName] = value[i][obj]
+          }
+        }
+      })
+    } else {
+      objName = name + '-0-' + obj
+      if (obj === 'ARRAY_TYPE') {
+        objName = name + '-0'
+      }
+      fields[objName] = ''
+      initialStateArray.push(fields)
     }
-    fields[objName] = ''
   })
 
-  const [inputList, setInputList] = useState([fields])
+  if (value !== undefined) {
+    for (let i = 0; i < value.length; i++) {
+      let filtered = Object.fromEntries(
+        Object.entries(defaultFields).filter(([key]) => key.includes(i))
+      )
+      initialStateArray.push(filtered)
+    }
+  }
+
+  const [inputList, setInputList] = useState(initialStateArray)
 
   const handleChange = (e, index) => {
     const { name, value } = e.target

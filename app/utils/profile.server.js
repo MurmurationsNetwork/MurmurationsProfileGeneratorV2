@@ -1,6 +1,10 @@
 import crypto from 'crypto'
-import { kvDelete, kvRead, kvSave } from '~/utils/kv.server'
+import { kvDelete, kvGet, kvRead, kvSave } from '~/utils/kv.server'
 import { addUserProfile, deleteUserProfile } from '~/utils/user.server'
+
+export async function getProfile(profileHash) {
+  return await kvGet(profileHash)
+}
 
 export async function saveProfile(userEmail, profileData) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
@@ -19,6 +23,17 @@ export async function saveProfile(userEmail, profileData) {
     throw new Response('saveProfile failed:' + JSON.stringify(res), {
       status: 500
     })
+  }
+}
+
+export async function updateProfile(userEmail, oldProfileHash, profileData) {
+  const profileHash = crypto
+    .createHash('sha256')
+    .update(profileData)
+    .digest('hex')
+  if (oldProfileHash !== profileHash) {
+    await deleteProfile(userEmail, oldProfileHash)
+    await saveProfile(userEmail, profileData)
   }
 }
 
