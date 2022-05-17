@@ -57,9 +57,9 @@ export async function action({ request }) {
     case 'save':
       userEmail = await requireUserEmail(request, '/')
       profileData = formData.get('instance')
-      let res = await saveProfile(userEmail, profileData)
-      if (!res.success) {
-        return res
+      response = await saveProfile(userEmail, profileData)
+      if (!response.success) {
+        return response
       }
       return redirect('/')
     case 'edit':
