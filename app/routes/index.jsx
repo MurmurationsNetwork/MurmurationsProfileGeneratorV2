@@ -170,19 +170,6 @@ export default function Index() {
             Select
           </button>
         </Form>
-        {schema ? (
-          <Form method="post">
-            {generateForm(schema)}
-            <button
-              className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
-              type="submit"
-              name="_action"
-              value="submit"
-            >
-              Submit
-            </button>
-          </Form>
-        ) : null}
         {data?.schema && data.profileData ? (
           <Form method="post">
             <input type="hidden" name="profile_hash" value={data.profileHash} />
@@ -194,6 +181,18 @@ export default function Index() {
               value="update"
             >
               Update
+            </button>
+          </Form>
+        ) : schema ? (
+          <Form method="post">
+            {generateForm(schema)}
+            <button
+              className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+              type="submit"
+              name="_action"
+              value="submit"
+            >
+              Submit
             </button>
           </Form>
         ) : null}
