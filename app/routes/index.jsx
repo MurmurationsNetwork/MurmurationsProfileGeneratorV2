@@ -30,8 +30,7 @@ export async function action({ request }) {
       : (rawData[key] = formData._fields[key][0])
   }
   let { _action, ...data } = rawData
-  const userEmail = await requireUserEmail(request)
-  let schema, profileHash, profileData, profile, response, body
+  let schema, profileHash, profileData, profile, response, body, userEmail
   switch (_action) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
@@ -56,6 +55,7 @@ export async function action({ request }) {
     case 'select':
       return await parseRef(data.schema)
     case 'save':
+      userEmail = await requireUserEmail(request, '/')
       profileData = formData.get('instance')
       await saveProfile(userEmail, profileData)
       return redirect('/')
@@ -69,6 +69,7 @@ export async function action({ request }) {
         profileHash: profileHash
       })
     case 'update':
+      userEmail = await requireUserEmail(request, '/')
       profileHash = formData.get('profile_hash')
       schema = await parseRef(data.linked_schemas)
       delete data.profile_hash
@@ -92,6 +93,7 @@ export async function action({ request }) {
       await updateProfile(userEmail, profileHash, JSON.stringify(profile))
       return redirect('/')
     case 'delete':
+      userEmail = await requireUserEmail(request, '/')
       profileHash = formData.get('profile_hash')
       await deleteProfile(userEmail, profileHash)
       return redirect('/')
