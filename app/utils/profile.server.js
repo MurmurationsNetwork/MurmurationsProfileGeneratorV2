@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { kvDelete, kvGet, kvRead, kvSave } from '~/utils/kv.server'
-import { addUserProfile, deleteUserProfile } from '~/utils/user.server'
+import { addUserProfile, deleteUserProfile, getUser } from '~/utils/user.server'
 
 export async function getProfile(profileHash) {
   return await kvGet(profileHash)
@@ -12,7 +12,15 @@ export async function saveProfile(userEmail, profileData) {
     .createHash('sha256')
     .update(profileData)
     .digest('hex')
-  let res = await kvSave(profileHash, profileData)
+  let res = await getUser(emailHash)
+  for (let i = 0; i < res.profiles.length; i++) {
+    if (res.profiles[i].profile_hash === profileHash) {
+      throw new Response('You already have the same profile.', {
+        status: 409
+      })
+    }
+  }
+  res = await kvSave(profileHash, profileData)
   if (!res.success) {
     throw new Response('saveProfile failed:' + JSON.stringify(res), {
       status: 500
