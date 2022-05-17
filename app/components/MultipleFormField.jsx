@@ -13,7 +13,8 @@ export default function MultipleFormField({
   objTitle,
   objDescription,
   maxItems,
-  requiredForLabel
+  requiredForLabel,
+  value
 }) {
   return (
     <fieldset className="border-dotted border-4 border-slate-300 p-4 my-4">
@@ -40,6 +41,7 @@ export default function MultipleFormField({
         objDescription={objDescription}
         maxItems={maxItems}
         requiredForLabel={requiredForLabel}
+        defaultValue={value}
       />
     </fieldset>
   )
@@ -56,20 +58,60 @@ function MultipleFormFieldItems({
   objTitle,
   objDescription,
   maxItems,
-  requiredForLabel
+  requiredForLabel,
+  defaultValue
 }) {
   // Initialize an empty object
   // Format is fieldName-id-objectName
-  let fields = {}
+  let objName,
+    fields = {},
+    defaultFields = {},
+    initialStateArray = []
   Object.keys(objects).forEach(obj => {
-    let objName = name + '-0-' + obj
-    if (obj === 'ARRAY_TYPE') {
-      objName = name + '-0'
+    if (defaultValue !== undefined) {
+      for (let i = 0; i < defaultValue.length; i++) {
+        if (obj === 'ARRAY_TYPE') {
+          objName = name + '-' + i
+          defaultFields[objName] = defaultValue[i]
+        } else {
+          // get object values inside objects
+          let objName = name + '-' + i + '-' + obj
+          let objValue = defaultValue[i][obj]
+          if (obj.includes('-0')) {
+            let objKey = obj.replace('-0', '')
+            objValue = defaultValue[i][objKey]
+          } else if (obj.includes('-')) {
+            let strArray = obj.split('-')
+            let objInsideValue = defaultValue[i]
+            for (let j = 0; j < strArray.length; j++) {
+              objInsideValue = objInsideValue[strArray[j]]
+            }
+            objValue = objInsideValue
+          }
+          defaultFields[objName] = objValue
+        }
+      }
+    } else {
+      objName = name + '-0-' + obj
+      if (obj === 'ARRAY_TYPE') {
+        objName = name + '-0'
+      }
+      fields[objName] = ''
     }
-    fields[objName] = ''
   })
 
-  const [inputList, setInputList] = useState([fields])
+  if (defaultValue !== undefined) {
+    for (let i = 0; i < defaultValue.length; i++) {
+      let filtered = Object.fromEntries(
+        Object.entries(defaultFields).filter(([key]) => key.includes('-' + i))
+      )
+      initialStateArray.push(filtered)
+    }
+  } else {
+    initialStateArray.push(fields)
+  }
+
+  const [inputList, setInputList] = useState(initialStateArray)
 
   const handleChange = (e, index) => {
     const { name, value } = e.target
@@ -173,6 +215,7 @@ function MultipleFormFieldItems({
                   name={fieldName}
                   id={fieldName}
                   multiple={multi}
+                  defaultValue={value}
                   required={objProperties.requiredForInput}
                 >
                   {multi ? null : (

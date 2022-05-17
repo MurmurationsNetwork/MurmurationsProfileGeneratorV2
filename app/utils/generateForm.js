@@ -6,6 +6,7 @@ import MultipleFormField from '../components/MultipleFormField'
 
 export default function generateForm(
   schema,
+  profileData,
   objName,
   requiredField = schema.required,
   parentObjRequired = true
@@ -28,6 +29,7 @@ export default function generateForm(
     let description = schema.properties[name].description
     let type = schema.properties[name].type
     let strName = name
+    let value = profileData ? profileData[name] : undefined
     if (objName) strName = objName + '-' + name
 
     let objectDescription
@@ -63,6 +65,7 @@ export default function generateForm(
             objectDescription={objectDescription}
             requiredForLabel={requiredForLabel}
             requiredForInput={requiredForInput}
+            value={value}
           />
         )
       }
@@ -84,6 +87,7 @@ export default function generateForm(
           objectDescription={objectDescription}
           requiredForLabel={requiredForLabel}
           requiredForInput={requiredForInput}
+          value={value}
         />
       )
     }
@@ -105,6 +109,7 @@ export default function generateForm(
           step="any"
           requiredForLabel={requiredForLabel}
           requiredForInput={requiredForInput}
+          value={value}
         />
       )
     }
@@ -124,6 +129,7 @@ export default function generateForm(
             multi={true}
             requiredForLabel={requiredForLabel}
             requiredForInput={requiredForInput}
+            value={value}
           />
         )
       }
@@ -155,11 +161,13 @@ export default function generateForm(
           objDescription={objDescription}
           maxItems={maxItems}
           requiredForLabel={requiredForLabel}
+          value={value}
         />
       )
     }
 
     if (type === 'object') {
+      let profileObjectData = profileData ? profileData[name] : undefined
       if (objName) {
         objName += '-' + name
         return (
@@ -177,6 +185,7 @@ export default function generateForm(
             </legend>
             {generateForm(
               schema.properties[name],
+              profileObjectData,
               objName,
               schema.properties.required,
               requiredForInput
@@ -199,6 +208,7 @@ export default function generateForm(
           </legend>
           {generateForm(
             schema.properties[name],
+            profileObjectData,
             name,
             schema.properties.required,
             requiredForInput

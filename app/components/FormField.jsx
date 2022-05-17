@@ -13,7 +13,8 @@ export default function FormField({
   objectDescription,
   step,
   requiredForLabel,
-  requiredForInput
+  requiredForInput,
+  value
 }) {
   if (type === 'string') {
     type = 'text'
@@ -49,6 +50,7 @@ export default function FormField({
             pattern={pattern}
             step={step}
             required={requiredForInput}
+            defaultValue={value}
           />
         </label>
       </div>

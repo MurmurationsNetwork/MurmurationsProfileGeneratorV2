@@ -10,60 +10,51 @@ const headers = {
   'X-Auth-Key': process.env.PRIVATE_CLOUDFLARE_API_KEY
 }
 
-export async function kvGetUser(hashedEmail) {
-  const formattedUrl = url + '/values/' + hashedEmail
+export async function kvGet(key) {
+  const formattedUrl = url + '/values/' + key
   const res = await fetch(formattedUrl, {
     headers: headers
   }).catch(error => {
-    throw new Response(`kvGetUser error: ${error}`, {
+    throw new Response(`kvGet error: ${error}`, {
       status: 500
     })
   })
   return res.json()
 }
 
-export async function kvSaveUser(hashedEmail, password) {
-  const formattedUrl = url + '/values/' + hashedEmail
-  let data = {
-    profiles: {},
-    last_login: Date.now(),
-    password: password
-  }
-  const res = await fetch(formattedUrl, {
-    method: 'PUT',
-    headers: headers,
-    body: JSON.stringify(data)
-  }).catch(error => {
-    throw new Response(`kvSaveUser error: ${error}`, {
-      status: 500
-    })
-  })
-  return res.json()
-}
-
-export async function kvUpdateUserLogin(hashedEmail) {
-  let data = await kvGetUser(hashedEmail)
-  const formattedUrl = url + '/values/' + hashedEmail
-  data.last_login = Date.now()
-
-  const res = await fetch(formattedUrl, {
-    method: 'PUT',
-    headers: headers,
-    body: JSON.stringify(data)
-  }).catch(error => {
-    throw new Response(`kvUpdateUserLogin error: ${error}`, {
-      status: 500
-    })
-  })
-  return res.json()
-}
-
-export async function kvReadUser(hashedEmail) {
-  const formattedUrl = url + '/metadata/' + hashedEmail
+export async function kvRead(key) {
+  const formattedUrl = url + '/metadata/' + key
   const res = await fetch(formattedUrl, {
     headers: headers
   }).catch(error => {
-    throw new Response(`kvReadUser error: ${error}`, {
+    throw new Response(`kvRead error: ${error}`, {
+      status: 500
+    })
+  })
+  return res.json()
+}
+
+export async function kvSave(key, value) {
+  const formattedUrl = url + '/values/' + key
+  const res = await fetch(formattedUrl, {
+    method: 'PUT',
+    headers: headers,
+    body: value
+  }).catch(error => {
+    throw new Response(`kvSave error: ${error}`, {
+      status: 500
+    })
+  })
+  return res.json()
+}
+
+export async function kvDelete(key) {
+  const formattedUrl = url + '/values/' + key
+  const res = await fetch(formattedUrl, {
+    method: 'DELETE',
+    headers: headers
+  }).catch(error => {
+    throw new Response(`kvDelete error: ${error}`, {
       status: 500
     })
   })
