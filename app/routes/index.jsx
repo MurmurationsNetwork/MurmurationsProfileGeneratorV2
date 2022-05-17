@@ -191,7 +191,7 @@ export default function Index() {
               name="_action"
               value="update"
             >
-              Submit
+              Update
             </button>
           </Form>
         ) : null}
