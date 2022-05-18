@@ -301,6 +301,14 @@ export default function Index() {
                         <div className="font-bold text-xl mb-2">
                           {user.profiles[index]?.profile_hash}
                         </div>
+                        <p>
+                          Last Updated:{' '}
+                          {user.profiles[index]?.metadata?.last_updated
+                            ? new Date(
+                                user.profiles[index]?.metadata?.last_updated
+                              ).toJSON()
+                            : ''}
+                        </p>
                         <Form method="post">
                           <input
                             type="hidden"
