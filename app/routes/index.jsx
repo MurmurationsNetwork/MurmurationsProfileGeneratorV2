@@ -309,6 +309,12 @@ export default function Index() {
                               ).toJSON()
                             : ''}
                         </p>
+                        <p>
+                          Schema:{' '}
+                          {user.profiles[index]?.linked_schemas
+                            ? user.profiles[index]?.linked_schemas
+                            : ''}
+                        </p>
                         <Form method="post">
                           <input
                             type="hidden"

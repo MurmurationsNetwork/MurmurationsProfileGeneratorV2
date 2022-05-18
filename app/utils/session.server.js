@@ -7,7 +7,7 @@ import {
   saveUser,
   updateUserLogin
 } from '~/utils/user.server'
-import { getProfileMetadata } from '~/utils/profile.server'
+import { getProfile, getProfileMetadata } from '~/utils/profile.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -88,6 +88,9 @@ export async function retrieveUser(request) {
         let profileHash = user.profiles[i]?.profile_hash
         let res = await getProfileMetadata(profileHash)
         user.profiles[i]['metadata'] = res.result
+        let profileData = await getProfile(profileHash)
+        user.profiles[i]['linked_schemas'] =
+          profileData?.linked_schemas.join(',')
       }
     }
     return user
