@@ -81,16 +81,27 @@ export async function retrieveUser(request) {
       .createHash('sha256')
       .update(userEmail)
       .digest('hex')
-    let user = await getUser(emailHash)
-    // get profile when retrieving user
+    const user = await getUser(emailHash)
     if (user?.profiles) {
+      let promises = []
       for (let i = 0; i < user.profiles.length; i++) {
         let profileHash = user.profiles[i]?.profile_hash
-        let res = await getProfileMetadata(profileHash)
-        user.profiles[i]['metadata'] = res.result
-        let profileData = await getProfile(profileHash)
-        user.profiles[i]['linked_schemas'] =
-          profileData?.linked_schemas.join(',')
+        let promise = new Promise((resolve, reject) => {
+          resolve(getProfileMetadata(profileHash))
+        })
+        promises.push(promise)
+        let getProfilePromise = new Promise((resolve, reject) => {
+          resolve(getProfile(profileHash))
+        })
+        promises.push(getProfilePromise)
+      }
+      const data = await Promise.all(promises)
+      let iteration = 0
+      for (let i = 0; i < user.profiles.length; i++) {
+        user.profiles[i]['metadata'] = data[iteration].result
+        iteration++
+        user.profiles[i]['linked_schemas'] = data[iteration].linked_schemas
+        iteration++
       }
     }
     return user
