@@ -313,7 +313,7 @@ function ProfileItem({ profile }) {
           <Link
             to={{ pathname: `/profiles/${profile?.profile_hash}` }}
             target="_blank"
-            className="no-underline hover:underline text-blue-500"
+            className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
             {profile?.profile_hash}
           </Link>
