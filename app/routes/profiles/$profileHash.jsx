@@ -5,10 +5,13 @@ export const loader = async ({ params }) => {
   try {
     const profile = await getProfile(params.profileHash)
     if (profile.success !== undefined || profile.profiles !== undefined) {
-      return json({
-        message: 'Profile not found',
-        status: 404
-      })
+      return json(
+        {
+          message: 'Profile not found',
+          status: 404
+        },
+        { status: 404 }
+      )
     }
     return json(profile)
   } catch (error) {
