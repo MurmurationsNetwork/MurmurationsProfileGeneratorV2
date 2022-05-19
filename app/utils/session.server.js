@@ -100,7 +100,8 @@ export async function retrieveUser(request) {
       for (let i = 0; i < user.profiles.length; i++) {
         user.profiles[i]['metadata'] = data[iteration].result
         iteration++
-        user.profiles[i]['linked_schemas'] = data[iteration].linked_schemas
+        user.profiles[i]['linked_schemas'] =
+          data[iteration]?.linked_schemas.join(', ')
         iteration++
       }
     }

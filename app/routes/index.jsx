@@ -309,7 +309,14 @@ function ProfileItem({ profile }) {
   return (
     <div className="max-w rounded overflow-hidden border-2 mt-2">
       <div className="px-6 py-4">
-        <div className="font-bold text-xl mb-2">{profile?.profile_hash}</div>
+        <div className="font-bold text-xl mb-2">
+          <Link
+            to={{ pathname: `/profiles/${profile?.profile_hash}` }}
+            target="_blank"
+          >
+            {profile?.profile_hash}
+          </Link>
+        </div>
         <p>
           Last Updated:{' '}
           {profile?.metadata?.last_updated
