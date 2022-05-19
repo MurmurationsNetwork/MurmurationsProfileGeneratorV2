@@ -3,6 +3,7 @@ import {
   Link,
   useActionData,
   useCatch,
+  useFetcher,
   useLoaderData
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
@@ -17,6 +18,7 @@ import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 import {
   deleteProfile,
   getProfile,
+  getProfileMetadata,
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
@@ -291,54 +293,68 @@ export default function Index() {
             {user?.profiles ? (
               <div className="mt-5">
                 <h1 className="text-2xl">User Profile List</h1>
-                {user.profiles.map((_, index) => {
-                  return (
-                    <div
-                      className="max-w rounded overflow-hidden border-2 mt-2"
-                      key={index}
-                    >
-                      <div className="px-6 py-4">
-                        <div className="font-bold text-xl mb-2">
-                          {user.profiles[index]?.profile_hash}
-                        </div>
-                        <Form method="post">
-                          <input
-                            type="hidden"
-                            name="profile_hash"
-                            value={user.profiles[index]?.profile_hash}
-                          />
-                          <button
-                            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
-                            type="submit"
-                            name="_action"
-                            value="edit"
-                          >
-                            Edit Profile
-                          </button>
-                        </Form>
-                        <Form method="post">
-                          <input
-                            type="hidden"
-                            name="profile_hash"
-                            value={user.profiles[index]?.profile_hash}
-                          />
-                          <button
-                            className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
-                            type="submit"
-                            name="_action"
-                            value="delete"
-                          >
-                            Delete Profile
-                          </button>
-                        </Form>
-                      </div>
-                    </div>
-                  )
-                })}
+                {user.profiles.map((_, index) => (
+                  <ProfileItem profile={user.profiles[index]} key={index} />
+                ))}
               </div>
             ) : null}
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function ProfileItem({ profile }) {
+  return (
+    <div className="max-w rounded overflow-hidden border-2 mt-2">
+      <div className="px-6 py-4">
+        <div className="font-bold text-xl mb-2">
+          <Link
+            to={{ pathname: `/profiles/${profile?.profile_hash}` }}
+            target="_blank"
+            className="no-underline hover:underline text-blue-600 dark:text-blue-300"
+          >
+            {profile?.profile_hash}
+          </Link>
+        </div>
+        <p>
+          Last Updated:{' '}
+          {profile?.metadata?.last_updated
+            ? new Date(profile.metadata.last_updated).toJSON()
+            : ''}
+        </p>
+        <p>Schema: {profile?.linked_schemas ? profile?.linked_schemas : ''}</p>
+        <Form method="post">
+          <input
+            type="hidden"
+            name="profile_hash"
+            value={profile?.profile_hash}
+          />
+          <button
+            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
+            type="submit"
+            name="_action"
+            value="edit"
+          >
+            Edit Profile
+          </button>
+        </Form>
+        <Form method="post">
+          <input
+            type="hidden"
+            name="profile_hash"
+            value={profile?.profile_hash}
+          />
+          <button
+            className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
+            type="submit"
+            name="_action"
+            value="delete"
+          >
+            Delete Profile
+          </button>
+        </Form>
       </div>
     </div>
   )

@@ -7,6 +7,7 @@ import {
   saveUser,
   updateUserLogin
 } from '~/utils/user.server'
+import { getProfile, getProfileMetadata } from '~/utils/profile.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -80,7 +81,31 @@ export async function retrieveUser(request) {
       .createHash('sha256')
       .update(userEmail)
       .digest('hex')
-    return await getUser(emailHash)
+    const user = await getUser(emailHash)
+    if (user?.profiles) {
+      let promises = []
+      for (let i = 0; i < user.profiles.length; i++) {
+        let profileHash = user.profiles[i]?.profile_hash
+        let promise = new Promise((resolve, reject) => {
+          resolve(getProfileMetadata(profileHash))
+        })
+        promises.push(promise)
+        let getProfilePromise = new Promise((resolve, reject) => {
+          resolve(getProfile(profileHash))
+        })
+        promises.push(getProfilePromise)
+      }
+      const data = await Promise.all(promises)
+      let iteration = 0
+      for (let i = 0; i < user.profiles.length; i++) {
+        user.profiles[i]['metadata'] = data[iteration].result
+        iteration++
+        user.profiles[i]['linked_schemas'] =
+          data[iteration]?.linked_schemas.join(', ')
+        iteration++
+      }
+    }
+    return user
   } catch {
     throw await logout(request)
   }
