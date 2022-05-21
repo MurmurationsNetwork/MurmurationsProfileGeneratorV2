@@ -3,7 +3,7 @@ import { json } from '@remix-run/node'
 
 export const loader = async ({ params }) => {
   try {
-    const profile = await getProfile(params.profileHash)
+    const profile = await getProfile(params.profileId)
     if (profile.success !== undefined || profile.profiles !== undefined) {
       return json(
         {

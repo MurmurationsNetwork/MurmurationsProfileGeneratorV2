@@ -25,19 +25,19 @@ export async function updateUserLogin(emailHash) {
   return await kvSave(emailHash, JSON.stringify(data))
 }
 
-export async function addUserProfile(emailHash, profileHash) {
+export async function addUserProfile(emailHash, profileId) {
   let data = await getUser(emailHash)
   let newProfile = {
-    profile_hash: profileHash
+    id: profileId
   }
   data.profiles.push(newProfile)
   return await kvSave(emailHash, JSON.stringify(data))
 }
 
-export async function deleteUserProfile(emailHash, profileHash) {
+export async function deleteUserProfile(emailHash, profileId) {
   let data = await getUser(emailHash)
   let filteredProfiles = data.profiles.filter(value => {
-    return value.profile_hash !== profileHash
+    return value.id !== profileId
   })
 
   if (data.profiles.length === filteredProfiles.length) {

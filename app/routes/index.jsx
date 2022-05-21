@@ -30,7 +30,7 @@ export async function action({ request }) {
       : (rawData[key] = formData._fields[key][0])
   }
   let { _action, ...data } = rawData
-  let schema, profileHash, profileData, profile, response, body, userEmail
+  let schema, profileId, profileData, profile, response, body, userEmail
   switch (_action) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
@@ -58,24 +58,21 @@ export async function action({ request }) {
       userEmail = await requireUserEmail(request, '/')
       profileData = formData.get('instance')
       response = await saveProfile(userEmail, profileData)
-      if (!response.success) {
-        return response
-      }
-      return json({ success: true, message: 'Save Profile successfully.' })
+      return response
     case 'edit':
-      profileHash = formData.get('profile_hash')
-      profileData = await getProfile(profileHash)
+      profileId = formData.get('profile_id')
+      profileData = await getProfile(profileId)
       schema = await parseRef(profileData.linked_schemas)
       return json({
         schema: schema,
         profileData: profileData,
-        profileHash: profileHash
+        profileId: profileId
       })
     case 'update':
       userEmail = await requireUserEmail(request, '/')
-      profileHash = formData.get('profile_hash')
+      profileId = formData.get('profile_id')
       schema = await parseRef(data.linked_schemas)
-      delete data.profile_hash
+      delete data.profile_id
       profile = generateInstance(schema, data)
       response = await fetchPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
@@ -92,7 +89,7 @@ export async function action({ request }) {
           failure_reasons: body?.failure_reasons,
           schema: schema,
           profileData: profile,
-          profileHash: profileHash
+          profileId: profileId
         })
       }
       if (body.status === 404) {
@@ -100,16 +97,20 @@ export async function action({ request }) {
           failure_reasons: body?.failure_reasons,
           schema: schema,
           profileData: profile,
-          profileHash: profileHash
+          profileId: profileId
         })
       }
-      await updateProfile(userEmail, profileHash, JSON.stringify(profile))
-      return json({ success: true, message: 'Update Profile successfully.' })
+      response = await updateProfile(
+        userEmail,
+        profileId,
+        JSON.stringify(profile)
+      )
+      return json(response)
     case 'delete':
       userEmail = await requireUserEmail(request, '/')
-      profileHash = formData.get('profile_hash')
-      await deleteProfile(userEmail, profileHash)
-      return json({ success: true, message: 'Delete Profile successfully.' })
+      profileId = formData.get('profile_id')
+      response = await deleteProfile(userEmail, profileId)
+      return json(response)
   }
 }
 
@@ -213,7 +214,11 @@ export default function Index() {
                 ))}
               </ol>
             </h3>
-            <input type="hidden" name="profile_hash" value={data.profileHash} />
+            <input
+              type="hidden"
+              name="profile_id"
+              defaultValue={data.profileId}
+            />
             {generateForm(schema, profileData)}
             <button
               className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
@@ -298,7 +303,7 @@ export default function Index() {
                   <input
                     type="hidden"
                     name="instance"
-                    value={JSON.stringify(instance)}
+                    defaultValue={JSON.stringify(instance)}
                   />
                   <button
                     className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
@@ -349,11 +354,11 @@ function ProfileItem({ profile }) {
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">
           <Link
-            to={{ pathname: `/profiles/${profile?.profile_hash}` }}
+            to={{ pathname: `/profiles/${profile?.id}` }}
             target="_blank"
             className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
-            {profile?.profile_hash}
+            {profile?.id}
           </Link>
         </div>
         <p>
@@ -364,11 +369,7 @@ function ProfileItem({ profile }) {
         </p>
         <p>Schema: {profile?.linked_schemas ? profile?.linked_schemas : ''}</p>
         <Form method="post">
-          <input
-            type="hidden"
-            name="profile_hash"
-            value={profile?.profile_hash}
-          />
+          <input type="hidden" name="profile_id" defaultValue={profile?.id} />
           <button
             className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
             type="submit"
@@ -379,11 +380,7 @@ function ProfileItem({ profile }) {
           </button>
         </Form>
         <Form method="post">
-          <input
-            type="hidden"
-            name="profile_hash"
-            value={profile?.profile_hash}
-          />
+          <input type="hidden" name="profile_id" defaultValue={profile?.id} />
           <button
             className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
             type="submit"
