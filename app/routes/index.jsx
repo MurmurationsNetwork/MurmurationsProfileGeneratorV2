@@ -58,7 +58,10 @@ export async function action({ request }) {
       userEmail = await requireUserEmail(request, '/')
       profileData = formData.get('instance')
       response = await saveProfile(userEmail, profileData)
-      return response
+      if (!response.success) {
+        return response
+      }
+      return json({ success: true, message: 'Save Profile successfully.' })
     case 'edit':
       profileId = formData.get('profile_id')
       profileData = await getProfile(profileId)
