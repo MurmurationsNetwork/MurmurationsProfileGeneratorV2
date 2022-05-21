@@ -85,15 +85,15 @@ export async function retrieveUser(request) {
     if (user?.profiles) {
       let promises = []
       for (let i = 0; i < user.profiles.length; i++) {
-        let profileHash = user.profiles[i]?.profile_hash
+        let profileId = user.profiles[i]?.id
         let promise = new Promise((resolve, reject) => {
-          resolve(getProfileMetadata(profileHash))
-          reject(getProfileMetadata(profileHash))
+          resolve(getProfileMetadata(profileId))
+          reject(getProfileMetadata(profileId))
         })
         promises.push(promise)
         let getProfilePromise = new Promise((resolve, reject) => {
-          resolve(getProfile(profileHash))
-          reject(getProfile(profileHash))
+          resolve(getProfile(profileId))
+          reject(getProfile(profileId))
         })
         promises.push(getProfilePromise)
       }
