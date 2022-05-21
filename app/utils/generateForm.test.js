@@ -1,8 +1,13 @@
 import { screen, render } from '@testing-library/react'
 import '@testing-library/jest-dom'
+// import { describe, expect, it } from 'vitest'
 
-import generateForm from './generateForm'
+import generateForm from './generateForm.jsx'
 import { schemaHeader, test_schema_1, test_schema_2 } from './test_schemas'
+
+/**
+ * @vitest-environment jsdom
+ */
 
 describe('generateForm tests', () => {
   it('Schema with no properties should return null', () => {
