@@ -117,7 +117,6 @@ export async function retrieveUser(request) {
       success: false,
       error: 'Failed to retrieve the user data.'
     }
-    // throw await logout(request)
   }
 }
 
