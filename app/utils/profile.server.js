@@ -54,7 +54,7 @@ export async function saveProfile(userEmail, profileData) {
       status: 500
     })
   }
-  return { success: true, message: 'Save Profile successfully.' }
+  return { success: true, message: 'Profile saved.' }
 }
 
 export async function updateProfile(userEmail, profileId, profileData) {
@@ -80,7 +80,7 @@ export async function updateProfile(userEmail, profileId, profileData) {
       status: 500
     })
   }
-  return { success: true, message: 'Update Profile successfully.' }
+  return { success: true, message: 'Profile updated.' }
 }
 
 export async function deleteProfile(userEmail, profileId) {
@@ -110,5 +110,5 @@ export async function deleteProfile(userEmail, profileId) {
       status: 500
     })
   }
-  return { success: true, message: 'Delete Profile successfully.' }
+  return { success: true, message: 'Profile deleted.' }
 }

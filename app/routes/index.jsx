@@ -61,7 +61,7 @@ export async function action({ request }) {
       if (!response.success) {
         return response
       }
-      return json({ success: true, message: 'Save Profile successfully.' })
+      return json({ success: true, message: 'Profile saved.' })
     case 'edit':
       profileId = formData.get('profile_id')
       profileData = await getProfile(profileId)
@@ -287,7 +287,7 @@ export default function Index() {
             {successMessage ? (
               <div className="mb-2" role="alert">
                 <div className="bg-green-500 text-white font-bold rounded-t px-4 py-2">
-                  Success!
+                  Completed
                 </div>
                 <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
                   <p>{successMessage}</p>
