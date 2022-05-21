@@ -1,5 +1,3 @@
-// import { describe, expect, it } from 'vitest'
-
 import generateInstance from './generateInstance'
 
 import {
