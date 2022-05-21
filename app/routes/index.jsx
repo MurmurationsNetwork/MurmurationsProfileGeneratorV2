@@ -3,11 +3,10 @@ import {
   Link,
   useActionData,
   useCatch,
-  useFetcher,
   useLoaderData
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { json, redirect } from '@remix-run/node'
+import { json } from '@remix-run/node'
 
 import fetchPost from '~/utils/fetchPost'
 import generateForm from '~/utils/generateForm'
@@ -18,7 +17,6 @@ import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 import {
   deleteProfile,
   getProfile,
-  getProfileMetadata,
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
@@ -63,7 +61,7 @@ export async function action({ request }) {
       if (!response.success) {
         return response
       }
-      return redirect('/')
+      return json({ success: true, message: 'Save Profile successfully.' })
     case 'edit':
       profileHash = formData.get('profile_hash')
       profileData = await getProfile(profileHash)
@@ -90,18 +88,28 @@ export async function action({ request }) {
       }
       body = await response.json()
       if (body.status === 400) {
-        return json(body, { status: 400 })
+        return json({
+          failure_reasons: body?.failure_reasons,
+          schema: schema,
+          profileData: profile,
+          profileHash: profileHash
+        })
       }
       if (body.status === 404) {
-        return json(body, { status: 404 })
+        return json({
+          failure_reasons: body?.failure_reasons,
+          schema: schema,
+          profileData: profile,
+          profileHash: profileHash
+        })
       }
       await updateProfile(userEmail, profileHash, JSON.stringify(profile))
-      return redirect('/')
+      return json({ success: true, message: 'Update Profile successfully.' })
     case 'delete':
       userEmail = await requireUserEmail(request, '/')
       profileHash = formData.get('profile_hash')
       await deleteProfile(userEmail, profileHash)
-      return redirect('/')
+      return json({ success: true, message: 'Delete Profile successfully.' })
   }
 }
 
@@ -123,19 +131,39 @@ export default function Index() {
   let user = loaderData.user
   let data = useActionData()
   let [schema, setSchema] = useState('')
+  let [profileData, setProfileData] = useState('')
+  let [successMessage, setSuccessMessage] = useState('')
   let [instance, setInstance] = useState('')
   let [errors, setErrors] = useState([])
   useEffect(() => {
     if (data?.$schema) {
       setSchema(data)
+      setProfileData('')
       setInstance('')
+      setSuccessMessage('')
       setErrors([])
     }
     if (data?.linked_schemas) {
       setInstance(data)
+      setSuccessMessage('')
+      setErrors([])
+    }
+    if (data?.profileData) {
+      setSchema(data.schema)
+      setProfileData(data.profileData)
+      setInstance('')
+      setSuccessMessage('')
+      setErrors([])
+    }
+    if (data?.success) {
+      setSchema('')
+      setProfileData('')
+      setInstance('')
+      setSuccessMessage(data.message)
       setErrors([])
     }
     if (data?.failure_reasons) {
+      setSuccessMessage('')
       setErrors(data.failure_reasons)
     }
   }, [data])
@@ -175,18 +203,18 @@ export default function Index() {
             Select
           </button>
         </Form>
-        {data?.schema && data.profileData ? (
+        {schema && profileData ? (
           <Form method="post">
             <h3>
               Schemas selected:{' '}
               <ol>
-                {data.schema.metadata.schema.map((schemaName, index) => (
+                {schema.metadata.schema.map((schemaName, index) => (
                   <li key={index}>{schemaName}</li>
                 ))}
               </ol>
             </h3>
             <input type="hidden" name="profile_hash" value={data.profileHash} />
-            {generateForm(data.schema, data.profileData)}
+            {generateForm(schema, profileData)}
             <button
               className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
               type="submit"
@@ -245,6 +273,16 @@ export default function Index() {
                 </div>
                 <div className="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
                   <p>{data.error}</p>
+                </div>
+              </div>
+            ) : null}
+            {successMessage ? (
+              <div className="mb-2" role="alert">
+                <div className="bg-green-500 text-white font-bold rounded-t px-4 py-2">
+                  Success!
+                </div>
+                <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
+                  <p>{successMessage}</p>
                 </div>
               </div>
             ) : null}

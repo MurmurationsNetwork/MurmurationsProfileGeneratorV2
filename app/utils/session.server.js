@@ -88,16 +88,22 @@ export async function retrieveUser(request) {
         let profileHash = user.profiles[i]?.profile_hash
         let promise = new Promise((resolve, reject) => {
           resolve(getProfileMetadata(profileHash))
+          reject(getProfileMetadata(profileHash))
         })
         promises.push(promise)
         let getProfilePromise = new Promise((resolve, reject) => {
           resolve(getProfile(profileHash))
+          reject(getProfile(profileHash))
         })
         promises.push(getProfilePromise)
       }
       const data = await Promise.all(promises)
       let iteration = 0
       for (let i = 0; i < user.profiles.length; i++) {
+        if (data[iteration]?.success === false) {
+          iteration += 2
+          continue
+        }
         user.profiles[i]['metadata'] = data[iteration].result
         iteration++
         user.profiles[i]['linked_schemas'] =
@@ -107,7 +113,11 @@ export async function retrieveUser(request) {
     }
     return user
   } catch {
-    throw await logout(request)
+    return {
+      success: false,
+      error: 'Failed to retrieve the user data.'
+    }
+    // throw await logout(request)
   }
 }
 
