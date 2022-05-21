@@ -153,13 +153,6 @@ function MultipleFormFieldItems({
   return inputList.map((item, i) => {
     return (
       <span key={i}>
-        {/* <fieldset className="border-dotted border-2 p-4 my-4">
-          {i === 0 && title !== undefined && (
-            <>
-              <legend className="block text-md font-bold mt-2">{title}:</legend>
-              <span className="block text-md mb-4">{description}</span>
-            </>
-          )} */}
         {objTitle !== undefined && (
           <>
             <span className="block text-md font-bold mt-2">
