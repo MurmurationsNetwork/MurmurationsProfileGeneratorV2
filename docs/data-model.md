@@ -28,6 +28,7 @@ The value is a JSON object that contains the following properties:
   - `ipfs` (string) - IPFS address of the profile instance
   - `last_updated` (number - Unix timestamp) - last time the user modified (or created) the profile
   - `linked_schemas` (array of strings) - the schema(s) the profile must be validated against
+  - `title` (string) - a memorable/identifiable title to its author 
 
 ```
 {
@@ -38,13 +39,15 @@ The value is a JSON object that contains the following properties:
       "id":"cjld2cjxh0000qzrmn831i7rn",
       "ipfs":"bafybeif3kgstillrp22zqhq5occk6tyo2u2qa4e7s2yqpkia6ex2r3n23u",
       "last_updated":1654738391000,
-      "linked_schemas":["test_schema-v2.0.0"]
+      "linked_schemas":["test_schema-v2.0.0"],
+      "title": "My first test profile"
     },
     {
       "id":"cjld2cyuq0000t3rmniod1foy",
       "ipfs":"bafybeigh3ixlaipnzsdh2u4iqqsi2cwjvgdpkcu4chmilfhjulbe4v5bpq",
       "last_updated":1654865732000
-      "linked_schemas":["test_schema-v2.0.0","some_other_schema-v1.1.0"]
+      "linked_schemas":["test_schema-v2.0.0","some_other_schema-v1.1.0"],
+      "title": "some_other_profile"
     }
   ]
 }
