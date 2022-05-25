@@ -1,15 +1,26 @@
 import crypto from 'crypto'
-import {
-  kvDelete,
-  kvGet,
-  kvGetMetadata,
-  kvSaveWithMetadata
-} from '~/utils/kv.server'
-import { addUserProfile, deleteUserProfile } from '~/utils/user.server'
 import cuid from 'cuid'
+import { kvDelete, kvGetMetadata, kvSaveWithMetadata } from '~/utils/kv.server'
+import { addUserProfile, deleteUserProfile } from '~/utils/user.server'
+import {
+  mongoConnect,
+  mongoDisconnect,
+  mongoGetProfile,
+  mongoSaveProfile
+} from '~/utils/mongo.server'
 
 export async function getProfile(profileId) {
-  return await kvGet(profileId)
+  const client = await mongoConnect()
+  try {
+    return await mongoGetProfile(client, profileId)
+  } catch (err) {
+    return {
+      success: false,
+      error: err
+    }
+  } finally {
+    await mongoDisconnect(client)
+  }
 }
 
 export async function getProfileMetadata(profileId) {
@@ -19,42 +30,27 @@ export async function getProfileMetadata(profileId) {
 export async function saveProfile(userEmail, profileData) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const profileId = cuid()
-  let res = await getProfileMetadata(profileId)
-  if (res.success) {
-    if (res.result?.author !== emailHash) {
-      return {
-        success: false,
-        error:
-          "This profile already exists. You cannot modify other people's data."
-      }
-    }
-    return {
-      success: false,
-      error: 'You have already created this profile.'
-    }
-  }
-
-  let metaData = {
+  const client = await mongoConnect()
+  const profileObj = JSON.parse(profileData)
+  const profile = {
+    cuid: profileId,
+    ipfs: [],
     last_updated: Date.now(),
-    author: emailHash
+    linked_schemas: profileObj.linked_schemas,
+    profile: profileData,
+    title: 'Default title'
   }
-  res = await kvSaveWithMetadata(
-    profileId,
-    profileData,
-    JSON.stringify(metaData)
-  )
-  if (!res.success) {
-    throw new Response('saveProfile failed:' + JSON.stringify(res), {
+  try {
+    await mongoSaveProfile(client, profile)
+    await addUserProfile(client, emailHash, profileId)
+    return { success: true, message: 'Profile saved.' }
+  } catch (err) {
+    throw new Response('saveProfile failed:' + JSON.stringify(err), {
       status: 500
     })
+  } finally {
+    await mongoDisconnect(client)
   }
-  res = await addUserProfile(emailHash, profileId)
-  if (!res.success) {
-    throw new Response('saveProfile failed:' + JSON.stringify(res), {
-      status: 500
-    })
-  }
-  return { success: true, message: 'Profile saved.' }
 }
 
 export async function updateProfile(userEmail, profileId, profileData) {

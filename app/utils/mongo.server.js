@@ -64,11 +64,11 @@ export async function mongoGetUser(client, emailHash) {
   }
 }
 
-export async function mongoCreateUser(client, user) {
+export async function mongoSaveUser(client, user) {
   try {
     return await client.db(db).collection('users').insertOne(user)
   } catch (err) {
-    throw new Response(`MongoDB CreateUser error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB SaveUser error: ${JSON.stringify(err)}`, {
       status: 500
     })
   }
@@ -84,7 +84,63 @@ export async function mongoUpdateUserLogin(client, emailHash) {
         { $set: { last_login: Date.now() } }
       )
   } catch (err) {
-    throw new Response(`MongoDB CreateUser error: ${JSON.stringify(err)}`, {
+    throw new Response(
+      `MongoDB UpdateUserLogin error: ${JSON.stringify(err)}`,
+      {
+        status: 500
+      }
+    )
+  }
+}
+
+export async function mongoUpdateUserProfile(client, emailHash, profiles) {
+  try {
+    return await client
+      .db(db)
+      .collection('users')
+      .updateOne({ email_hash: emailHash }, { $set: { profiles: profiles } })
+  } catch (err) {
+    throw new Response(
+      `MongoDB UpdateUserProfile error: ${JSON.stringify(err)}`,
+      {
+        status: 500
+      }
+    )
+  }
+}
+
+export async function mongoGetProfile(client, profileId) {
+  try {
+    return await client
+      .db(db)
+      .collection('profiles')
+      .findOne({ cuid: profileId })
+  } catch (err) {
+    throw new Response(`MongoDB GetProfile error: ${JSON.stringify(err)}`, {
+      status: 500
+    })
+  }
+}
+
+export async function mongoGetProfiles(client, profileIds) {
+  try {
+    return await client
+      .db(db)
+      .collection('profiles')
+      .find({ cuid: { $in: profileIds } })
+      .toArray()
+  } catch (err) {
+    throw new Response(`MongoDB GetProfiles error: ${JSON.stringify(err)}`, {
+      status: 500
+    })
+  }
+}
+
+export async function mongoSaveProfile(client, user) {
+  try {
+    return await client.db(db).collection('profiles').insertOne(user)
+  } catch (err) {
+    throw new Response(`MongoDB SaveProfile error: ${JSON.stringify(err)}`, {
       status: 500
     })
   }

@@ -357,18 +357,16 @@ function ProfileItem({ profile }) {
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">
           <Link
-            to={{ pathname: `/profiles/${profile?.id}` }}
+            to={{ pathname: `/profiles/${profile?.cuid}` }}
             target="_blank"
             className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
-            {profile?.id}
+            {profile?.cuid}
           </Link>
         </div>
         <p>
           Last Updated:{' '}
-          {profile?.metadata?.last_updated
-            ? new Date(profile.metadata.last_updated).toJSON()
-            : ''}
+          {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
         </p>
         <p>Schema: {profile?.linked_schemas ? profile?.linked_schemas : ''}</p>
         <Form method="post">

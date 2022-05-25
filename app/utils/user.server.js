@@ -1,10 +1,12 @@
 import { kvSave } from '~/utils/kv.server'
 import {
   mongoCountUser,
-  mongoCreateUser,
   mongoDisconnect,
+  mongoGetProfiles,
   mongoGetUser,
-  mongoUpdateUserLogin
+  mongoSaveUser,
+  mongoUpdateUserLogin,
+  mongoUpdateUserProfile
 } from '~/utils/mongo.server'
 
 export async function getUser(client, emailHash) {
@@ -12,7 +14,11 @@ export async function getUser(client, emailHash) {
 }
 
 export async function getUserWithProfile(client, emailHash) {
-  return await mongoGetUser(client, emailHash)
+  let user = await mongoGetUser(client, emailHash)
+  if (user?.profiles.length !== 0) {
+    user.profiles = await mongoGetProfiles(client, user.profiles)
+  }
+  return user
 }
 
 export async function countUser(client, emailHash) {
@@ -20,7 +26,7 @@ export async function countUser(client, emailHash) {
 }
 
 export async function saveUser(client, emailHash, password) {
-  let data = {
+  const data = {
     email_hash: emailHash,
     last_login: Date.now(),
     password: password,
@@ -35,7 +41,7 @@ export async function saveUser(client, emailHash, password) {
         error: 'User existed'
       }
     }
-    await mongoCreateUser(client, data)
+    await mongoSaveUser(client, data)
     return { success: true }
   } finally {
     await mongoDisconnect(client)
@@ -51,13 +57,10 @@ export async function updateUserLogin(client, emailHash) {
   }
 }
 
-export async function addUserProfile(emailHash, profileId) {
-  let data = await getUser(emailHash)
-  let newProfile = {
-    id: profileId
-  }
-  data.profiles.push(newProfile)
-  return await kvSave(emailHash, JSON.stringify(data))
+export async function addUserProfile(client, emailHash, profileId) {
+  let user = await mongoGetUser(client, emailHash)
+  user.profiles.push(profileId)
+  return await mongoUpdateUserProfile(client, emailHash, user.profiles)
 }
 
 export async function deleteUserProfile(emailHash, profileId) {
