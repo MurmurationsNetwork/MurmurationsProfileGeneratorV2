@@ -1,28 +1,54 @@
-import { kvGet, kvGetMetadata, kvSave } from '~/utils/kv.server'
+import { kvSave } from '~/utils/kv.server'
+import {
+  mongoCountUser,
+  mongoCreateUser,
+  mongoDisconnect,
+  mongoGetUser,
+  mongoUpdateUserLogin
+} from '~/utils/mongo.server'
 
-export async function getUser(emailHash) {
-  return await kvGet(emailHash)
+export async function getUser(client, emailHash) {
+  return await mongoGetUser(client, emailHash)
 }
 
-export async function getUserMetadata(emailHash) {
-  return await kvGetMetadata(emailHash)
+export async function getUserWithProfile(client, emailHash) {
+  return await mongoGetUser(client, emailHash)
 }
 
-export async function saveUser(emailHash, password) {
+export async function countUser(client, emailHash) {
+  return await mongoCountUser(client, emailHash)
+}
+
+export async function saveUser(client, emailHash, password) {
   let data = {
-    profiles: [],
+    email_hash: emailHash,
     last_login: Date.now(),
-    password: password
+    password: password,
+    profiles: []
   }
 
-  return await kvSave(emailHash, JSON.stringify(data))
+  try {
+    const user = await mongoCountUser(client, emailHash)
+    if (user !== 0) {
+      return {
+        success: false,
+        error: 'User existed'
+      }
+    }
+    await mongoCreateUser(client, data)
+    return { success: true }
+  } finally {
+    await mongoDisconnect(client)
+  }
 }
 
-export async function updateUserLogin(emailHash) {
-  let data = await getUser(emailHash)
-  data.last_login = Date.now()
-
-  return await kvSave(emailHash, JSON.stringify(data))
+export async function updateUserLogin(client, emailHash) {
+  try {
+    await mongoUpdateUserLogin(client, emailHash)
+    return { success: true }
+  } catch (err) {
+    return { success: false, error: err }
+  }
 }
 
 export async function addUserProfile(emailHash, profileId) {

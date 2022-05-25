@@ -2,31 +2,42 @@ import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
 import {
+  countUser,
   getUser,
-  getUserMetadata,
+  getUserWithProfile,
   saveUser,
   updateUserLogin
 } from '~/utils/user.server'
-import { getProfile, getProfileMetadata } from '~/utils/profile.server'
+import { mongoConnect, mongoDisconnect } from '~/utils/mongo.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
   const passwordHash = await bcrypt.hash(password, 10)
-  const res = await saveUser(emailHash, passwordHash)
-  if (res.success !== true) return null
-  return { userEmail: email }
+  const client = await mongoConnect()
+  try {
+    const res = await saveUser(client, emailHash, passwordHash)
+    if (!res.success !== true) return null
+    return { userEmail: email }
+  } finally {
+    await mongoDisconnect(client)
+  }
 }
 
 export async function login(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
-  const user = await getUser(emailHash)
-  if (user.password === undefined) return null
-  const isCorrectPassword = await bcrypt.compare(password, user.password)
-  if (!isCorrectPassword) return null
-  // save login time
-  const res = await updateUserLogin(emailHash)
-  if (res.success !== true) return null
-  return { userEmail: email }
+  const client = await mongoConnect()
+  try {
+    const user = await getUser(client, emailHash)
+    if (user.password === undefined) return null
+    const isCorrectPassword = await bcrypt.compare(password, user.password)
+    if (!isCorrectPassword) return null
+    // save login time
+    const res = await updateUserLogin(client, emailHash)
+    if (res.success !== true) return null
+    return { userEmail: email }
+  } finally {
+    await mongoDisconnect(client)
+  }
 }
 
 const sessionSecret = process.env.PRIVATE_SESSION_SECRET
@@ -76,54 +87,24 @@ export async function retrieveUser(request) {
     return null
   }
 
+  const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
+  const client = await mongoConnect()
   try {
-    const emailHash = crypto
-      .createHash('sha256')
-      .update(userEmail)
-      .digest('hex')
-    const user = await getUser(emailHash)
-    if (user?.profiles) {
-      let promises = []
-      for (let i = 0; i < user.profiles.length; i++) {
-        let profileId = user.profiles[i]?.id
-        let promise = new Promise((resolve, reject) => {
-          resolve(getProfileMetadata(profileId))
-          reject(getProfileMetadata(profileId))
-        })
-        promises.push(promise)
-        let getProfilePromise = new Promise((resolve, reject) => {
-          resolve(getProfile(profileId))
-          reject(getProfile(profileId))
-        })
-        promises.push(getProfilePromise)
-      }
-      const data = await Promise.all(promises)
-      let iteration = 0
-      for (let i = 0; i < user.profiles.length; i++) {
-        if (data[iteration]?.success === false) {
-          iteration += 2
-          continue
-        }
-        user.profiles[i]['metadata'] = data[iteration].result
-        iteration++
-        user.profiles[i]['linked_schemas'] =
-          data[iteration]?.linked_schemas.join(', ')
-        iteration++
-      }
-    }
-    return user
-  } catch {
-    return {
-      success: false,
-      error: 'Failed to retrieve the user data.'
-    }
+    return await getUserWithProfile(client, emailHash)
+  } finally {
+    await mongoDisconnect(client)
   }
 }
 
 export async function checkUser(email) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
-  let res = await getUserMetadata(emailHash)
-  return res.success
+  const client = await mongoConnect()
+  try {
+    const res = await countUser(emailHash)
+    return res !== 0
+  } finally {
+    await mongoDisconnect(client)
+  }
 }
 
 export async function logout(request) {
