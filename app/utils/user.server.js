@@ -1,12 +1,10 @@
-import { kvSave } from '~/utils/kv.server'
 import {
   mongoCountUser,
   mongoDisconnect,
   mongoGetProfiles,
   mongoGetUser,
   mongoSaveUser,
-  mongoUpdateUserLogin,
-  mongoUpdateUserProfile
+  mongoUpdateUserLogin
 } from '~/utils/mongo.server'
 
 export async function getUser(client, emailHash) {
@@ -55,27 +53,4 @@ export async function updateUserLogin(client, emailHash) {
   } catch (err) {
     return { success: false, error: err }
   }
-}
-
-export async function addUserProfile(client, emailHash, profileId) {
-  let user = await mongoGetUser(client, emailHash)
-  user.profiles.push(profileId)
-  return await mongoUpdateUserProfile(client, emailHash, user.profiles)
-}
-
-export async function deleteUserProfile(emailHash, profileId) {
-  let data = await getUser(emailHash)
-  let filteredProfiles = data.profiles.filter(value => {
-    return value.id !== profileId
-  })
-
-  if (data.profiles.length === filteredProfiles.length) {
-    throw new Response(`deleteUserProfile: can't find profile in user`, {
-      status: 500
-    })
-  }
-
-  data.profiles = filteredProfiles
-
-  return await kvSave(emailHash, JSON.stringify(data))
 }

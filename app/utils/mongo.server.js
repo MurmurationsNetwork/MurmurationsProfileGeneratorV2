@@ -93,15 +93,31 @@ export async function mongoUpdateUserLogin(client, emailHash) {
   }
 }
 
-export async function mongoUpdateUserProfile(client, emailHash, profiles) {
+export async function mongoUpdateUserProfile(client, emailHash, profileId) {
   try {
     return await client
       .db(db)
       .collection('users')
-      .updateOne({ email_hash: emailHash }, { $set: { profiles: profiles } })
+      .updateOne({ email_hash: emailHash }, { $push: { profiles: profileId } })
   } catch (err) {
     throw new Response(
       `MongoDB UpdateUserProfile error: ${JSON.stringify(err)}`,
+      {
+        status: 500
+      }
+    )
+  }
+}
+
+export async function mongoDeleteUserProfile(client, emailHash, profileId) {
+  try {
+    return await client
+      .db(db)
+      .collection('users')
+      .updateOne({ email_hash: emailHash }, { $pull: { profiles: profileId } })
+  } catch (err) {
+    throw new Response(
+      `MongoDB DeleteUserProfile error: ${JSON.stringify(err)}`,
       {
         status: 500
       }
@@ -136,11 +152,48 @@ export async function mongoGetProfiles(client, profileIds) {
   }
 }
 
-export async function mongoSaveProfile(client, user) {
+export async function mongoSaveProfile(client, profile) {
   try {
-    return await client.db(db).collection('profiles').insertOne(user)
+    return await client.db(db).collection('profiles').insertOne(profile)
   } catch (err) {
     throw new Response(`MongoDB SaveProfile error: ${JSON.stringify(err)}`, {
+      status: 500
+    })
+  }
+}
+
+export async function mongoUpdateProfile(client, profileId, profileData) {
+  try {
+    return await client
+      .db(db)
+      .collection('profiles')
+      .updateOne(
+        { cuid: profileId },
+        {
+          $set: {
+            ipfs: profileData.ipfs,
+            last_updated: Date.now(),
+            linked_schemas: profileData.linked_schemas,
+            profile: profileData.profile,
+            title: profileData.title
+          }
+        }
+      )
+  } catch (err) {
+    throw new Response(`MongoDB UpdateProfile error: ${JSON.stringify(err)}`, {
+      status: 500
+    })
+  }
+}
+
+export async function mongoDeleteProfile(client, profileId) {
+  try {
+    return await client
+      .db(db)
+      .collection('profiles')
+      .deleteOne({ cuid: profileId })
+  } catch (err) {
+    throw new Response(`MongoDB DeleteProfile error: ${JSON.stringify(err)}`, {
       status: 500
     })
   }
