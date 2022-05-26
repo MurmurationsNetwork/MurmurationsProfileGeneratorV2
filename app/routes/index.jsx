@@ -363,7 +363,7 @@ function ProfileItem({ profile }) {
             target="_blank"
             className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
-            {profile?.cuid}
+            {profile?.title}
           </Link>
         </div>
         <p>

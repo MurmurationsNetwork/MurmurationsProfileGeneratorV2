@@ -49,8 +49,7 @@ export async function login(email, password) {
     const isCorrectPassword = await bcrypt.compare(password, user.password)
     if (!isCorrectPassword) return null
     // save login time
-    const res = await mongoUpdateUserLogin(client, emailHash)
-    if (res.success !== true) return null
+    await mongoUpdateUserLogin(client, emailHash)
     return { userEmail: email }
   } catch (err) {
     throw new Response('login failed:' + JSON.stringify(err), {
