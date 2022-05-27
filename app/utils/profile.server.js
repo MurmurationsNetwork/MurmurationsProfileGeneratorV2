@@ -26,7 +26,7 @@ export async function getProfile(profileId) {
   }
 }
 
-export async function saveProfile(userEmail, profileData) {
+export async function saveProfile(userEmail, profileTitle, profileData) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const profileId = cuid()
   const client = await mongoConnect()
@@ -37,7 +37,7 @@ export async function saveProfile(userEmail, profileData) {
     last_updated: Date.now(),
     linked_schemas: profileObj.linked_schemas,
     profile: profileData,
-    title: 'Default title'
+    title: profileTitle
   }
   try {
     await mongoSaveProfile(client, profile)
@@ -52,7 +52,12 @@ export async function saveProfile(userEmail, profileData) {
   }
 }
 
-export async function updateProfile(userEmail, profileId, profileData) {
+export async function updateProfile(
+  userEmail,
+  profileId,
+  profileTitle,
+  profileData
+) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
   try {
@@ -69,7 +74,7 @@ export async function updateProfile(userEmail, profileId, profileData) {
       ipfs: [],
       linked_schemas: profileObj.linked_schemas,
       profile: profileData,
-      title: 'Default title'
+      title: profileTitle
     }
     await mongoUpdateProfile(client, profileId, profile)
 

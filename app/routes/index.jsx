@@ -30,7 +30,14 @@ export async function action({ request }) {
       : (rawData[key] = formData._fields[key][0])
   }
   let { _action, ...data } = rawData
-  let schema, profileId, profileData, profile, response, body, userEmail
+  let schema,
+    profileId,
+    profileTitle,
+    profileData,
+    profile,
+    response,
+    body,
+    userEmail
   switch (_action) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
@@ -57,7 +64,8 @@ export async function action({ request }) {
     case 'save':
       userEmail = await requireUserEmail(request, '/')
       profileData = formData.get('instance')
-      response = await saveProfile(userEmail, profileData)
+      profileTitle = formData.get('profile_title')
+      response = await saveProfile(userEmail, profileTitle, profileData)
       if (!response.success) {
         return response
       }
@@ -69,14 +77,17 @@ export async function action({ request }) {
       return json({
         schema: schema,
         profileData: JSON.parse(profileData.profile),
-        profileId: profileId
+        profileId: profileId,
+        profileTitle: profileData.title
       })
     case 'update':
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
+      profileTitle = formData.get('profile_title')
       schema = await parseRef(data.linked_schemas)
-      delete data.profile_id
-      profile = generateInstance(schema, data)
+      // delete profile_id, profile_title from data
+      let { profile_id, profile_title, ...instanceData } = data
+      profile = generateInstance(schema, instanceData)
       response = await fetchPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
@@ -91,21 +102,20 @@ export async function action({ request }) {
         return json({
           failure_reasons: body?.failure_reasons,
           schema: schema,
-          profileData: profile,
-          profileId: profileId
+          profileData: profile
         })
       }
       if (body.status === 404) {
         return json({
           failure_reasons: body?.failure_reasons,
           schema: schema,
-          profileData: profile,
-          profileId: profileId
+          profileData: profile
         })
       }
       response = await updateProfile(
         userEmail,
         profileId,
+        profileTitle,
         JSON.stringify(profile)
       )
       return json(response)
@@ -209,7 +219,21 @@ export default function Index() {
         </Form>
         {schema && profileData ? (
           <Form method="post">
-            <h3>
+            <label>
+              <div className="font-bold mt-4">
+                Profile Title
+                <span className="text-red-500 dark:text-red-400">*</span>:
+              </div>
+              <input
+                className="form-input w-full dark:bg-slate-700 mt-2"
+                type="text"
+                name="profile_title"
+                required="required"
+                placeholder="Enter a memorable title"
+                defaultValue={data.profileTitle}
+              />
+            </label>
+            <h3 className="mt-4">
               Schemas selected:{' '}
               <ol>
                 {schema.metadata.schema.map((schemaName, index) => (
@@ -310,6 +334,19 @@ export default function Index() {
                     name="instance"
                     defaultValue={JSON.stringify(instance)}
                   />
+                  <label>
+                    <div className="font-bold mt-4">
+                      Profile Title
+                      <span className="text-red-500 dark:text-red-400">*</span>:
+                    </div>
+                    <input
+                      className="form-input w-full dark:bg-slate-700 mt-2"
+                      type="text"
+                      name="profile_title"
+                      required="required"
+                      placeholder="Enter a memorable title"
+                    />
+                  </label>
                   <button
                     className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
                     type="submit"
