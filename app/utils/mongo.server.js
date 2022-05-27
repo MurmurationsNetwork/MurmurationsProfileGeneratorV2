@@ -1,3 +1,5 @@
+import * as path from 'path'
+
 const { MongoClient } = require('mongodb')
 
 const url =
@@ -8,10 +10,10 @@ const url =
   '@' +
   process.env.PRIVATE_DIGITALOCEAN_MONGO_HOST
 
-const sslCA = process.env.PRIVATE_DIGITALOCEAN_MONGO_CERT
 const db = 'mpgdata'
 
 export async function mongoConnect() {
+  const sslCA = path.resolve(__dirname + '/ca-certificate.crt')
   const client = new MongoClient(url, {
     ssl: true,
     sslValidate: true,
