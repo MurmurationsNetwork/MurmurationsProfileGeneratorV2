@@ -68,7 +68,7 @@ export async function action({ request }) {
       schema = await parseRef(profileData.linked_schemas)
       return json({
         schema: schema,
-        profileData: profileData,
+        profileData: JSON.parse(profileData.profile),
         profileId: profileId
       })
     case 'update':
@@ -261,7 +261,9 @@ export default function Index() {
           </h1>
           {user ? (
             <div className="user-info">
-              <span>{`Your last_login time: ${user.last_login}`}</span>
+              <span>{`Your last_login time: ${
+                user?.last_login ? new Date(user.last_login).toJSON() : ''
+              }`}</span>
               <form action="/logout" method="post">
                 <button type="submit" className="button">
                   Logout
@@ -357,22 +359,23 @@ function ProfileItem({ profile }) {
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">
           <Link
-            to={{ pathname: `/profiles/${profile?.id}` }}
+            to={{ pathname: `/profiles/${profile?.cuid}` }}
             target="_blank"
             className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
-            {profile?.id}
+            {profile?.title}
           </Link>
         </div>
         <p>
           Last Updated:{' '}
-          {profile?.metadata?.last_updated
-            ? new Date(profile.metadata.last_updated).toJSON()
-            : ''}
+          {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
         </p>
-        <p>Schema: {profile?.linked_schemas ? profile?.linked_schemas : ''}</p>
+        <p>
+          Schema:{' '}
+          {profile?.linked_schemas ? profile?.linked_schemas.join(', ') : ''}
+        </p>
         <Form method="post">
-          <input type="hidden" name="profile_id" defaultValue={profile?.id} />
+          <input type="hidden" name="profile_id" defaultValue={profile?.cuid} />
           <button
             className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
             type="submit"
@@ -383,7 +386,7 @@ function ProfileItem({ profile }) {
           </button>
         </Form>
         <Form method="post">
-          <input type="hidden" name="profile_id" defaultValue={profile?.id} />
+          <input type="hidden" name="profile_id" defaultValue={profile?.cuid} />
           <button
             className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
             type="submit"
