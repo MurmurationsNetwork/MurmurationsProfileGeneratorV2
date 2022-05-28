@@ -11,6 +11,30 @@ import {
   mongoUpdateProfile,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
+import fetchPost from '~/utils/fetchPost'
+import fetchGet from '~/utils/fetchGet'
+
+export async function getNodes(profiles) {
+  let promises = []
+  for (let i = 0; i < profiles.length; i++) {
+    let url =
+      process.env.PUBLIC_PROFILE_POST_URL + '/nodes/' + profiles[i].node_id
+    let promise = new Promise(resolve => {
+      resolve(fetchGet(url))
+    })
+    promises.push(promise)
+  }
+  return await Promise.all(promises)
+}
+
+async function postNode(profileId) {
+  const postUrl = process.env.PUBLIC_PROFILE_POST_URL + '/nodes'
+  const profileUrl = process.env.PUBLIC_PROFILE_SOURCE_URL + '/' + profileId
+  const res = await fetchPost(postUrl, {
+    profile_url: profileUrl
+  })
+  return await res.json()
+}
 
 export async function getProfile(profileId) {
   const client = await mongoConnect()
@@ -31,15 +55,17 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
   const profileId = cuid()
   const client = await mongoConnect()
   const profileObj = JSON.parse(profileData)
-  const profile = {
-    cuid: profileId,
-    ipfs: [],
-    last_updated: Date.now(),
-    linked_schemas: profileObj.linked_schemas,
-    profile: profileData,
-    title: profileTitle
-  }
   try {
+    const body = await postNode(profileId)
+    const profile = {
+      cuid: profileId,
+      ipfs: [],
+      last_updated: Date.now(),
+      linked_schemas: profileObj.linked_schemas,
+      profile: profileData,
+      title: profileTitle,
+      node_id: body?.data?.node_id ? body?.data?.node_id : ''
+    }
     await mongoSaveProfile(client, profile)
     await mongoUpdateUserProfile(client, emailHash, profileId)
     return { success: true, message: 'Profile saved.' }
@@ -69,12 +95,14 @@ export async function updateProfile(
       }
     }
 
+    const body = await postNode(profileId)
     const profileObj = JSON.parse(profileData)
     const profile = {
       ipfs: [],
       linked_schemas: profileObj.linked_schemas,
       profile: profileData,
-      title: profileTitle
+      title: profileTitle,
+      node_id: body?.data?.node_id ? body?.data?.node_id : ''
     }
     await mongoUpdateProfile(client, profileId, profile)
 

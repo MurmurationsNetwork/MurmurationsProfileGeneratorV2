@@ -10,6 +10,8 @@ import {
   mongoSaveUser,
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
+import fetchGet from '~/utils/fetchGet'
+import { getNodes } from '~/utils/profile.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -113,6 +115,11 @@ export async function retrieveUser(request) {
     const user = await mongoGetUser(client, emailHash)
     if (user?.profiles.length !== 0) {
       user.profiles = await mongoGetProfiles(client, user.profiles)
+    }
+    const res = await getNodes(user.profiles)
+    for (let i = 0; i < user.profiles.length; i++) {
+      let body = await res[i].json()
+      user.profiles[i]['status'] = body.data.status
     }
     return user
   } catch (err) {

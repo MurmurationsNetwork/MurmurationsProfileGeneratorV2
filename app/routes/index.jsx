@@ -139,6 +139,8 @@ export async function loader(request) {
   return json({ schema: schema, user: user })
 }
 
+export const unstable_shouldReload = () => true
+
 export default function Index() {
   let loaderData = useLoaderData()
   let schemas = loaderData.schema
@@ -403,6 +405,7 @@ function ProfileItem({ profile }) {
             {profile?.title}
           </Link>
         </div>
+        <p>Status: {profile?.status ? profile?.status : ''}</p>
         <p>
           Last Updated:{' '}
           {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}

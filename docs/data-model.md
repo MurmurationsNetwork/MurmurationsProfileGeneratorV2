@@ -39,7 +39,8 @@ The `profiles` collection in the `mpgdata` MongoDB:
 - `ipfs` (array of strings) - IPFS addresses of the profile instance (push each new IPFS address whenever profile is updated)
 - `last_updated` (number - Unix timestamp) - last time the user modified (or created) the profile
 - `linked_schemas` (array of strings) - the schema(s) the profile must be validated against
-- `title` (string) - a memorable/identifiable title to its author 
+- `title` (string) - a memorable/identifiable title to its author
+- `node_id` (string) - the node_id from mumurationsServices
 
 ```
 {
