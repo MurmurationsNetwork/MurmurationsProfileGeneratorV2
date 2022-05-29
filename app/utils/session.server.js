@@ -10,7 +10,6 @@ import {
   mongoSaveUser,
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
-import fetchGet from '~/utils/fetchGet'
 import { getNodes } from '~/utils/profile.server'
 
 export async function register(email, password) {
