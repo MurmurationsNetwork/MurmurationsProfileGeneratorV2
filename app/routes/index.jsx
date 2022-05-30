@@ -400,7 +400,6 @@ function ProfileItem({ profile }) {
           <Link
             to={{ pathname: `/profiles/${profile?.cuid}` }}
             target="_blank"
-            rel="noreferrer"
             className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
             {profile?.title}
