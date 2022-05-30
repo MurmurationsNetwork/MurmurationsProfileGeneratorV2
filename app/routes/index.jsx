@@ -397,23 +397,27 @@ function ProfileItem({ profile }) {
     <div className="max-w rounded overflow-hidden border-2 mt-2">
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">
-          <a
-            href={`https://ipfs.fleek.co/ipfs/${profile?.ipfs[0]}`}
+          <Link
+            to={{ pathname: `/profiles/${profile?.cuid}` }}
             target="_blank"
             rel="noreferrer"
             className="no-underline hover:underline text-blue-600 dark:text-blue-300"
           >
             {profile?.title}
-          </a>
+          </Link>
           <br />
-          <a
-            href={`https://ipfs.fleek.co/ipfs/${profile?.ipfs[0]}`}
-            target="_blank"
-            rel="noreferrer"
-            className="no-underline hover:underline text-blue-600 dark:text-blue-300"
-          >
-            {profile?.ipfs[0]}
-          </a>
+          {profile?.ipfs[0] ? (
+            <a
+              href={`https://ipfs.fleek.co/ipfs/${profile.ipfs[0]}`}
+              target="_blank"
+              rel="noreferrer"
+              className="no-underline hover:underline text-blue-600 dark:text-blue-300"
+            >
+              {profile.ipfs[0]}
+            </a>
+          ) : (
+            ''
+          )}
         </div>
         <p>Status: {profile?.status ? profile?.status : ''}</p>
         <p>
