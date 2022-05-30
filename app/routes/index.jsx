@@ -37,7 +37,8 @@ export async function action({ request }) {
     profile,
     response,
     body,
-    userEmail
+    userEmail,
+      profileIpfsHash
   switch (_action) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
@@ -78,15 +79,17 @@ export async function action({ request }) {
         schema: schema,
         profileData: JSON.parse(profileData.profile),
         profileId: profileId,
-        profileTitle: profileData.title
+        profileTitle: profileData.title,
+        profileIpfsHash: profileData.ipfs[0]
       })
     case 'update':
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
       profileTitle = formData.get('profile_title')
+      profileIpfsHash = formData.get('profile_ipfs_hash')
       schema = await parseRef(data.linked_schemas)
       // delete profile_id, profile_title from data
-      let { profile_id, profile_title, ...instanceData } = data
+      let { profile_id, profile_title, profile_ipfs_hash, ...instanceData } = data
       profile = generateInstance(schema, instanceData)
       response = await fetchPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
@@ -116,7 +119,8 @@ export async function action({ request }) {
         userEmail,
         profileId,
         profileTitle,
-        JSON.stringify(profile)
+        JSON.stringify(profile),
+        profileIpfsHash
       )
       return json(response)
     case 'delete':
@@ -249,6 +253,11 @@ export default function Index() {
               type="hidden"
               name="profile_id"
               defaultValue={data.profileId}
+            />
+            <input
+                type="hidden"
+                name="profile_ipfs_hash"
+                defaultValue={data?.profileIpfsHash}
             />
             {generateForm(schema, profileData)}
             <button

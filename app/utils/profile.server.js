@@ -85,7 +85,8 @@ export async function updateProfile(
   userEmail,
   profileId,
   profileTitle,
-  profileData
+  profileData,
+  profileIpfsHash
 ) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
@@ -99,7 +100,9 @@ export async function updateProfile(
     }
 
     const fleekData = await fleekUpload(profileId, profileData)
-    await mongoUpdateIpfs(client, profileId, fleekData.hashV0)
+    if (fleekData.hashV0 !== profileIpfsHash) {
+      await mongoUpdateIpfs(client, profileId, fleekData.hashV0)
+    }
     const body = await postNode(profileId)
     const profileObj = JSON.parse(profileData)
     const profile = {
