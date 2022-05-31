@@ -37,7 +37,8 @@ export async function action({ request }) {
     profile,
     response,
     body,
-    userEmail
+    userEmail,
+    profileIpfsHash
   switch (_action) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
@@ -78,15 +79,18 @@ export async function action({ request }) {
         schema: schema,
         profileData: JSON.parse(profileData.profile),
         profileId: profileId,
-        profileTitle: profileData.title
+        profileTitle: profileData.title,
+        profileIpfsHash: profileData.ipfs[0]
       })
     case 'update':
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
       profileTitle = formData.get('profile_title')
+      profileIpfsHash = formData.get('profile_ipfs_hash')
       schema = await parseRef(data.linked_schemas)
       // delete profile_id, profile_title from data
-      let { profile_id, profile_title, ...instanceData } = data
+      let { profile_id, profile_title, profile_ipfs_hash, ...instanceData } =
+        data
       profile = generateInstance(schema, instanceData)
       response = await fetchPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
@@ -116,7 +120,8 @@ export async function action({ request }) {
         userEmail,
         profileId,
         profileTitle,
-        JSON.stringify(profile)
+        JSON.stringify(profile),
+        profileIpfsHash
       )
       return json(response)
     case 'delete':
@@ -136,7 +141,8 @@ export async function loader(request) {
   }
   const schema = await response.json()
   const user = await retrieveUser(request)
-  return json({ schema: schema, user: user })
+  const fleekGatewayUrl = process.env.PUBLIC_FLEEK_GATEWAY_URL
+  return json({ schema: schema, user: user, fleekGatewayUrl: fleekGatewayUrl })
 }
 
 export const unstable_shouldReload = () => true
@@ -145,6 +151,7 @@ export default function Index() {
   let loaderData = useLoaderData()
   let schemas = loaderData.schema
   let user = loaderData.user
+  let fleekGatewayUrl = loaderData.fleekGatewayUrl
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [profileData, setProfileData] = useState('')
@@ -247,6 +254,11 @@ export default function Index() {
               type="hidden"
               name="profile_id"
               defaultValue={data.profileId}
+            />
+            <input
+              type="hidden"
+              name="profile_ipfs_hash"
+              defaultValue={data?.profileIpfsHash}
             />
             {generateForm(schema, profileData)}
             <button
@@ -381,7 +393,11 @@ export default function Index() {
               <div className="mt-5">
                 <h1 className="text-2xl">User Profile List</h1>
                 {user.profiles.map((_, index) => (
-                  <ProfileItem profile={user.profiles[index]} key={index} />
+                  <ProfileItem
+                    profile={user.profiles[index]}
+                    fleekGatewayUrl={fleekGatewayUrl}
+                    key={index}
+                  />
                 ))}
               </div>
             ) : null}
@@ -392,7 +408,7 @@ export default function Index() {
   )
 }
 
-function ProfileItem({ profile }) {
+function ProfileItem({ profile, fleekGatewayUrl }) {
   return (
     <div className="max-w rounded overflow-hidden border-2 mt-2">
       <div className="px-6 py-4">
@@ -404,6 +420,19 @@ function ProfileItem({ profile }) {
           >
             {profile?.title}
           </Link>
+          <br />
+          {profile?.ipfs[0] ? (
+            <a
+              href={`${fleekGatewayUrl}/${profile.ipfs[0]}`}
+              target="_blank"
+              rel="noreferrer"
+              className="no-underline hover:underline text-blue-600 dark:text-blue-300"
+            >
+              {profile.ipfs[0]}
+            </a>
+          ) : (
+            ''
+          )}
         </div>
         <p>Status: {profile?.status ? profile?.status : ''}</p>
         <p>

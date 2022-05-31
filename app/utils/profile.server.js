@@ -8,11 +8,13 @@ import {
   mongoGetProfile,
   mongoGetUser,
   mongoSaveProfile,
+  mongoUpdateIpfs,
   mongoUpdateProfile,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
 import fetchPost from '~/utils/fetchPost'
 import fetchGet from '~/utils/fetchGet'
+import { fleekDelete, fleekUpload } from '~/utils/fleek.server'
 
 export async function getNodes(profiles) {
   let promises = []
@@ -56,10 +58,11 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
   const client = await mongoConnect()
   const profileObj = JSON.parse(profileData)
   try {
+    const fleekData = await fleekUpload(profileId, profileData)
     const body = await postNode(profileId)
     const profile = {
       cuid: profileId,
-      ipfs: [],
+      ipfs: [fleekData.hashV0],
       last_updated: Date.now(),
       linked_schemas: profileObj.linked_schemas,
       profile: profileData,
@@ -82,7 +85,8 @@ export async function updateProfile(
   userEmail,
   profileId,
   profileTitle,
-  profileData
+  profileData,
+  profileIpfsHash
 ) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
@@ -95,10 +99,13 @@ export async function updateProfile(
       }
     }
 
+    const fleekData = await fleekUpload(profileId, profileData)
+    if (fleekData.hashV0 !== profileIpfsHash) {
+      await mongoUpdateIpfs(client, profileId, fleekData.hashV0)
+    }
     const body = await postNode(profileId)
     const profileObj = JSON.parse(profileData)
     const profile = {
-      ipfs: [],
       linked_schemas: profileObj.linked_schemas,
       profile: profileData,
       title: profileTitle,
@@ -128,6 +135,7 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
 
+    await fleekDelete(profileId)
     await mongoDeleteUserProfile(client, emailHash, profileId)
     await mongoDeleteProfile(client, profileId)
 

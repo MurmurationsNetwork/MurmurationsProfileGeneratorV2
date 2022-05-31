@@ -164,6 +164,29 @@ export async function mongoSaveProfile(client, profile) {
   }
 }
 
+export async function mongoUpdateIpfs(client, profileId, ipfs) {
+  try {
+    return await client
+      .db(db)
+      .collection('profiles')
+      .updateOne(
+        { cuid: profileId },
+        {
+          $push: {
+            ipfs: {
+              $each: [ipfs],
+              $position: 0
+            }
+          }
+        }
+      )
+  } catch (err) {
+    throw new Response(`MongoDB UpdateIpfs error: ${JSON.stringify(err)}`, {
+      status: 500
+    })
+  }
+}
+
 export async function mongoUpdateProfile(client, profileId, profileData) {
   try {
     return await client
@@ -173,7 +196,6 @@ export async function mongoUpdateProfile(client, profileId, profileData) {
         { cuid: profileId },
         {
           $set: {
-            ipfs: profileData.ipfs,
             last_updated: Date.now(),
             linked_schemas: profileData.linked_schemas,
             profile: profileData.profile,
