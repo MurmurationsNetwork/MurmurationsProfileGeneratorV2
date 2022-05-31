@@ -8,11 +8,9 @@ import {
 import { useEffect, useState } from 'react'
 import { json } from '@remix-run/node'
 
-import fetchPost from '~/utils/fetchPost'
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
-import fetchGet from '~/utils/fetchGet'
 import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 import {
   deleteProfile,
@@ -20,6 +18,7 @@ import {
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
+import { fetchGet, fetchPost } from '~/utils/fetcher'
 
 export async function action({ request }) {
   let formData = await request.formData()
