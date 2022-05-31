@@ -146,7 +146,7 @@ export async function deleteProfile(userEmail, profileId) {
       await mongoSaveProfile(client, profile)
       return {
         success: false,
-        error: "Can't delete the node from mumurationsServices."
+        error: 'Cannot delete the node from the Murmurations Index.'
       }
     }
     const resJson = await res.json()
