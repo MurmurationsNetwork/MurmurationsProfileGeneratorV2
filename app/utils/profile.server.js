@@ -12,9 +12,8 @@ import {
   mongoUpdateProfile,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
-import fetchPost from '~/utils/fetchPost'
-import fetchGet from '~/utils/fetchGet'
 import { fleekDelete, fleekUpload } from '~/utils/fleek.server'
+import { fetchDelete, fetchGet, fetchPost } from '~/utils/fetcher'
 
 export async function getNodes(profiles) {
   let promises = []
@@ -36,6 +35,11 @@ async function postNode(profileId) {
     profile_url: profileUrl
   })
   return await res.json()
+}
+
+async function deleteNode(nodeId) {
+  const url = process.env.PUBLIC_PROFILE_POST_URL + '/nodes/' + nodeId
+  return await fetchDelete(url)
 }
 
 export async function getProfile(profileId) {
@@ -135,9 +139,26 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
 
-    await fleekDelete(profileId)
-    await mongoDeleteUserProfile(client, emailHash, profileId)
+    const profile = await mongoGetProfile(client, profileId)
     await mongoDeleteProfile(client, profileId)
+    const res = await deleteNode(profile.node_id)
+    if (res.status !== 200) {
+      await mongoSaveProfile(client, profile)
+      return {
+        success: false,
+        error: "Can't delete the node from mumurationsServices."
+      }
+    }
+    const resJson = await res.json()
+    if (resJson.status !== 200) {
+      await mongoSaveProfile(client, profile)
+      return {
+        success: false,
+        error: resJson.message
+      }
+    }
+    await mongoDeleteUserProfile(client, emailHash, profileId)
+    await fleekDelete(profileId)
 
     return { success: true, message: 'Profile deleted.' }
   } catch (err) {
