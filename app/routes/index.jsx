@@ -19,6 +19,7 @@ import {
   updateProfile
 } from '~/utils/profile.server'
 import { fetchGet, fetchPost } from '~/utils/fetcher'
+import { toast, Toaster } from 'react-hot-toast'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -154,7 +155,6 @@ export default function Index() {
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [profileData, setProfileData] = useState('')
-  let [successMessage, setSuccessMessage] = useState('')
   let [instance, setInstance] = useState('')
   let [errors, setErrors] = useState([])
   useEffect(() => {
@@ -162,30 +162,29 @@ export default function Index() {
       setSchema(data)
       setProfileData('')
       setInstance('')
-      setSuccessMessage('')
       setErrors([])
     }
     if (data?.linked_schemas) {
       setInstance(data)
-      setSuccessMessage('')
       setErrors([])
     }
     if (data?.profileData) {
       setSchema(data.schema)
       setProfileData(data.profileData)
       setInstance('')
-      setSuccessMessage('')
       setErrors([])
     }
     if (data?.success) {
       setSchema('')
       setProfileData('')
       setInstance('')
-      setSuccessMessage(data.message)
+      toast.success(data.message)
       setErrors([])
     }
+    if (data?.error) {
+      toast.error(data.error)
+    }
     if (data?.failure_reasons) {
-      setSuccessMessage('')
       setErrors(data.failure_reasons)
     }
   }, [data])
@@ -313,26 +312,12 @@ export default function Index() {
             </div>
           )}
           <div className="md:mt-8">
-            {data?.error ? (
-              <div className="mb-2" role="alert">
-                <div className="bg-red-500 text-white font-bold rounded-t px-4 py-2">
-                  Error!
-                </div>
-                <div className="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700">
-                  <p>{data.error}</p>
-                </div>
-              </div>
-            ) : null}
-            {successMessage ? (
-              <div className="mb-2" role="alert">
-                <div className="bg-green-500 text-white font-bold rounded-t px-4 py-2">
-                  Completed
-                </div>
-                <div className="border border-t-0 border-green-400 rounded-b bg-green-100 px-4 py-3 text-green-700">
-                  <p>{successMessage}</p>
-                </div>
-              </div>
-            ) : null}
+            <Toaster
+              toastOptions={{
+                className: 'dark:text-white dark:bg-neutral-900',
+                duration: 5000
+              }}
+            />
             {instance && !errors[0] ? (
               <>
                 <p className="text-xl mb-2 md:mb-4">
