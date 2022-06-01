@@ -24,10 +24,8 @@ import { toast, Toaster } from 'react-hot-toast'
 export async function action({ request }) {
   let formData = await request.formData()
   let rawData = {}
-  for (let key in formData._fields) {
-    formData._fields[key].length > 1
-      ? (rawData[key] = formData._fields[key])
-      : (rawData[key] = formData._fields[key][0])
+  for (let formEntry of formData.entries()) {
+    rawData[formEntry[0]] = formEntry[1]
   }
   let { _action, ...data } = rawData
   let schema,
@@ -129,6 +127,9 @@ export async function action({ request }) {
       profileId = formData.get('profile_id')
       response = await deleteProfile(userEmail, profileId)
       return json(response)
+
+    default:
+      return null
   }
 }
 
