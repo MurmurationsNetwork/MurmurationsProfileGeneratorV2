@@ -12,7 +12,6 @@ import {
   mongoUpdateProfile,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
-import { fleekDelete } from '~/utils/fleek.server'
 import { fetchDelete, fetchGet, fetchPost } from '~/utils/fetcher'
 import { ipfsUpload } from '~/utils/ipfs.server'
 
@@ -159,7 +158,8 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
     await mongoDeleteUserProfile(client, emailHash, profileId)
-    await fleekDelete(profileId)
+    // todo: need to unpin ipfs in the future
+    // await fleekDelete(profileId)
 
     return { success: true, message: 'Profile deleted.' }
   } catch (err) {
