@@ -142,8 +142,8 @@ export async function loader(request) {
   }
   const schema = await response.json()
   const user = await retrieveUser(request)
-  const fleekGatewayUrl = process.env.PUBLIC_FLEEK_GATEWAY_URL
-  return json({ schema: schema, user: user, fleekGatewayUrl: fleekGatewayUrl })
+  const ipfsGatewayUrl = process.env.PUBLIC_IFPS_GATEWAY_URL
+  return json({ schema: schema, user: user, ipfsGatewayUrl: ipfsGatewayUrl })
 }
 
 export const unstable_shouldReload = () => true
@@ -152,7 +152,7 @@ export default function Index() {
   let loaderData = useLoaderData()
   let schemas = loaderData.schema
   let user = loaderData.user
-  let fleekGatewayUrl = loaderData.fleekGatewayUrl
+  let ipfsGatewayUrl = loaderData.ipfsGatewayUrl
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [profileData, setProfileData] = useState('')
@@ -380,7 +380,7 @@ export default function Index() {
                 {user.profiles.map((_, index) => (
                   <ProfileItem
                     profile={user.profiles[index]}
-                    fleekGatewayUrl={fleekGatewayUrl}
+                    ipfsGatewayUrl={ipfsGatewayUrl}
                     key={index}
                   />
                 ))}
@@ -393,7 +393,7 @@ export default function Index() {
   )
 }
 
-function ProfileItem({ profile, fleekGatewayUrl }) {
+function ProfileItem({ profile, ipfsGatewayUrl }) {
   return (
     <div className="max-w rounded overflow-hidden border-2 mt-2">
       <div className="px-6 py-4">
@@ -408,7 +408,7 @@ function ProfileItem({ profile, fleekGatewayUrl }) {
           <br />
           {profile?.ipfs[0] ? (
             <a
-              href={`${fleekGatewayUrl}/${profile.ipfs[0]}`}
+              href={`${ipfsGatewayUrl}/${profile.ipfs[0]}`}
               target="_blank"
               rel="noreferrer"
               className="no-underline hover:underline text-blue-600 dark:text-blue-300"

@@ -21,6 +21,17 @@ export async function fetchPost(url, body) {
   })
 }
 
+export async function fetchFilePost(url, formData) {
+  return fetch(url, {
+    method: 'POST',
+    body: formData
+  }).catch(error => {
+    throw new Response(`fetchPost error: ${error}`, {
+      status: 500
+    })
+  })
+}
+
 export async function fetchDelete(url) {
   return fetch(url, {
     method: 'DELETE'
