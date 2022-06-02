@@ -158,8 +158,6 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
     await mongoDeleteUserProfile(client, emailHash, profileId)
-    // todo: need to unpin ipfs in the future
-    // await fleekDelete(profileId)
 
     return { success: true, message: 'Profile deleted.' }
   } catch (err) {

@@ -143,12 +143,10 @@ export async function loader(request) {
   const schema = await response.json()
   const user = await retrieveUser(request)
   const ipfsGatewayUrl = process.env.PUBLIC_IFPS_GATEWAY_URL
-  const fleekGatewayUrl = process.env.PUBLIC_FLEEK_GATEWAY_URL
   return json({
     schema: schema,
     user: user,
-    ipfsGatewayUrl: ipfsGatewayUrl,
-    fleekGatewayUrl: fleekGatewayUrl
+    ipfsGatewayUrl: ipfsGatewayUrl
   })
 }
 
@@ -159,7 +157,6 @@ export default function Index() {
   let schemas = loaderData.schema
   let user = loaderData.user
   let ipfsGatewayUrl = loaderData.ipfsGatewayUrl
-  let fleekGatewayUrl = loaderData.fleekGatewayUrl
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [profileData, setProfileData] = useState('')
@@ -388,7 +385,6 @@ export default function Index() {
                   <ProfileItem
                     profile={user.profiles[index]}
                     ipfsGatewayUrl={ipfsGatewayUrl}
-                    fleekGatewayUrl={fleekGatewayUrl}
                     key={index}
                   />
                 ))}
@@ -401,11 +397,12 @@ export default function Index() {
   )
 }
 
-function ProfileItem({ profile, ipfsGatewayUrl, fleekGatewayUrl }) {
+function ProfileItem({ profile, ipfsGatewayUrl }) {
   return (
     <div className="max-w rounded overflow-hidden border-2 mt-2">
       <div className="px-6 py-4">
         <div className="font-bold text-xl mb-2">
+          Title:{' '}
           <Link
             to={{ pathname: `/profiles/${profile?.cuid}` }}
             target="_blank"
@@ -416,6 +413,7 @@ function ProfileItem({ profile, ipfsGatewayUrl, fleekGatewayUrl }) {
           <br />
           {profile?.ipfs[0] ? (
             <>
+              IPFS Address:{' '}
               <a
                 href={`${ipfsGatewayUrl}/${profile.ipfs[0]}`}
                 target="_blank"
@@ -424,28 +422,18 @@ function ProfileItem({ profile, ipfsGatewayUrl, fleekGatewayUrl }) {
               >
                 {profile.ipfs[0]}
               </a>
-              <br />
-              <a
-                href={`${fleekGatewayUrl}/${profile.ipfs[0]}`}
-                target="_blank"
-                rel="noreferrer"
-                className="no-underline hover:underline text-blue-600 dark:text-blue-300"
-              >
-                {profile.ipfs[0]}
-              </a>
-              (fleek)
             </>
           ) : (
             ''
           )}
         </div>
-        <p>Status: {profile?.status ? profile?.status : ''}</p>
+        <p>Index Status: {profile?.status ? profile?.status : ''}</p>
         <p>
           Last Updated:{' '}
           {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
         </p>
         <p>
-          Schema:{' '}
+          Schema List:{' '}
           {profile?.linked_schemas ? profile?.linked_schemas.join(', ') : ''}
         </p>
         <Form method="post">
