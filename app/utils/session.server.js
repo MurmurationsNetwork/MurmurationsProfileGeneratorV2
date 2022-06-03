@@ -121,7 +121,8 @@ export async function retrieveUser(request) {
       if (body?.data) {
         user.profiles[i]['status'] = body.data?.status
       } else {
-        user.profiles[i]['status'] = 'Status Not Found'
+        user.profiles[i]['status'] =
+          'Status Not Found - Node not found in Index'
       }
     }
     return user
