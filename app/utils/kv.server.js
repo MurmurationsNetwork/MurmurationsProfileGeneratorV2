@@ -14,8 +14,8 @@ export async function kvGet(key) {
   const formattedUrl = url + '/values/' + key
   const res = await fetch(formattedUrl, {
     headers: headers
-  }).catch(error => {
-    throw new Response(`kvGet error: ${error}`, {
+  }).catch(err => {
+    throw new Response(`kvGet error: ${err}`, {
       status: 500
     })
   })
@@ -26,8 +26,8 @@ export async function kvGetMetadata(key) {
   const formattedUrl = url + '/metadata/' + key
   const res = await fetch(formattedUrl, {
     headers: headers
-  }).catch(error => {
-    throw new Response(`kvGetMetadata error: ${error}`, {
+  }).catch(err => {
+    throw new Response(`kvGetMetadata error: ${err}`, {
       status: 500
     })
   })
@@ -40,8 +40,8 @@ export async function kvSave(key, value) {
     method: 'PUT',
     headers: headers,
     body: value
-  }).catch(error => {
-    throw new Response(`kvSave error: ${error}`, {
+  }).catch(err => {
+    throw new Response(`kvSave error: ${err}`, {
       status: 500
     })
   })
@@ -57,8 +57,8 @@ export async function kvSaveWithMetadata(key, value, metadata) {
     method: 'PUT',
     headers: headers,
     body: formData
-  }).catch(error => {
-    throw new Response(`kvSaveWithMetadata error: ${error}`, {
+  }).catch(err => {
+    throw new Response(`kvSaveWithMetadata error: ${err}`, {
       status: 500
     })
   })
@@ -70,8 +70,8 @@ export async function kvDelete(key) {
   const res = await fetch(formattedUrl, {
     method: 'DELETE',
     headers: headers
-  }).catch(error => {
-    throw new Response(`kvDelete error: ${error}`, {
+  }).catch(err => {
+    throw new Response(`kvDelete error: ${err}`, {
       status: 500
     })
   })

@@ -25,7 +25,14 @@ export async function getNodes(profiles) {
     })
     promises.push(promise)
   }
-  return await Promise.all(promises)
+
+  try {
+    return await Promise.all(promises)
+  } catch (err) {
+    throw new Response(`getNodes failed: ${err}`, {
+      status: 500
+    })
+  }
 }
 
 async function postNode(profileId) {
@@ -34,12 +41,24 @@ async function postNode(profileId) {
   const res = await fetchPost(postUrl, {
     profile_url: profileUrl
   })
-  return await res.json()
+  try {
+    return await res.json()
+  } catch (err) {
+    throw new Response(`postNode failed: ${err}`, {
+      status: 500
+    })
+  }
 }
 
 async function deleteNode(nodeId) {
   const url = process.env.PUBLIC_PROFILE_POST_URL + '/nodes/' + nodeId
-  return await fetchDelete(url)
+  try {
+    return await fetchDelete(url)
+  } catch (err) {
+    throw new Response(`deleteNode failed: ${err}`, {
+      status: 500
+    })
+  }
 }
 
 export async function getProfile(profileId) {
@@ -77,7 +96,7 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
     await mongoUpdateUserProfile(client, emailHash, profileId)
     return { success: true, message: 'Profile saved.' }
   } catch (err) {
-    throw new Response('saveProfile failed:' + JSON.stringify(err), {
+    throw new Response(`saveProfile failed: ${err}`, {
       status: 500
     })
   } finally {
@@ -119,7 +138,7 @@ export async function updateProfile(
 
     return { success: true, message: 'Profile updated.' }
   } catch (err) {
-    throw new Response('updateProfile failed:' + JSON.stringify(err), {
+    throw new Response(`updateProfile failed: ${err}`, {
       status: 500
     })
   } finally {
@@ -161,7 +180,7 @@ export async function deleteProfile(userEmail, profileId) {
 
     return { success: true, message: 'Profile deleted.' }
   } catch (err) {
-    throw new Response('deleteProfile failed:' + JSON.stringify(err), {
+    throw new Response(`deleteProfile failed: ${err}`, {
       status: 500
     })
   } finally {

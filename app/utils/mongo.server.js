@@ -47,7 +47,7 @@ export async function mongoCountUser(client, emailHash) {
       .find({ email_hash: emailHash })
       .count()
   } catch (err) {
-    throw new Response(`MongoDB CountUser error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB CountUser error: ${err}`, {
       status: 500
     })
   }
@@ -60,7 +60,7 @@ export async function mongoGetUser(client, emailHash) {
       .collection('users')
       .findOne({ email_hash: emailHash })
   } catch (err) {
-    throw new Response(`MongoDB GetUser error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB GetUser error: ${err}`, {
       status: 500
     })
   }
@@ -70,7 +70,7 @@ export async function mongoSaveUser(client, user) {
   try {
     return await client.db(db).collection('users').insertOne(user)
   } catch (err) {
-    throw new Response(`MongoDB SaveUser error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB SaveUser error: ${err}`, {
       status: 500
     })
   }
@@ -86,12 +86,9 @@ export async function mongoUpdateUserLogin(client, emailHash) {
         { $set: { last_login: Date.now() } }
       )
   } catch (err) {
-    throw new Response(
-      `MongoDB UpdateUserLogin error: ${JSON.stringify(err)}`,
-      {
-        status: 500
-      }
-    )
+    throw new Response(`MongoDB UpdateUserLogin error: ${err}`, {
+      status: 500
+    })
   }
 }
 
@@ -102,12 +99,9 @@ export async function mongoUpdateUserProfile(client, emailHash, profileId) {
       .collection('users')
       .updateOne({ email_hash: emailHash }, { $push: { profiles: profileId } })
   } catch (err) {
-    throw new Response(
-      `MongoDB UpdateUserProfile error: ${JSON.stringify(err)}`,
-      {
-        status: 500
-      }
-    )
+    throw new Response(`MongoDB UpdateUserProfile error: ${err}`, {
+      status: 500
+    })
   }
 }
 
@@ -118,12 +112,9 @@ export async function mongoDeleteUserProfile(client, emailHash, profileId) {
       .collection('users')
       .updateOne({ email_hash: emailHash }, { $pull: { profiles: profileId } })
   } catch (err) {
-    throw new Response(
-      `MongoDB DeleteUserProfile error: ${JSON.stringify(err)}`,
-      {
-        status: 500
-      }
-    )
+    throw new Response(`MongoDB DeleteUserProfile error: ${err}`, {
+      status: 500
+    })
   }
 }
 
@@ -134,7 +125,7 @@ export async function mongoGetProfile(client, profileId) {
       .collection('profiles')
       .findOne({ cuid: profileId })
   } catch (err) {
-    throw new Response(`MongoDB GetProfile error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB GetProfile error: ${err}`, {
       status: 500
     })
   }
@@ -148,7 +139,7 @@ export async function mongoGetProfiles(client, profileIds) {
       .find({ cuid: { $in: profileIds } })
       .toArray()
   } catch (err) {
-    throw new Response(`MongoDB GetProfiles error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB GetProfiles error: ${err}`, {
       status: 500
     })
   }
@@ -158,7 +149,7 @@ export async function mongoSaveProfile(client, profile) {
   try {
     return await client.db(db).collection('profiles').insertOne(profile)
   } catch (err) {
-    throw new Response(`MongoDB SaveProfile error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB SaveProfile error: ${err}`, {
       status: 500
     })
   }
@@ -181,7 +172,7 @@ export async function mongoUpdateIpfs(client, profileId, ipfs) {
         }
       )
   } catch (err) {
-    throw new Response(`MongoDB UpdateIpfs error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB UpdateIpfs error: ${err}`, {
       status: 500
     })
   }
@@ -204,7 +195,7 @@ export async function mongoUpdateProfile(client, profileId, profileData) {
         }
       )
   } catch (err) {
-    throw new Response(`MongoDB UpdateProfile error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB UpdateProfile error: ${err}`, {
       status: 500
     })
   }
@@ -217,7 +208,7 @@ export async function mongoDeleteProfile(client, profileId) {
       .collection('profiles')
       .deleteOne({ cuid: profileId })
   } catch (err) {
-    throw new Response(`MongoDB DeleteProfile error: ${JSON.stringify(err)}`, {
+    throw new Response(`MongoDB DeleteProfile error: ${err}`, {
       status: 500
     })
   }
