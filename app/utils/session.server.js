@@ -33,7 +33,7 @@ export async function register(email, password) {
     await mongoSaveUser(client, data)
     return { userEmail: email }
   } catch (err) {
-    throw new Response('register failed:' + JSON.stringify(err), {
+    throw new Response(`register failed: ${err}`, {
       status: 500
     })
   } finally {
@@ -53,7 +53,7 @@ export async function login(email, password) {
     await mongoUpdateUserLogin(client, emailHash)
     return { userEmail: email }
   } catch (err) {
-    throw new Response('login failed:' + JSON.stringify(err), {
+    throw new Response(`login failed: ${err}`, {
       status: 500
     })
   } finally {
@@ -118,11 +118,16 @@ export async function retrieveUser(request) {
     const res = await getNodes(user.profiles)
     for (let i = 0; i < user.profiles.length; i++) {
       let body = await res[i].json()
-      user.profiles[i]['status'] = body.data.status
+      if (body?.data) {
+        user.profiles[i]['status'] = body.data?.status
+      } else {
+        user.profiles[i]['status'] =
+          'Status Not Found - Node not found in Index'
+      }
     }
     return user
   } catch (err) {
-    throw new Response('retrieveUser failed:' + JSON.stringify(err), {
+    throw new Response(`retrieveUser failed: ${err}`, {
       status: 500
     })
   } finally {
@@ -137,7 +142,7 @@ export async function checkUser(email) {
     const res = await mongoCountUser(client, emailHash)
     return res !== 0
   } catch (err) {
-    throw new Response('checkUser failed:' + JSON.stringify(err), {
+    throw new Response(`checkUser failed: ${err}`, {
       status: 500
     })
   } finally {
