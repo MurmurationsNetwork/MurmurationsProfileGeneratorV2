@@ -6,7 +6,17 @@ export async function fetchGet(url) {
   })
 }
 
-export async function fetchPost(url, body) {
+export async function fetchPost(url) {
+  return fetch(url, {
+    method: 'POST'
+  }).catch(err => {
+    throw new Response(`fetchPost error: ${err}`, {
+      status: 500
+    })
+  })
+}
+
+export async function fetchJsonPost(url, body) {
   return fetch(url, {
     method: 'POST',
     headers: {
@@ -15,7 +25,7 @@ export async function fetchPost(url, body) {
     },
     body: JSON.stringify(body)
   }).catch(err => {
-    throw new Response(`fetchPost error: ${err}`, {
+    throw new Response(`fetchJsonPost error: ${err}`, {
       status: 500
     })
   })

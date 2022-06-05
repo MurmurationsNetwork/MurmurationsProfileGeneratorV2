@@ -18,7 +18,7 @@ import {
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
-import { fetchGet, fetchPost } from '~/utils/fetcher'
+import { fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import { toast, Toaster } from 'react-hot-toast'
 
 export async function action({ request }) {
@@ -41,7 +41,7 @@ export async function action({ request }) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
       profile = generateInstance(schema, data)
-      response = await fetchPost(
+      response = await fetchJsonPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )
@@ -90,7 +90,7 @@ export async function action({ request }) {
       let { profile_id, profile_title, profile_ipfs_hash, ...instanceData } =
         data
       profile = generateInstance(schema, instanceData)
-      response = await fetchPost(
+      response = await fetchJsonPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )

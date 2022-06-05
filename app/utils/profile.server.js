@@ -12,7 +12,7 @@ import {
   mongoUpdateProfile,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
-import { fetchDelete, fetchGet, fetchPost } from '~/utils/fetcher'
+import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import { ipfsUpload } from '~/utils/ipfs.server'
 
 export async function getNodes(profiles) {
@@ -38,7 +38,7 @@ export async function getNodes(profiles) {
 async function postNode(profileId) {
   const postUrl = process.env.PUBLIC_PROFILE_POST_URL + '/nodes'
   const profileUrl = process.env.PUBLIC_PROFILE_SOURCE_URL + '/' + profileId
-  const res = await fetchPost(postUrl, {
+  const res = await fetchJsonPost(postUrl, {
     profile_url: profileUrl
   })
   try {

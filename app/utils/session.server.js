@@ -11,6 +11,7 @@ import {
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
 import { getNodes } from '~/utils/profile.server'
+import { ipfsKeyGen } from '~/utils/ipfs.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -24,11 +25,19 @@ export async function register(email, password) {
         error: 'User existed'
       }
     }
+    const res = await ipfsKeyGen(emailHash)
+    if (res?.Type === 'error') {
+      return {
+        success: false,
+        error: res?.Message
+      }
+    }
     const data = {
       email_hash: emailHash,
       last_login: Date.now(),
       password: passwordHash,
-      profiles: []
+      profiles: [],
+      ipns: res?.Id
     }
     await mongoSaveUser(client, data)
     return { userEmail: email }
@@ -46,7 +55,7 @@ export async function login(email, password) {
   const client = await mongoConnect()
   try {
     const user = await mongoGetUser(client, emailHash)
-    if (user.password === undefined) return null
+    if (user?.password === undefined) return null
     const isCorrectPassword = await bcrypt.compare(password, user.password)
     if (!isCorrectPassword) return null
     // save login time

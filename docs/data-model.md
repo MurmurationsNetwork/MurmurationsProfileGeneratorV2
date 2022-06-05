@@ -41,6 +41,7 @@ The `profiles` collection in the `mpgdata` MongoDB:
 - `linked_schemas` (array of strings) - the schema(s) the profile must be validated against
 - `title` (string) - a memorable/identifiable title to its author
 - `node_id` (string) - the node_id from mumurationsServices
+- `ipns` (string) - IPNS address
 
 ```
 {
