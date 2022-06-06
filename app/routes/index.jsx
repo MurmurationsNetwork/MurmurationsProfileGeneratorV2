@@ -30,8 +30,6 @@ export async function action({ request }) {
     rawData[formEntry[0]] = formEntry[1]
   }
   let { _action, ...data } = rawData
-  const cookieHeader = request.headers.get('Cookie')
-  let cookie = await profileList.parse(cookieHeader)
   let schema,
     profileId,
     profileTitle,
@@ -72,15 +70,11 @@ export async function action({ request }) {
       if (!response.success) {
         return json({ success: response.success, message: response.message })
       }
-      cookie = response.profileList
-      return json(
-        { success: true, message: 'Profile saved.' },
-        {
-          headers: {
-            'Set-Cookie': await profileList.serialize(cookie)
-          }
+      return json(response, {
+        headers: {
+          'Set-Cookie': await profileList.serialize(response.newUser)
         }
-      )
+      })
     case 'edit':
       profileId = formData.get('profile_id')
       profileData = await getProfile(profileId)
@@ -138,10 +132,9 @@ export async function action({ request }) {
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
       response = await deleteProfile(userEmail, profileId)
-      cookie = response.profileList
       return json(response, {
         headers: {
-          'Set-Cookie': await profileList.serialize(cookie)
+          'Set-Cookie': await profileList.serialize(response.newUser)
         }
       })
 
@@ -157,22 +150,36 @@ export async function loader(request) {
       status: response.status
     })
   }
+  const schema = await response.json()
   const cookieHeader = request.request.headers.get('Cookie')
   let cookie = await profileList.parse(cookieHeader)
+  let loginSession = cookieHeader.indexOf('murmurations_session=')
+  const ipfsGatewayUrl = process.env.PUBLIC_IPFS_GATEWAY_URL
+  let userWithProfile
+  // If user is not login or logout, return empty user
+  if (
+    loginSession === -1 ||
+    cookieHeader.substring(loginSession) === 'murmurations_session='
+  ) {
+    return json({
+      schema: schema,
+      user: userWithProfile,
+      ipfsGatewayUrl: ipfsGatewayUrl
+    })
+  }
+
   if (!cookie) {
-    cookie = await getProfileList(request)
+    const user = await retrieveUser(request)
     return redirect('/', {
       headers: {
-        'Set-Cookie': await profileList.serialize(cookie)
+        'Set-Cookie': await profileList.serialize(user)
       }
     })
   }
-  const schema = await response.json()
-  const user = await retrieveUser(request, cookie)
-  const ipfsGatewayUrl = process.env.PUBLIC_IFPS_GATEWAY_URL
+  userWithProfile = await getProfileList(cookie)
   return json({
     schema: schema,
-    user: user,
+    user: userWithProfile,
     ipfsGatewayUrl: ipfsGatewayUrl
   })
 }
@@ -331,6 +338,10 @@ export default function Index() {
             <div className="user-info">
               <span>{`Your last_login time: ${
                 user?.last_login ? new Date(user.last_login).toJSON() : ''
+              }`}</span>
+              <br />
+              <span>{`Profile source: ${
+                user?.source ? user.source : ''
               }`}</span>
               <form action="/logout" method="post">
                 <button type="submit" className="button">

@@ -9,7 +9,6 @@ import {
   mongoSaveUser,
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
-import { getNodes } from '~/utils/profile.server'
 import { ipfsKeyGen } from '~/utils/ipfs.server'
 
 export async function register(email, password) {
@@ -110,7 +109,7 @@ export async function requireUserEmail(request, redirectTo) {
   return userEmail
 }
 
-export async function retrieveUser(request, profileList) {
+export async function retrieveUser(request) {
   const userEmail = await getUserEmail(request)
   if (typeof userEmail !== 'string') {
     return null
@@ -119,19 +118,7 @@ export async function retrieveUser(request, profileList) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
   try {
-    const user = await mongoGetUser(client, emailHash)
-    user.profiles = profileList
-    const res = await getNodes(user.profiles)
-    for (let i = 0; i < user.profiles.length; i++) {
-      let body = await res[i].json()
-      if (body?.data) {
-        user.profiles[i]['status'] = body.data?.status
-      } else {
-        user.profiles[i]['status'] =
-          'Status Not Found - Node not found in Index'
-      }
-    }
-    return user
+    return await mongoGetUser(client, emailHash)
   } catch (err) {
     throw new Response(`retrieveUser failed: ${err}`, {
       status: 500

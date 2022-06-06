@@ -1,6 +1,6 @@
 import { fetchFilePost, fetchPost } from '~/utils/fetcher'
 
-const url = process.env.PRIVATE_IFPS_URL
+const url = process.env.PRIVATE_IPFS_URL
 
 export async function ipfsKeyGen(arg) {
   const res = await fetchPost(url + '/key/gen?arg=' + arg)
