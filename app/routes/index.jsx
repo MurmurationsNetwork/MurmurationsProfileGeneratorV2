@@ -6,7 +6,7 @@ import {
   useLoaderData
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
@@ -15,11 +15,13 @@ import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 import {
   deleteProfile,
   getProfile,
+  getProfileList,
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
 import { fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import { toast, Toaster } from 'react-hot-toast'
+import { profileList } from '~/utils/cookie'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -28,6 +30,8 @@ export async function action({ request }) {
     rawData[formEntry[0]] = formEntry[1]
   }
   let { _action, ...data } = rawData
+  const cookieHeader = request.headers.get('Cookie')
+  let cookie = await profileList.parse(cookieHeader)
   let schema,
     profileId,
     profileTitle,
@@ -66,9 +70,17 @@ export async function action({ request }) {
       profileTitle = formData.get('profile_title')
       response = await saveProfile(userEmail, profileTitle, profileData)
       if (!response.success) {
-        return response
+        return json({ success: response.success, message: response.message })
       }
-      return json({ success: true, message: 'Profile saved.' })
+      cookie = response.profileList
+      return json(
+        { success: true, message: 'Profile saved.' },
+        {
+          headers: {
+            'Set-Cookie': await profileList.serialize(cookie)
+          }
+        }
+      )
     case 'edit':
       profileId = formData.get('profile_id')
       profileData = await getProfile(profileId)
@@ -126,7 +138,12 @@ export async function action({ request }) {
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
       response = await deleteProfile(userEmail, profileId)
-      return json(response)
+      cookie = response.profileList
+      return json(response, {
+        headers: {
+          'Set-Cookie': await profileList.serialize(cookie)
+        }
+      })
 
     default:
       return null
@@ -140,8 +157,18 @@ export async function loader(request) {
       status: response.status
     })
   }
+  const cookieHeader = request.request.headers.get('Cookie')
+  let cookie = await profileList.parse(cookieHeader)
+  if (!cookie) {
+    cookie = await getProfileList(request)
+    return redirect('/', {
+      headers: {
+        'Set-Cookie': await profileList.serialize(cookie)
+      }
+    })
+  }
   const schema = await response.json()
-  const user = await retrieveUser(request)
+  const user = await retrieveUser(request, cookie)
   const ipfsGatewayUrl = process.env.PUBLIC_IFPS_GATEWAY_URL
   return json({
     schema: schema,

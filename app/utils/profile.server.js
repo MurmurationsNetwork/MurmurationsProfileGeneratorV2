@@ -13,7 +13,8 @@ import {
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
 import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
-import { ipfsUpload } from '~/utils/ipfs.server'
+import { ipfsPublish, ipfsUpload } from '~/utils/ipfs.server'
+import { getUserEmail } from '~/utils/session.server'
 
 export async function getNodes(profiles) {
   let promises = []
@@ -47,6 +48,18 @@ async function postNode(profileId) {
     throw new Response(`postNode failed: ${err}`, {
       status: 500
     })
+  }
+}
+
+async function publishIpns(profiles, emailHash) {
+  const ipfsProfile = await ipfsUpload(JSON.stringify(profiles))
+  const path = '/ipfs/' + ipfsProfile.Hash
+  const ipnsProfile = await ipfsPublish(path, emailHash)
+  if (ipnsProfile.Type === 'error') {
+    return {
+      success: false,
+      message: ipnsProfile.Message
+    }
   }
 }
 
@@ -114,7 +127,7 @@ export async function updateProfile(
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
   try {
-    const user = await mongoGetUser(client, emailHash)
+    let user = await mongoGetUser(client, emailHash)
     if (!user?.profiles.includes(profileId)) {
       return {
         success: false,
@@ -135,8 +148,13 @@ export async function updateProfile(
       node_id: body?.data?.node_id ? body?.data?.node_id : ''
     }
     await mongoUpdateProfile(client, profileId, profile)
-
-    return { success: true, message: 'Profile updated.' }
+    user = await mongoGetUser(client, emailHash)
+    await publishIpns(user.profiles, emailHash)
+    return {
+      success: true,
+      message: 'Profile updated.',
+      profileList: user.profiles
+    }
   } catch (err) {
     throw new Response(`updateProfile failed: ${err}`, {
       status: 500
@@ -177,10 +195,35 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
     await mongoDeleteUserProfile(client, emailHash, profileId)
+    user = await mongoGetUser(client, emailHash)
+    await publishIpns(user.profiles, emailHash)
 
-    return { success: true, message: 'Profile deleted.' }
+    return {
+      success: true,
+      message: 'Profile deleted.',
+      profileList: user.profiles
+    }
   } catch (err) {
     throw new Response(`deleteProfile failed: ${err}`, {
+      status: 500
+    })
+  } finally {
+    await mongoDisconnect(client)
+  }
+}
+
+export async function getProfileList(request) {
+  const client = await mongoConnect()
+  try {
+    const userEmail = await getUserEmail(request)
+    const emailHash = crypto
+      .createHash('sha256')
+      .update(userEmail)
+      .digest('hex')
+    const user = await mongoGetUser(client, emailHash)
+    return user.profiles
+  } catch (err) {
+    throw new Response(`getProfileList failed: ${err}`, {
       status: 500
     })
   } finally {

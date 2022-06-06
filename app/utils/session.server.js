@@ -111,7 +111,7 @@ export async function requireUserEmail(request, redirectTo) {
   return userEmail
 }
 
-export async function retrieveUser(request) {
+export async function retrieveUser(request, profileList) {
   const userEmail = await getUserEmail(request)
   if (typeof userEmail !== 'string') {
     return null
