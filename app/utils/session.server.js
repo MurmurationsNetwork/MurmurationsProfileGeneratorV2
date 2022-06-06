@@ -5,7 +5,6 @@ import {
   mongoConnect,
   mongoCountUser,
   mongoDisconnect,
-  mongoGetProfiles,
   mongoGetUser,
   mongoSaveUser,
   mongoUpdateUserLogin
@@ -121,9 +120,7 @@ export async function retrieveUser(request, profileList) {
   const client = await mongoConnect()
   try {
     const user = await mongoGetUser(client, emailHash)
-    if (user?.profiles.length !== 0) {
-      user.profiles = await mongoGetProfiles(client, user.profiles)
-    }
+    user.profiles = profileList
     const res = await getNodes(user.profiles)
     for (let i = 0; i < user.profiles.length; i++) {
       let body = await res[i].json()

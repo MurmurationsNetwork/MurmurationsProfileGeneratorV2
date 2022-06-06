@@ -109,8 +109,8 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
     await mongoSaveProfile(client, profile)
     await mongoUpdateUserProfile(client, emailHash, profileId)
     const user = await mongoGetUser(client, emailHash)
-    await publishIpns(user.profiles, emailHash)
     const profileList = await mongoGetProfiles(client, user.profiles)
+    await publishIpns(profileList, emailHash)
     return {
       success: true,
       message: 'Profile saved.',
@@ -202,8 +202,8 @@ export async function deleteProfile(userEmail, profileId) {
     }
     await mongoDeleteUserProfile(client, emailHash, profileId)
     user = await mongoGetUser(client, emailHash)
-    await publishIpns(user.profiles, emailHash)
     const profileList = await mongoGetProfiles(client, user.profiles)
+    await publishIpns(profileList, emailHash)
 
     return {
       success: true,
