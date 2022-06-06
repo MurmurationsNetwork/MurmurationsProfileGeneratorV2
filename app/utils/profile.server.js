@@ -6,6 +6,7 @@ import {
   mongoDeleteUserProfile,
   mongoDisconnect,
   mongoGetProfile,
+  mongoGetProfiles,
   mongoGetUser,
   mongoSaveProfile,
   mongoUpdateIpfs,
@@ -107,7 +108,14 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
     }
     await mongoSaveProfile(client, profile)
     await mongoUpdateUserProfile(client, emailHash, profileId)
-    return { success: true, message: 'Profile saved.' }
+    const user = await mongoGetUser(client, emailHash)
+    await publishIpns(user.profiles, emailHash)
+    const profileList = await mongoGetProfiles(client, user.profiles)
+    return {
+      success: true,
+      message: 'Profile saved.',
+      profileList: profileList
+    }
   } catch (err) {
     throw new Response(`saveProfile failed: ${err}`, {
       status: 500
@@ -148,12 +156,10 @@ export async function updateProfile(
       node_id: body?.data?.node_id ? body?.data?.node_id : ''
     }
     await mongoUpdateProfile(client, profileId, profile)
-    user = await mongoGetUser(client, emailHash)
-    await publishIpns(user.profiles, emailHash)
+
     return {
       success: true,
-      message: 'Profile updated.',
-      profileList: user.profiles
+      message: 'Profile updated.'
     }
   } catch (err) {
     throw new Response(`updateProfile failed: ${err}`, {
@@ -197,11 +203,12 @@ export async function deleteProfile(userEmail, profileId) {
     await mongoDeleteUserProfile(client, emailHash, profileId)
     user = await mongoGetUser(client, emailHash)
     await publishIpns(user.profiles, emailHash)
+    const profileList = await mongoGetProfiles(client, user.profiles)
 
     return {
       success: true,
       message: 'Profile deleted.',
-      profileList: user.profiles
+      profileList: profileList
     }
   } catch (err) {
     throw new Response(`deleteProfile failed: ${err}`, {
@@ -221,7 +228,7 @@ export async function getProfileList(request) {
       .update(userEmail)
       .digest('hex')
     const user = await mongoGetUser(client, emailHash)
-    return user.profiles
+    return await mongoGetProfiles(client, user.profiles)
   } catch (err) {
     throw new Response(`getProfileList failed: ${err}`, {
       status: 500
