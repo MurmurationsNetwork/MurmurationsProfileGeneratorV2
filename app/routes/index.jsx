@@ -132,6 +132,9 @@ export async function action({ request }) {
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
       response = await deleteProfile(userEmail, profileId)
+      if (!response.success) {
+        return json(response)
+      }
       return json(response, {
         headers: {
           'Set-Cookie': await profileList.serialize(response.newUser)
@@ -168,7 +171,7 @@ export async function loader(request) {
     })
   }
 
-  if (!cookie) {
+  if (!cookie || cookie === '{}') {
     const user = await retrieveUser(request)
     return redirect('/', {
       headers: {
