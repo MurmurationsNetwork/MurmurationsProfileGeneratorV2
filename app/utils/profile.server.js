@@ -220,11 +220,23 @@ export async function deleteProfile(userEmail, profileId) {
   }
 }
 
-export async function getProfileList(user) {
+async function getProfiles(profiles) {
   const client = await mongoConnect()
   try {
+    return await mongoGetProfiles(client, profiles)
+  } catch (err) {
+    throw new Response(`getProfiles failed: ${err}`, {
+      status: 500
+    })
+  } finally {
+    await mongoDisconnect(client)
+  }
+}
+
+export async function getProfileList(user) {
+  try {
     let mongoPromise = new Promise((resolve, reject) => {
-      resolve(mongoGetProfiles(client, user.profiles))
+      resolve(getProfiles(user.profiles))
       reject('reject from mongo')
     })
 
@@ -266,7 +278,5 @@ export async function getProfileList(user) {
     throw new Response(`getProfileList failed: ${err}`, {
       status: 500
     })
-  } finally {
-    await mongoDisconnect(client)
   }
 }
