@@ -156,7 +156,9 @@ export async function loader(request) {
   const schema = await response.json()
   const cookieHeader = request.request.headers.get('Cookie')
   let cookie = await profileList.parse(cookieHeader)
-  let loginSession = cookieHeader.indexOf('murmurations_session=')
+  let loginSession = cookieHeader
+    ? cookieHeader.indexOf('murmurations_session=')
+    : -1
   const ipfsGatewayUrl = process.env.PUBLIC_IPFS_GATEWAY_URL
   let userWithProfile
   // If user is not login or logout, return empty user
