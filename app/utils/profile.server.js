@@ -55,12 +55,7 @@ async function publishIpns(profiles, emailHash) {
   const ipfsProfile = await ipfsUpload(JSON.stringify(profiles))
   const path = '/ipfs/' + ipfsProfile.Hash
   const ipnsProfile = await ipfsPublish(path, emailHash)
-  if (ipnsProfile.Type === 'error') {
-    return {
-      success: false,
-      message: ipnsProfile.Message
-    }
-  }
+  console.log(ipnsProfile)
 }
 
 async function deleteNode(nodeId) {
@@ -109,7 +104,7 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
     await mongoUpdateUserProfile(client, emailHash, profileId)
     const user = await mongoGetUser(client, emailHash)
     const profileList = await mongoGetProfiles(client, user.profiles)
-    await publishIpns(profileList, emailHash)
+    publishIpns(profileList, emailHash)
     const newUser = await mongoGetUser(client, emailHash)
     return {
       success: true,
@@ -203,7 +198,7 @@ export async function deleteProfile(userEmail, profileId) {
     await mongoDeleteUserProfile(client, emailHash, profileId)
     user = await mongoGetUser(client, emailHash)
     const profileList = await mongoGetProfiles(client, user.profiles)
-    await publishIpns(profileList, emailHash)
+    publishIpns(profileList, emailHash)
     const newUser = await mongoGetUser(client, emailHash)
 
     return {
