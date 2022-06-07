@@ -151,6 +151,9 @@ export async function updateProfile(
       node_id: body?.data?.node_id ? body?.data?.node_id : ''
     }
     await mongoUpdateProfile(client, profileId, profile)
+    user = await mongoGetUser(client, emailHash)
+    const profileList = await mongoGetProfiles(client, user.profiles)
+    publishIpns(profileList, emailHash)
 
     return {
       success: true,
