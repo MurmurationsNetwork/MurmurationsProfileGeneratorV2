@@ -10,7 +10,6 @@ import {
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
 import { ipfsKeyGen } from '~/utils/ipfs.server'
-import { userCookie } from '~/utils/cookie'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
