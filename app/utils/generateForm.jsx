@@ -24,6 +24,18 @@ export default function generateForm(
         />
       )
     }
+
+    if (schema.properties[name].default) {
+      return (
+        <input
+          type="hidden"
+          name={name}
+          key={name}
+          value={schema.properties[name].default}
+        />
+      )
+    }
+
     // Define data for root schema
     let title = schema.properties[name].title
     let description = schema.properties[name].description
