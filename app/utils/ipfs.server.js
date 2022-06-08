@@ -15,6 +15,6 @@ export async function ipfsPublish(arg, key) {
 export async function ipfsUpload(fileData) {
   let formData = new FormData()
   formData.append('file', fileData)
-  const res = await fetchFilePost(url + '/add', formData)
+  const res = await fetchFilePost(url + '/add?cid-version=1', formData)
   return await res.json()
 }

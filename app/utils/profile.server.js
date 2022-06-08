@@ -54,8 +54,7 @@ async function postNode(profileId) {
 async function publishIpns(profiles, emailHash) {
   const ipfsProfile = await ipfsUpload(JSON.stringify(profiles))
   const path = '/ipfs/' + ipfsProfile.Hash
-  const ipnsProfile = await ipfsPublish(path, emailHash)
-  console.log(ipnsProfile)
+  await ipfsPublish(path, emailHash)
 }
 
 async function deleteNode(nodeId) {
