@@ -10,6 +10,7 @@ import {
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
 import { ipfsKeyGen } from '~/utils/ipfs.server'
+import { userCookie } from '~/utils/cookie'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -119,9 +120,9 @@ export async function retrieveUser(request) {
   const client = await mongoConnect()
   try {
     const user = await mongoGetUser(client, emailHash)
-    return (({ last_login, profiles, ipns }) => ({
+    return (({ email_hash, last_login, ipns }) => ({
+      email_hash,
       last_login,
-      profiles,
       ipns
     }))(user)
   } catch (err) {
@@ -148,11 +149,19 @@ export async function checkUser(email) {
   }
 }
 
-export async function logout(request) {
+export async function logout(request, userPurge) {
   const session = await getUserSession(request)
+  const destroy = await storage.destroySession(session)
+  if (userPurge === true) {
+    return redirect('/purge', {
+      headers: {
+        'Set-Cookie': destroy
+      }
+    })
+  }
   return redirect('/', {
     headers: {
-      'Set-Cookie': await storage.destroySession(session)
+      'Set-Cookie': destroy
     }
   })
 }

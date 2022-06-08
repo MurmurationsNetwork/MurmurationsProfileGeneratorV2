@@ -172,9 +172,8 @@ export async function loader(request) {
       ipfsGatewayUrl: ipfsGatewayUrl
     })
   }
-
-  if (!cookie || cookie === '{}') {
-    const user = await retrieveUser(request)
+  const user = await retrieveUser(request)
+  if (!cookie || cookie === '{}' || user?.email_hash !== cookie?.email_hash) {
     return redirect('/', {
       headers: {
         'Set-Cookie': await userCookie.serialize(user)
@@ -351,6 +350,11 @@ export default function Index() {
               <form action="/logout" method="post">
                 <button type="submit" className="button">
                   Logout
+                </button>
+              </form>
+              <form action="/logoutPurge" method="post">
+                <button type="submit" className="button">
+                  Logout and Purge
                 </button>
               </form>
             </div>
