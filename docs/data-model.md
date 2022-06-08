@@ -16,6 +16,7 @@ The user data will be stored primarily in 1, but the profile data will be stored
 The `users` collection in the `mpgdata` MongoDB:
 
 - `email_hash` (string - hashed email) - hashed using `SHA256` (`dude@dev.null => 5e64eab91e34c4d6eddc1f515f9ce81dea8238249f0946d40e3fc9ca22b7031a`)
+- `ipns` (string) - the IPNS address generated for a new user
 - `last_login` (number - Unix timestamp) - last time the user logged in
 - `password` (string - hashed password) - hashed using [`brcryptjs`](https://www.npmjs.com/package/bcryptjs)
 - `profiles` (array of strings) - each string is a unique identifier of a JSON Schema profile instance
@@ -23,6 +24,7 @@ The `users` collection in the `mpgdata` MongoDB:
 ```
 {
   "email_hash":"5e64eab91e34c4d6eddc1f515f9ce81dea8238249f0946d40e3fc9ca22b7031a",
+  "ipns": "k51qzi5uqu5dlkdgdggq0bm55cqojoqek4rfinvyx48d4mapmpin9ebhnjv49n",
   "last_login":1652814514172,
   "password":"$2a$10$YzTuuQJfthIxVja/WZGh5OxjhSeMqQnG2xtOSUMAP41oTBkpNrMRq",
   "profiles": ["cjld2cjxh0000qzrmn831i7rn","cjld2cyuq0000t3rmniod1foy"]

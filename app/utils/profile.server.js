@@ -6,14 +6,15 @@ import {
   mongoDeleteUserProfile,
   mongoDisconnect,
   mongoGetProfile,
+  mongoGetProfiles,
   mongoGetUser,
   mongoSaveProfile,
   mongoUpdateIpfs,
   mongoUpdateProfile,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
-import { fetchDelete, fetchGet, fetchPost } from '~/utils/fetcher'
-import { ipfsUpload } from '~/utils/ipfs.server'
+import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
+import { ipfsPublish, ipfsUpload } from '~/utils/ipfs.server'
 
 export async function getNodes(profiles) {
   let promises = []
@@ -38,7 +39,7 @@ export async function getNodes(profiles) {
 async function postNode(profileId) {
   const postUrl = process.env.PUBLIC_PROFILE_POST_URL + '/nodes'
   const profileUrl = process.env.PUBLIC_PROFILE_SOURCE_URL + '/' + profileId
-  const res = await fetchPost(postUrl, {
+  const res = await fetchJsonPost(postUrl, {
     profile_url: profileUrl
   })
   try {
@@ -48,6 +49,12 @@ async function postNode(profileId) {
       status: 500
     })
   }
+}
+
+async function publishIpns(profiles, emailHash) {
+  const ipfsProfile = await ipfsUpload(JSON.stringify(profiles))
+  const path = '/ipfs/' + ipfsProfile.Hash
+  await ipfsPublish(path, emailHash)
 }
 
 async function deleteNode(nodeId) {
@@ -94,7 +101,15 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
     }
     await mongoSaveProfile(client, profile)
     await mongoUpdateUserProfile(client, emailHash, profileId)
-    return { success: true, message: 'Profile saved.' }
+    const user = await mongoGetUser(client, emailHash)
+    const profileList = await mongoGetProfiles(client, user.profiles)
+    publishIpns(profileList, emailHash)
+    const newUser = await mongoGetUser(client, emailHash)
+    return {
+      success: true,
+      message: 'Profile saved.',
+      newUser: newUser
+    }
   } catch (err) {
     throw new Response(`saveProfile failed: ${err}`, {
       status: 500
@@ -114,7 +129,7 @@ export async function updateProfile(
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
   try {
-    const user = await mongoGetUser(client, emailHash)
+    let user = await mongoGetUser(client, emailHash)
     if (!user?.profiles.includes(profileId)) {
       return {
         success: false,
@@ -135,8 +150,14 @@ export async function updateProfile(
       node_id: body?.data?.node_id ? body?.data?.node_id : ''
     }
     await mongoUpdateProfile(client, profileId, profile)
+    user = await mongoGetUser(client, emailHash)
+    const profileList = await mongoGetProfiles(client, user.profiles)
+    publishIpns(profileList, emailHash)
 
-    return { success: true, message: 'Profile updated.' }
+    return {
+      success: true,
+      message: 'Profile updated.'
+    }
   } catch (err) {
     throw new Response(`updateProfile failed: ${err}`, {
       status: 500
@@ -177,13 +198,83 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
     await mongoDeleteUserProfile(client, emailHash, profileId)
+    user = await mongoGetUser(client, emailHash)
+    const profileList = await mongoGetProfiles(client, user.profiles)
+    publishIpns(profileList, emailHash)
+    const newUser = await mongoGetUser(client, emailHash)
 
-    return { success: true, message: 'Profile deleted.' }
+    return {
+      success: true,
+      message: 'Profile deleted.',
+      newUser: newUser
+    }
   } catch (err) {
     throw new Response(`deleteProfile failed: ${err}`, {
       status: 500
     })
   } finally {
     await mongoDisconnect(client)
+  }
+}
+
+async function getProfiles(emailHash) {
+  const client = await mongoConnect()
+  try {
+    const user = await mongoGetUser(client, emailHash)
+    return await mongoGetProfiles(client, user.profiles)
+  } catch (err) {
+    throw new Response(`getProfiles failed: ${err}`, {
+      status: 500
+    })
+  } finally {
+    await mongoDisconnect(client)
+  }
+}
+
+export async function getProfileList(user) {
+  try {
+    let mongoPromise = new Promise((resolve, reject) => {
+      resolve(getProfiles(user.email_hash))
+      reject('reject from mongo')
+    })
+
+    let promise
+    if (user?.ipns) {
+      const url = process.env.PUBLIC_IPNS_GATEWAY_URL + '/' + user?.ipns
+      let ipnsPromise = new Promise((resolve, reject) => {
+        resolve(fetchGet(url))
+        reject('reject from IPFS')
+      })
+      promise = Promise.any([mongoPromise, ipnsPromise])
+    } else {
+      promise = Promise.any([mongoPromise])
+    }
+
+    let profiles, source
+    const value = await promise
+    if (value?.status) {
+      profiles = await value.json()
+      source = 'IPFS'
+    } else {
+      profiles = value
+      source = 'DB'
+    }
+
+    const res = await getNodes(profiles)
+    for (let i = 0; i < profiles.length; i++) {
+      let body = await res[i].json()
+      if (body?.data) {
+        profiles[i]['status'] = body.data?.status
+      } else {
+        profiles[i]['status'] = 'Status Not Found - Node not found in Index'
+      }
+    }
+    user.profiles = profiles
+    user.source = source
+    return user
+  } catch (err) {
+    throw new Response(`getProfileList failed: ${err}`, {
+      status: 500
+    })
   }
 }

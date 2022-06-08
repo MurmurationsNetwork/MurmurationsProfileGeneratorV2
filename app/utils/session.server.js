@@ -5,12 +5,11 @@ import {
   mongoConnect,
   mongoCountUser,
   mongoDisconnect,
-  mongoGetProfiles,
   mongoGetUser,
   mongoSaveUser,
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
-import { getNodes } from '~/utils/profile.server'
+import { ipfsKeyGen } from '~/utils/ipfs.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -24,11 +23,19 @@ export async function register(email, password) {
         error: 'User existed'
       }
     }
+    const res = await ipfsKeyGen(emailHash)
+    if (res?.Type === 'error') {
+      return {
+        success: false,
+        error: res?.Message
+      }
+    }
     const data = {
       email_hash: emailHash,
       last_login: Date.now(),
       password: passwordHash,
-      profiles: []
+      profiles: [],
+      ipns: res?.Id
     }
     await mongoSaveUser(client, data)
     return { userEmail: email }
@@ -46,7 +53,7 @@ export async function login(email, password) {
   const client = await mongoConnect()
   try {
     const user = await mongoGetUser(client, emailHash)
-    if (user.password === undefined) return null
+    if (user?.password === undefined) return null
     const isCorrectPassword = await bcrypt.compare(password, user.password)
     if (!isCorrectPassword) return null
     // save login time
@@ -112,20 +119,11 @@ export async function retrieveUser(request) {
   const client = await mongoConnect()
   try {
     const user = await mongoGetUser(client, emailHash)
-    if (user?.profiles.length !== 0) {
-      user.profiles = await mongoGetProfiles(client, user.profiles)
-    }
-    const res = await getNodes(user.profiles)
-    for (let i = 0; i < user.profiles.length; i++) {
-      let body = await res[i].json()
-      if (body?.data) {
-        user.profiles[i]['status'] = body.data?.status
-      } else {
-        user.profiles[i]['status'] =
-          'Status Not Found - Node not found in Index'
-      }
-    }
-    return user
+    return (({ email_hash, last_login, ipns }) => ({
+      email_hash,
+      last_login,
+      ipns
+    }))(user)
   } catch (err) {
     throw new Response(`retrieveUser failed: ${err}`, {
       status: 500
@@ -150,11 +148,19 @@ export async function checkUser(email) {
   }
 }
 
-export async function logout(request) {
+export async function logout(request, userPurge) {
   const session = await getUserSession(request)
+  const destroy = await storage.destroySession(session)
+  if (userPurge === true) {
+    return redirect('/purge', {
+      headers: {
+        'Set-Cookie': destroy
+      }
+    })
+  }
   return redirect('/', {
     headers: {
-      'Set-Cookie': await storage.destroySession(session)
+      'Set-Cookie': destroy
     }
   })
 }

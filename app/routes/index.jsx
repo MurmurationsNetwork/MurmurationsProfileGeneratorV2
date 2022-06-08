@@ -6,7 +6,7 @@ import {
   useLoaderData
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
-import { json } from '@remix-run/node'
+import { json, redirect } from '@remix-run/node'
 
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
@@ -15,11 +15,13 @@ import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 import {
   deleteProfile,
   getProfile,
+  getProfileList,
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
-import { fetchGet, fetchPost } from '~/utils/fetcher'
+import { fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import { toast, Toaster } from 'react-hot-toast'
+import { userCookie } from '~/utils/cookie'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -41,7 +43,7 @@ export async function action({ request }) {
     case 'submit':
       schema = await parseRef(data.linked_schemas)
       profile = generateInstance(schema, data)
-      response = await fetchPost(
+      response = await fetchJsonPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )
@@ -66,9 +68,13 @@ export async function action({ request }) {
       profileTitle = formData.get('profile_title')
       response = await saveProfile(userEmail, profileTitle, profileData)
       if (!response.success) {
-        return response
+        return json({ success: response.success, message: response.message })
       }
-      return json({ success: true, message: 'Profile saved.' })
+      return json(response, {
+        headers: {
+          'Set-Cookie': await userCookie.serialize(response.newUser)
+        }
+      })
     case 'edit':
       profileId = formData.get('profile_id')
       profileData = await getProfile(profileId)
@@ -90,7 +96,7 @@ export async function action({ request }) {
       let { profile_id, profile_title, profile_ipfs_hash, ...instanceData } =
         data
       profile = generateInstance(schema, instanceData)
-      response = await fetchPost(
+      response = await fetchJsonPost(
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )
@@ -126,7 +132,14 @@ export async function action({ request }) {
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')
       response = await deleteProfile(userEmail, profileId)
-      return json(response)
+      if (!response.success) {
+        return json(response)
+      }
+      return json(response, {
+        headers: {
+          'Set-Cookie': await userCookie.serialize(response.newUser)
+        }
+      })
 
     default:
       return null
@@ -141,11 +154,36 @@ export async function loader(request) {
     })
   }
   const schema = await response.json()
+  const cookieHeader = request.request.headers.get('Cookie')
+  let cookie = await userCookie.parse(cookieHeader)
+  let loginSession = cookieHeader
+    ? cookieHeader.indexOf('murmurations_session=')
+    : -1
+  const ipfsGatewayUrl = process.env.PUBLIC_IPFS_GATEWAY_URL
+  let userWithProfile
+  // If user is not login or logout, return empty user
+  if (
+    loginSession === -1 ||
+    cookieHeader.substring(loginSession) === 'murmurations_session='
+  ) {
+    return json({
+      schema: schema,
+      user: userWithProfile,
+      ipfsGatewayUrl: ipfsGatewayUrl
+    })
+  }
   const user = await retrieveUser(request)
-  const ipfsGatewayUrl = process.env.PUBLIC_IFPS_GATEWAY_URL
+  if (!cookie || cookie === '{}' || user?.email_hash !== cookie?.email_hash) {
+    return redirect('/', {
+      headers: {
+        'Set-Cookie': await userCookie.serialize(user)
+      }
+    })
+  }
+  userWithProfile = await getProfileList(cookie)
   return json({
     schema: schema,
-    user: user,
+    user: userWithProfile,
     ipfsGatewayUrl: ipfsGatewayUrl
   })
 }
@@ -305,9 +343,18 @@ export default function Index() {
               <span>{`Your last_login time: ${
                 user?.last_login ? new Date(user.last_login).toJSON() : ''
               }`}</span>
+              <br />
+              <span>{`Profile source: ${
+                user?.source ? user.source : ''
+              }`}</span>
               <form action="/logout" method="post">
                 <button type="submit" className="button">
                   Logout
+                </button>
+              </form>
+              <form action="/logoutPurge" method="post">
+                <button type="submit" className="button">
+                  Logout and Purge
                 </button>
               </form>
             </div>
