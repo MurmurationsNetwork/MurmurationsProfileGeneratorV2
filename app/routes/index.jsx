@@ -21,7 +21,7 @@ import {
 } from '~/utils/profile.server'
 import { fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import { toast, Toaster } from 'react-hot-toast'
-import { profileList } from '~/utils/cookie'
+import { userCookie } from '~/utils/cookie'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -72,7 +72,7 @@ export async function action({ request }) {
       }
       return json(response, {
         headers: {
-          'Set-Cookie': await profileList.serialize(response.newUser)
+          'Set-Cookie': await userCookie.serialize(response.newUser)
         }
       })
     case 'edit':
@@ -137,7 +137,7 @@ export async function action({ request }) {
       }
       return json(response, {
         headers: {
-          'Set-Cookie': await profileList.serialize(response.newUser)
+          'Set-Cookie': await userCookie.serialize(response.newUser)
         }
       })
 
@@ -155,7 +155,7 @@ export async function loader(request) {
   }
   const schema = await response.json()
   const cookieHeader = request.request.headers.get('Cookie')
-  let cookie = await profileList.parse(cookieHeader)
+  let cookie = await userCookie.parse(cookieHeader)
   let loginSession = cookieHeader
     ? cookieHeader.indexOf('murmurations_session=')
     : -1
@@ -177,7 +177,7 @@ export async function loader(request) {
     const user = await retrieveUser(request)
     return redirect('/', {
       headers: {
-        'Set-Cookie': await profileList.serialize(user)
+        'Set-Cookie': await userCookie.serialize(user)
       }
     })
   }

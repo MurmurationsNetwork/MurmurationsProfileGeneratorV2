@@ -118,7 +118,12 @@ export async function retrieveUser(request) {
   const emailHash = crypto.createHash('sha256').update(userEmail).digest('hex')
   const client = await mongoConnect()
   try {
-    return await mongoGetUser(client, emailHash)
+    const user = await mongoGetUser(client, emailHash)
+    return (({ last_login, profiles, ipns }) => ({
+      last_login,
+      profiles,
+      ipns
+    }))(user)
   } catch (err) {
     throw new Response(`retrieveUser failed: ${err}`, {
       status: 500
