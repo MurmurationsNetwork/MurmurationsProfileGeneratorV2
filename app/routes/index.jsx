@@ -3,7 +3,8 @@ import {
   Link,
   useActionData,
   useCatch,
-  useLoaderData
+  useLoaderData,
+  useSearchParams
 } from '@remix-run/react'
 import { useEffect, useState } from 'react'
 import { json, redirect } from '@remix-run/node'
@@ -191,6 +192,10 @@ export async function loader(request) {
 export const unstable_shouldReload = () => true
 
 export default function Index() {
+  const [searchParams] = useSearchParams()
+  const defaultSchema = searchParams.get('schema')
+    ? searchParams.get('schema').split(',')
+    : undefined
   let loaderData = useLoaderData()
   let schemas = loaderData.schema
   let user = loaderData.user
@@ -247,6 +252,7 @@ export default function Index() {
             multiple={true}
             required={true}
             size={6}
+            defaultValue={defaultSchema}
           >
             {schemas.data.map(schema => (
               <option
