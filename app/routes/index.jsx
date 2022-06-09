@@ -452,9 +452,10 @@ export default function Index() {
 
 function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
   const [status, setStatus] = useState(profile?.status)
+  const [timer, setTimer] = useState(1000)
 
   useEffect(() => {
-    if (status === 'posted') return
+    if (timer >= 32000 || status === 'posted') return
     const interval = setTimeout(() => {
       let url = profilePostUrl + '/nodes/' + profile.node_id
       fetchGet(url)
@@ -464,10 +465,11 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
         .then(res => {
           setStatus(res.data?.status)
         })
-    }, 5000)
+      setTimer(timer * 2)
+    }, timer)
 
     return () => clearTimeout(interval)
-  }, [profile.node_id, profile.status, profilePostUrl, status])
+  }, [profile.node_id, profile.status, profilePostUrl, status, timer])
 
   return (
     <div className="max-w rounded overflow-hidden border-2 mt-2">
