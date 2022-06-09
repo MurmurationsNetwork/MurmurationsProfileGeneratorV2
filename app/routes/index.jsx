@@ -165,7 +165,7 @@ export async function loader(request) {
   // If user is not login or logout, return empty user
   if (
     loginSession === -1 ||
-    cookieHeader.substring(loginSession) === 'murmurations_session='
+    cookieHeader.substring(loginSession, 22) === 'murmurations_session=;'
   ) {
     return json({
       schema: schema,
@@ -356,11 +356,6 @@ export default function Index() {
               <form action="/logout" method="post">
                 <button type="submit" className="button">
                   Logout
-                </button>
-              </form>
-              <form action="/logoutPurge" method="post">
-                <button type="submit" className="button">
-                  Logout and Purge
                 </button>
               </form>
             </div>
