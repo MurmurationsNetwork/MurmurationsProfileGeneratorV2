@@ -16,26 +16,6 @@ import {
 import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import { ipfsPublish, ipfsUpload } from '~/utils/ipfs.server'
 
-export async function getNodes(profiles) {
-  let promises = []
-  for (let i = 0; i < profiles.length; i++) {
-    let url =
-      process.env.PUBLIC_PROFILE_POST_URL + '/nodes/' + profiles[i].node_id
-    let promise = new Promise(resolve => {
-      resolve(fetchGet(url))
-    })
-    promises.push(promise)
-  }
-
-  try {
-    return await Promise.all(promises)
-  } catch (err) {
-    throw new Response(`getNodes failed: ${err}`, {
-      status: 500
-    })
-  }
-}
-
 async function postNode(profileId) {
   const postUrl = process.env.PUBLIC_PROFILE_POST_URL + '/nodes'
   const profileUrl = process.env.PUBLIC_PROFILE_SOURCE_URL + '/' + profileId
@@ -260,15 +240,6 @@ export async function getProfileList(user) {
       source = 'DB'
     }
 
-    const res = await getNodes(profiles)
-    for (let i = 0; i < profiles.length; i++) {
-      let body = await res[i].json()
-      if (body?.data) {
-        profiles[i]['status'] = body.data?.status
-      } else {
-        profiles[i]['status'] = 'Status Not Found - Node not found in Index'
-      }
-    }
     user.profiles = profiles
     user.source = source
     return user

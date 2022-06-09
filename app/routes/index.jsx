@@ -161,6 +161,7 @@ export async function loader(request) {
     ? cookieHeader.indexOf('murmurations_session=')
     : -1
   const ipfsGatewayUrl = process.env.PUBLIC_IPFS_GATEWAY_URL
+  const profilePostUrl = process.env.PUBLIC_PROFILE_POST_URL
   let userWithProfile
   // If user is not login or logout, return empty user
   if (
@@ -170,7 +171,8 @@ export async function loader(request) {
     return json({
       schema: schema,
       user: userWithProfile,
-      ipfsGatewayUrl: ipfsGatewayUrl
+      ipfsGatewayUrl: ipfsGatewayUrl,
+      profilePostUrl: profilePostUrl
     })
   }
   const user = await retrieveUser(request)
@@ -185,7 +187,8 @@ export async function loader(request) {
   return json({
     schema: schema,
     user: userWithProfile,
-    ipfsGatewayUrl: ipfsGatewayUrl
+    ipfsGatewayUrl: ipfsGatewayUrl,
+    profilePostUrl: profilePostUrl
   })
 }
 
@@ -200,6 +203,7 @@ export default function Index() {
   let schemas = loaderData.schema
   let user = loaderData.user
   let ipfsGatewayUrl = loaderData.ipfsGatewayUrl
+  let profilePostUrl = loaderData.profilePostUrl
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [profileData, setProfileData] = useState('')
@@ -433,6 +437,7 @@ export default function Index() {
                   <ProfileItem
                     profile={user.profiles[index]}
                     ipfsGatewayUrl={ipfsGatewayUrl}
+                    profilePostUrl={profilePostUrl}
                     key={index}
                   />
                 ))}
@@ -445,7 +450,25 @@ export default function Index() {
   )
 }
 
-function ProfileItem({ profile, ipfsGatewayUrl }) {
+function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
+  const [status, setStatus] = useState(profile?.status)
+
+  useEffect(() => {
+    if (status === 'posted') return
+    const interval = setTimeout(() => {
+      let url = profilePostUrl + '/nodes/' + profile.node_id
+      fetchGet(url)
+        .then(res => {
+          return res.json()
+        })
+        .then(res => {
+          setStatus(res.data?.status)
+        })
+    }, 5000)
+
+    return () => clearTimeout(interval)
+  }, [profile.node_id, profile.status, profilePostUrl, status])
+
   return (
     <div className="max-w rounded overflow-hidden border-2 mt-2">
       <div className="px-6 py-4">
@@ -475,7 +498,10 @@ function ProfileItem({ profile, ipfsGatewayUrl }) {
             ''
           )}
         </div>
-        <p>Index Status: {profile?.status ? profile?.status : ''}</p>
+        <p>
+          Index Status:{' '}
+          {status ? status : 'Status Not Found - Node not found in Index'}
+        </p>
         <p>
           Last Updated:{' '}
           {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
