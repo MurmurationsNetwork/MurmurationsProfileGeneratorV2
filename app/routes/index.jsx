@@ -358,11 +358,6 @@ export default function Index() {
                   Logout
                 </button>
               </form>
-              <form action="/logoutPurge" method="post">
-                <button type="submit" className="button">
-                  Logout and Purge
-                </button>
-              </form>
             </div>
           ) : (
             <div>

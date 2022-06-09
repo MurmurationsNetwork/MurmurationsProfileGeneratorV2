@@ -148,19 +148,11 @@ export async function checkUser(email) {
   }
 }
 
-export async function logout(request, userPurge) {
+export async function logout(request) {
   const session = await getUserSession(request)
-  const destroy = await storage.destroySession(session)
-  if (userPurge === true) {
-    return redirect('/purge', {
-      headers: {
-        'Set-Cookie': destroy
-      }
-    })
-  }
   return redirect('/', {
     headers: {
-      'Set-Cookie': destroy
+      'Set-Cookie': await storage.destroySession(session)
     }
   })
 }
