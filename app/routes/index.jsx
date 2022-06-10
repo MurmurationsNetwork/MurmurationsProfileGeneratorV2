@@ -460,7 +460,7 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
       setStatus('Status Not Found - Node not found in Index')
       return
     }
-    if (timer >= 32000) {
+    if (timer > 32000) {
       setStatus('Server Error - Cannot receive status from Node')
       return
     }
