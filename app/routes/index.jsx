@@ -493,7 +493,9 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
                 rel="noreferrer"
                 className="no-underline hover:underline text-blue-600 dark:text-blue-300"
               >
-                {profile.ipfs[0]}
+                {profile.ipfs[0].substring(0, 6) +
+                  '...' +
+                  profile.ipfs[0].substr(54, 10)}
               </a>
             </>
           ) : (
