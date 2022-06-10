@@ -128,7 +128,11 @@ export async function action({ request }) {
         JSON.stringify(profile),
         profileIpfsHash
       )
-      return json(response)
+      return json(response, {
+        headers: {
+          'Set-Cookie': await userCookie.serialize(response.newUser)
+        }
+      })
     case 'delete':
       userEmail = await requireUserEmail(request, '/')
       profileId = formData.get('profile_id')

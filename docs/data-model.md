@@ -17,6 +17,7 @@ The `users` collection in the `mpgdata` MongoDB:
 
 - `email_hash` (string - hashed email) - hashed using `SHA256` (`dude@dev.null => 5e64eab91e34c4d6eddc1f515f9ce81dea8238249f0946d40e3fc9ca22b7031a`)
 - `ipns` (string) - the IPNS address generated for a new user
+- `ipfs` (string) - the IPFS CID address for latest profile_list
 - `last_login` (number - Unix timestamp) - last time the user logged in
 - `password` (string - hashed password) - hashed using [`brcryptjs`](https://www.npmjs.com/package/bcryptjs)
 - `profiles` (array of strings) - each string is a unique identifier of a JSON Schema profile instance

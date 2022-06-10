@@ -105,6 +105,19 @@ export async function mongoUpdateUserProfile(client, emailHash, profileId) {
   }
 }
 
+export async function mongoUpdateUserIpfs(client, emailHash, ipfs) {
+  try {
+    return await client
+      .db(db)
+      .collection('users')
+      .updateOne({ email_hash: emailHash }, { $set: { ipfs: ipfs } })
+  } catch (err) {
+    throw new Response(`MongoDB UpdateIpfs error: ${err}`, {
+      status: 500
+    })
+  }
+}
+
 export async function mongoDeleteUserProfile(client, emailHash, profileId) {
   try {
     return await client

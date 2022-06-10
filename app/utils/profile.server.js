@@ -11,6 +11,7 @@ import {
   mongoSaveProfile,
   mongoUpdateIpfs,
   mongoUpdateProfile,
+  mongoUpdateUserIpfs,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
 import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
@@ -31,10 +32,18 @@ async function postNode(profileId) {
   }
 }
 
-async function publishIpns(profiles, emailHash) {
-  const ipfsProfile = await ipfsUpload(JSON.stringify(profiles))
+async function publishIpns(client, emailHash) {
+  // get the latest profile list
+  const user = await mongoGetUser(client, emailHash)
+  const profileList = await mongoGetProfiles(client, user.profiles)
+
+  // upload to IPFS and update to IPNS
+  const ipfsProfile = await ipfsUpload(JSON.stringify(profileList))
+  await mongoUpdateUserIpfs(client, emailHash, ipfsProfile.Hash)
   const path = '/ipfs/' + ipfsProfile.Hash
-  await ipfsPublish(path, emailHash)
+  ipfsPublish(path, emailHash)
+
+  return await mongoGetUser(client, emailHash)
 }
 
 async function deleteNode(nodeId) {
@@ -81,10 +90,8 @@ export async function saveProfile(userEmail, profileTitle, profileData) {
     }
     await mongoSaveProfile(client, profile)
     await mongoUpdateUserProfile(client, emailHash, profileId)
-    const user = await mongoGetUser(client, emailHash)
-    const profileList = await mongoGetProfiles(client, user.profiles)
-    publishIpns(profileList, emailHash)
-    const newUser = await mongoGetUser(client, emailHash)
+    const newUser = await publishIpns(client, emailHash)
+
     return {
       success: true,
       message: 'Profile saved.',
@@ -130,13 +137,12 @@ export async function updateProfile(
       node_id: body?.data?.node_id ? body?.data?.node_id : ''
     }
     await mongoUpdateProfile(client, profileId, profile)
-    user = await mongoGetUser(client, emailHash)
-    const profileList = await mongoGetProfiles(client, user.profiles)
-    publishIpns(profileList, emailHash)
+    const newUser = await publishIpns(client, emailHash)
 
     return {
       success: true,
-      message: 'Profile updated.'
+      message: 'Profile updated.',
+      newUser: newUser
     }
   } catch (err) {
     throw new Response(`updateProfile failed: ${err}`, {
@@ -178,10 +184,7 @@ export async function deleteProfile(userEmail, profileId) {
       }
     }
     await mongoDeleteUserProfile(client, emailHash, profileId)
-    user = await mongoGetUser(client, emailHash)
-    const profileList = await mongoGetProfiles(client, user.profiles)
-    publishIpns(profileList, emailHash)
-    const newUser = await mongoGetUser(client, emailHash)
+    const newUser = await publishIpns(client, emailHash)
 
     return {
       success: true,
@@ -219,8 +222,13 @@ export async function getProfileList(user) {
     })
 
     let promise
-    if (user?.ipns) {
-      const url = process.env.PUBLIC_IPNS_GATEWAY_URL + '/' + user?.ipns
+    if (user?.ipns || user?.ipfs) {
+      let url
+      if (user?.ipfs) {
+        url = process.env.PUBLIC_IPFS_GATEWAY_URL + '/' + user.ipfs
+      } else {
+        url = process.env.PUBLIC_IPNS_GATEWAY_URL + '/' + user.ipns
+      }
       let ipnsPromise = new Promise((resolve, reject) => {
         resolve(fetchGet(url))
         reject('reject from IPFS')
