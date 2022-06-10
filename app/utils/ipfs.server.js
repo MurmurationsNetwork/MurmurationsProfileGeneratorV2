@@ -8,8 +8,7 @@ export async function ipfsKeyGen(arg) {
 }
 
 export async function ipfsPublish(arg, key) {
-  const res = await fetchPost(url + '/name/publish?arg=' + arg + '&key=' + key)
-  return await res.json()
+  await fetchPost(url + '/name/publish?arg=' + arg + '&key=' + key)
 }
 
 export async function ipfsUpload(fileData) {
