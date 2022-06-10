@@ -451,7 +451,7 @@ export default function Index() {
 }
 
 function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
-  const [status, setStatus] = useState(profile?.status)
+  const [status, setStatus] = useState(null)
   const [timer, setTimer] = useState(1000)
 
   useEffect(() => {
