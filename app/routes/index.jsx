@@ -455,7 +455,15 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
   const [timer, setTimer] = useState(1000)
 
   useEffect(() => {
-    if (timer >= 32000 || status === 'posted') return
+    if (status === 'posted') return
+    if (status === 'deleted') {
+      setStatus('Status Not Found - Node not found in Index')
+      return
+    }
+    if (timer >= 32000) {
+      setStatus('Server Error - Cannot receive status from Node')
+      return
+    }
     const interval = setTimeout(() => {
       let url = profilePostUrl + '/nodes/' + profile.node_id
       fetchGet(url)
@@ -463,7 +471,11 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
           return res.json()
         })
         .then(res => {
-          setStatus(res.data?.status)
+          if (res?.status === 404) {
+            setStatus('deleted')
+          } else {
+            setStatus(res.data?.status)
+          }
         })
       setTimer(timer * 2)
     }, timer)
@@ -502,10 +514,7 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
             ''
           )}
         </div>
-        <p>
-          Index Status:{' '}
-          {status ? status : 'Status Not Found - Node not found in Index'}
-        </p>
+        <p>Index Status: {status ? status : 'Receiving status from node...'}</p>
         <p>
           Last Updated:{' '}
           {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
