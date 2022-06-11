@@ -211,6 +211,7 @@ export default function Index() {
   let data = useActionData()
   let [schema, setSchema] = useState('')
   let [profileData, setProfileData] = useState('')
+  let [profileTitle, setProfileTitle] = useState('')
   let [instance, setInstance] = useState('')
   let [errors, setErrors] = useState([])
   useEffect(() => {
@@ -243,6 +244,7 @@ export default function Index() {
     if (data?.failure_reasons) {
       setErrors(data.failure_reasons)
     }
+    setProfileTitle(data?.profileTitle)
   }, [data])
   return (
     <div className="flex flex-col md:flex-row box-border">
@@ -294,7 +296,8 @@ export default function Index() {
                 name="profile_title"
                 required="required"
                 placeholder="Enter a memorable title"
-                defaultValue={data.profileTitle}
+                value={profileTitle}
+                onChange={e => setProfileTitle(e.target.value)}
               />
             </label>
             <h3 className="mt-4">
