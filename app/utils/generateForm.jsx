@@ -73,7 +73,7 @@ export default function generateForm(
             title={title}
             enumList={enumList}
             enumNamesList={enumNamesList}
-            key={strName}
+            key={strName + value}
             objectDescription={objectDescription}
             requiredForLabel={requiredForLabel}
             requiredForInput={requiredForInput}
@@ -95,7 +95,7 @@ export default function generateForm(
           maxlength={maxLength}
           minlength={minLength}
           pattern={pattern}
-          key={strName}
+          key={strName + value}
           objectDescription={objectDescription}
           requiredForLabel={requiredForLabel}
           requiredForInput={requiredForInput}
@@ -116,7 +116,7 @@ export default function generateForm(
           title={title}
           max={max}
           min={min}
-          key={strName}
+          key={strName + value}
           objectDescription={objectDescription}
           step="any"
           requiredForLabel={requiredForLabel}
@@ -137,7 +137,7 @@ export default function generateForm(
             title={title}
             enumList={enumList}
             enumNamesList={enumNamesList}
-            key={strName}
+            key={strName + value}
             multi={true}
             requiredForLabel={requiredForLabel}
             requiredForInput={requiredForInput}
@@ -167,7 +167,7 @@ export default function generateForm(
           name={strName}
           description={description}
           title={title}
-          key={strName}
+          key={strName + value}
           objects={objProperties}
           objTitle={objTitle}
           objDescription={objDescription}
