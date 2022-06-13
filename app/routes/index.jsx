@@ -27,8 +27,9 @@ import { userCookie } from '~/utils/cookie'
 export async function action({ request }) {
   let formData = await request.formData()
   let rawData = {}
-  for (let formEntry of formData.entries()) {
-    rawData[formEntry[0]] = formEntry[1]
+  for (let key of formData.keys()) {
+    rawData[key] = formData.getAll(key)
+    rawData[key].length === 1 && (rawData[key] = rawData[key][0])
   }
   let { _action, ...data } = rawData
   let schema,
