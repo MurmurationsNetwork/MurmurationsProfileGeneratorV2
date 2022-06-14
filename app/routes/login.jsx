@@ -14,8 +14,8 @@ import {
 } from '~/utils/session.server'
 
 function validateEmail(email) {
-  if (typeof email !== 'string' || email.length < 3) {
-    return `Email must be at least 3 characters long.`
+  if (typeof email !== 'string' || email.length < 6) {
+    return `Email must be at least 6 characters long.`
   }
 }
 
