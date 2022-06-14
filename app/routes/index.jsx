@@ -77,7 +77,7 @@ export async function action({ request }) {
           'Set-Cookie': await userCookie.serialize(response.newUser)
         }
       })
-    case 'edit':
+    case 'modify':
       profileId = formData.get('profile_id')
       profileData = await getProfile(profileId)
       schema = await parseRef(profileData.linked_schemas)
@@ -257,7 +257,7 @@ export default function Index() {
         )}
         <Form className="mb-2" method="post">
           <select
-            className="bg-white dark:bg-slate-700 block w-full border-black border-2 py-2 px-4"
+            className="bg-white dark:bg-slate-700 block w-96 border-black border-2 py-2 px-4"
             id="schema"
             name="schema"
             multiple={true}
@@ -276,7 +276,7 @@ export default function Index() {
             ))}
           </select>
           <button
-            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 w-full mt-4"
+            className="rounded-full bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
             type="submit"
             name="_action"
             value="select"
@@ -440,7 +440,7 @@ export default function Index() {
             ) : null}
             {user?.profiles ? (
               <div className="mt-5">
-                <h1 className="text-2xl">User Profile List</h1>
+                <h1 className="hidden md:contents text-2xl">My Profiles</h1>
                 {user.profiles.map((_, index) => (
                   <ProfileItem
                     profile={user.profiles[index]}
@@ -469,7 +469,7 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
       return
     }
     if (timer > 32000) {
-      setStatus('Server Error - Cannot receive status from Node')
+      setStatus('Index Not Responding - Try again later')
       return
     }
     const interval = setTimeout(() => {
@@ -492,9 +492,9 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
   }, [profile.node_id, profile.status, profilePostUrl, status, timer])
 
   return (
-    <div className="max-w rounded overflow-hidden border-2 mt-2">
+    <div className="w-96 rounded-lg overflow-hidden bg-gray-700 mt-2 md:mt-4">
       <div className="px-6 py-4">
-        <div className="font-bold text-xl mb-2">
+        <div className="text-lg mb-2">
           Title:{' '}
           <Link
             to={{ pathname: `/profiles/${profile?.cuid}` }}
@@ -522,7 +522,14 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
             ''
           )}
         </div>
-        <p>Index Status: {status ? status : 'Receiving status from node...'}</p>
+        <p>
+          Murmurations Index Status:{' '}
+          {status ? (
+            <span className="font-bold">{status}</span>
+          ) : (
+            'Checking index...'
+          )}
+        </p>
         <p>
           Last Updated:{' '}
           {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
@@ -531,28 +538,38 @@ function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
           Schema List:{' '}
           {profile?.linked_schemas ? profile?.linked_schemas.join(', ') : ''}
         </p>
-        <Form method="post">
-          <input type="hidden" name="profile_id" defaultValue={profile?.cuid} />
-          <button
-            className="bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
-            type="submit"
-            name="_action"
-            value="edit"
-          >
-            Edit Profile
-          </button>
-        </Form>
-        <Form method="post">
-          <input type="hidden" name="profile_id" defaultValue={profile?.cuid} />
-          <button
-            className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
-            type="submit"
-            name="_action"
-            value="delete"
-          >
-            Delete Profile
-          </button>
-        </Form>
+        <div className="flex flex-row">
+          <Form method="post" className="flex-none">
+            <input
+              type="hidden"
+              name="profile_id"
+              defaultValue={profile?.cuid}
+            />
+            <button
+              className="rounded-full bg-blue-500 hover:bg-blue-700 dark:bg-blue-900 dark:hover:bg-blue-700 text-white font-bold py-2 px-4 mt-4"
+              type="submit"
+              name="_action"
+              value="modify"
+            >
+              Modify
+            </button>
+          </Form>
+          <Form method="post" className="flex-none pl-16 md:pl-32">
+            <input
+              type="hidden"
+              name="profile_id"
+              defaultValue={profile?.cuid}
+            />
+            <button
+              className="rounded-full bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bg-red-700 text-white font-bold py-2 px-4 mt-4"
+              type="submit"
+              name="_action"
+              value="delete"
+            >
+              Delete
+            </button>
+          </Form>
+        </div>
       </div>
     </div>
   )
