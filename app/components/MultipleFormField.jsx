@@ -258,23 +258,25 @@ function MultipleFormFieldItems({
             </div>
           )
         })}
-        {inputList.length !== 1 && (
-          <input
-            className="bg-red-500 hover:bg-red-700 dark:bg-red-900 dark:hover:bk-red-700 text-white font-bold py-2 px-4 my-4"
-            type="button"
-            value="Remove"
-            onClick={() => handleRemoveInput(i)}
-          />
-        )}
-        {inputList.length - 1 === i &&
-          (maxItems === undefined || inputList.length < maxItems) && (
+        <div className="flex justify-around items-center">
+          {inputList.length - 1 === i &&
+            (maxItems === undefined || inputList.length < maxItems) && (
+              <input
+                className="rounded-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 hover:scale-110 font-bold py-2 px-4 my-4"
+                type="button"
+                value="Add"
+                onClick={() => handleAddInput(i)}
+              />
+            )}
+          {inputList.length !== 1 && (
             <input
-              className="bg-green-500 hover:bg-green-700 dark:bg-green-900 dark:hover:bg-green-700 text-white font-bold py-2 px-4 my-4"
+              className="rounded-full bg-yellow-500 dark:bg-green-200 hover:bg-yellow-400 dark:hover:bg-green-100 text-white dark:text-gray-800 font-bold py-2 px-4 my-4"
               type="button"
-              value="Add"
-              onClick={() => handleAddInput(i)}
+              value="Remove"
+              onClick={() => handleRemoveInput(i)}
             />
           )}
+        </div>
         {/* </fieldset> */}
       </span>
     )

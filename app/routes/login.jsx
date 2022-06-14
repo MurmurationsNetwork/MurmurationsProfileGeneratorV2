@@ -101,7 +101,7 @@ export default function Login() {
   const [searchParams] = useSearchParams()
   return (
     <div className="flex flex-col h-screen justify-center items-center">
-      <div className="top-0 mx-auto w-96 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col dark:text-black">
+      <div className="top-0 mx-auto w-full md:w-96 bg-yellow-500 dark:bg-purple-800 shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col dark:text-gray-100">
         <h1 className="text-3xl text-center">Login</h1>
         <form method="post">
           <input
@@ -113,6 +113,7 @@ export default function Login() {
             <label className="mr-3">
               <input
                 type="radio"
+                className="bg-red-300 dark:bg-gray-600"
                 name="loginType"
                 value="login"
                 defaultChecked={
@@ -125,6 +126,7 @@ export default function Login() {
             <label>
               <input
                 type="radio"
+                className="bg-red-300 dark:bg-gray-600"
                 name="loginType"
                 value="register"
                 defaultChecked={actionData?.fields?.loginType === 'register'}
@@ -134,13 +136,13 @@ export default function Login() {
           </fieldset>
           <div className="mb-4">
             <label
-              className="block text-grey-darker text-sm font-bold mb-2"
+              className="block text-gray-800 text-sm font-bold mb-2"
               htmlFor="email"
             >
               Email
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-600"
               type="email"
               id="email-input"
               name="email"
@@ -153,7 +155,7 @@ export default function Login() {
             />
             {actionData?.fieldErrors?.email ? (
               <p
-                className="form-validation-error text-red-500 text-sm"
+                className="form-validation-error text-red-600 text-sm mt-2"
                 role="alert"
                 id="email-error"
               >
@@ -163,13 +165,13 @@ export default function Login() {
           </div>
           <div className="mb-2">
             <label
-              className="block text-grey-darker text-sm font-bold mb-2"
+              className="block text-gray-800 text-sm font-bold mb-2"
               htmlFor="password"
             >
               Password
             </label>
             <input
-              className="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3"
+              className="shadow appearance-none border border-red rounded w-full py-2 px-3 text-gray-800 mb-3 dark:text-gray-100 dark:bg-gray-600"
               type="password"
               id="password-input"
               name="password"
@@ -180,11 +182,11 @@ export default function Login() {
               aria-errormessage={
                 actionData?.fieldErrors?.password ? 'password-error' : undefined
               }
-              placeholder="Password"
+              placeholder="password"
             />
             {actionData?.fieldErrors?.password ? (
               <p
-                className="form-validation-error text-red-500 text-sm"
+                className="form-validation-error text-red-600 dark:text-red-400 text-sm"
                 role="alert"
                 id="password-error"
               >
@@ -195,7 +197,7 @@ export default function Login() {
           <div id="form-error-message" className="mb-2">
             {actionData?.formError ? (
               <p
-                className="form-validation-error text-red-500 text-sm"
+                className="form-validation-error text-red-600 dark:text-red-400 text-sm"
                 role="alert"
               >
                 {actionData.formError}
@@ -204,7 +206,7 @@ export default function Login() {
           </div>
           <div className="flex items-center justify-center">
             <button
-              className="bg-blue-500 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded"
+              className="bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 dark:focus:bg-purple-900 hover:scale-110 font-bold py-2 px-4 rounded mt-2"
               type="submit"
             >
               Submit
