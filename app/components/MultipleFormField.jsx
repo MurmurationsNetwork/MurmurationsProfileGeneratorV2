@@ -26,7 +26,7 @@ export default function MultipleFormField({
           ''
         )}
       </legend>
-      <span className="block text-md mb-4">{description}</span>
+      <span className="block text-sm mb-4">{description}</span>
       <MultipleFormFieldItems
         name={name}
         description={description}

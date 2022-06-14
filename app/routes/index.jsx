@@ -404,6 +404,16 @@ export default function Index() {
         </Form>
         {schema && profileData ? (
           <Form method="post">
+            <h3 className="mt-8">
+              Schemas selected:{' '}
+              <ol>
+                {schema.metadata.schema.map((schemaName, index) => (
+                  <li key={index}>
+                    <code>{schemaName}</code>
+                  </li>
+                ))}
+              </ol>
+            </h3>
             <label>
               <div className="font-bold mt-4">
                 Profile Title
@@ -419,14 +429,6 @@ export default function Index() {
                 onChange={e => setProfileTitle(e.target.value)}
               />
             </label>
-            <h3 className="mt-8 md:mt-16">
-              Schemas selected:{' '}
-              <ol>
-                {schema.metadata.schema.map((schemaName, index) => (
-                  <li key={index}>{schemaName}</li>
-                ))}
-              </ol>
-            </h3>
             <input
               type="hidden"
               name="profile_id"
@@ -449,11 +451,13 @@ export default function Index() {
           </Form>
         ) : schema ? (
           <Form method="post">
-            <h3 className="mt-8 md:mt-16">
+            <h3 className="mt-8">
               Schemas selected:{' '}
               <ol>
                 {schema.metadata.schema.map((schemaName, index) => (
-                  <li key={index}>{schemaName}</li>
+                  <li key={index}>
+                    <code>{schemaName}</code>
+                  </li>
                 ))}
               </ol>
             </h3>
@@ -547,7 +551,9 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
         </p>
         <p>
           Last Updated:{' '}
-          {profile?.last_updated ? new Date(profile.last_updated).toJSON() : ''}
+          {profile?.last_updated
+            ? new Date(profile.last_updated).toDateString()
+            : ''}
         </p>
         <p>
           Schema List:{' '}
