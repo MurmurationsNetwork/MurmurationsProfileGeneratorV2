@@ -374,7 +374,7 @@ export default function Index() {
             </div>
           </div>
         </div>
-        <div className="basis-full md:basis-1/2 mx-2 py-4 md:py-0">
+        <div className="basis-full md:basis-1/2 mx-2 py-4 px-2 md:px-4">
           <Form className="mb-2" method="post">
             <select
               className="bg-white dark:bg-gray-700 block w-full md:w-96 border-gray-400 border-2 py-2 px-4"
@@ -514,7 +514,7 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
   }, [profile.node_id, profile.status, profilePostUrl, status, timer])
 
   return (
-    <div className="w-full md:w-96 rounded-lg overflow-hidden bg-gray-50 dark:bg-purple-800 mt-2 md:mt-4">
+    <div className="w-full md:w-96 rounded-lg overflow-hidden bg-gray-50 dark:bg-purple-800 my-2 md:my-4">
       <div className="px-6 py-4">
         <div className="text-lg mb-2">
           Title:{' '}
@@ -537,7 +537,7 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
               >
                 {profile.ipfs[0].substring(0, 6) +
                   '...' +
-                  profile.ipfs[0].substr(54, 10)}
+                  profile.ipfs[0].substr(53, 10)}
               </a>
             </>
           ) : (
