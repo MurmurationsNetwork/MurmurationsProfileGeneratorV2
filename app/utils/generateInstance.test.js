@@ -1,5 +1,4 @@
 import generateInstance from './generateInstance'
-
 import {
   test_schema_1,
   test_schema_2,

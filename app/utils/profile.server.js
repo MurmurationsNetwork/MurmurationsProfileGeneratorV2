@@ -1,5 +1,8 @@
 import crypto from 'crypto'
 import cuid from 'cuid'
+
+import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
+import { ipfsPublish, ipfsUpload } from '~/utils/ipfs.server'
 import {
   mongoConnect,
   mongoDeleteProfile,
@@ -14,8 +17,6 @@ import {
   mongoUpdateUserIpfs,
   mongoUpdateUserProfile
 } from '~/utils/mongo.server'
-import { fetchDelete, fetchGet, fetchJsonPost } from '~/utils/fetcher'
-import { ipfsPublish, ipfsUpload } from '~/utils/ipfs.server'
 
 async function postNode(profileId) {
   const postUrl = process.env.PUBLIC_PROFILE_POST_URL + '/nodes'

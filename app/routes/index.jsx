@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react'
+import { toast, Toaster } from 'react-hot-toast'
+import { json, redirect } from '@remix-run/node'
 import {
   Form,
   Link,
@@ -6,13 +9,12 @@ import {
   useLoaderData,
   useSearchParams
 } from '@remix-run/react'
-import { useEffect, useState } from 'react'
-import { json, redirect } from '@remix-run/node'
 
+import { userCookie } from '~/utils/cookie'
+import { fetchGet, fetchJsonPost } from '~/utils/fetcher'
 import generateForm from '~/utils/generateForm'
 import generateInstance from '~/utils/generateInstance'
 import parseRef from '~/utils/parseRef'
-import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 import {
   deleteProfile,
   getProfile,
@@ -20,9 +22,7 @@ import {
   saveProfile,
   updateProfile
 } from '~/utils/profile.server'
-import { fetchGet, fetchJsonPost } from '~/utils/fetcher'
-import { toast, Toaster } from 'react-hot-toast'
-import { userCookie } from '~/utils/cookie'
+import { requireUserEmail, retrieveUser } from '~/utils/session.server'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -473,7 +473,7 @@ export default function Index() {
   )
 }
 
-function ProfileItem({ profile, ipfsGatewayUrl, profilePostUrl }) {
+function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
   const [status, setStatus] = useState(null)
   const [timer, setTimer] = useState(1000)
 

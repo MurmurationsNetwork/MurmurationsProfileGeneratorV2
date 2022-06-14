@@ -4,16 +4,16 @@ export default function MultipleFormField({
   name,
   description,
   max,
+  maxItems,
   maxlength,
   min,
   minlength,
-  pattern,
-  title,
+  objDescription,
   objects,
   objTitle,
-  objDescription,
-  maxItems,
+  pattern,
   requiredForLabel,
+  title,
   value
 }) {
   return (

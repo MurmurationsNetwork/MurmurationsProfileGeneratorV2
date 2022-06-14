@@ -1,10 +1,11 @@
+import { json } from '@remix-run/node'
 import {
   Link,
   useActionData,
   useCatch,
   useSearchParams
 } from '@remix-run/react'
-import { json } from '@remix-run/node'
+
 import {
   checkUser,
   createUserSession,

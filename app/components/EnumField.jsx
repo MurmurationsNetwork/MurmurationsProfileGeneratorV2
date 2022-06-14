@@ -6,10 +6,10 @@ export default function EnumField({
   enumNamesList,
   multi,
   name,
-  title,
   objectDescription,
-  requiredForLabel,
   requiredForInput,
+  requiredForLabel,
+  title,
   value
 }) {
   return (
