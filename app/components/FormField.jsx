@@ -8,12 +8,12 @@ export default function FormField({
   minlength,
   name,
   pattern,
+  objectDescription,
+  requiredForInput,
+  requiredForLabel,
+  step,
   title,
   type,
-  objectDescription,
-  step,
-  requiredForLabel,
-  requiredForInput,
   value
 }) {
   if (type === 'string') {

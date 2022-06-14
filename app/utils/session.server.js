@@ -1,6 +1,8 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
 import { createCookieSessionStorage, redirect } from '@remix-run/node'
+
+import { ipfsKeyGen } from '~/utils/ipfs.server'
 import {
   mongoConnect,
   mongoCountUser,
@@ -9,7 +11,6 @@ import {
   mongoSaveUser,
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
-import { ipfsKeyGen } from '~/utils/ipfs.server'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')

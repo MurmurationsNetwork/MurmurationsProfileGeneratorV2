@@ -1,10 +1,11 @@
+import { json } from '@remix-run/node'
 import {
   Link,
   useActionData,
   useCatch,
   useSearchParams
 } from '@remix-run/react'
-import { json } from '@remix-run/node'
+
 import {
   checkUser,
   createUserSession,
@@ -13,14 +14,14 @@ import {
 } from '~/utils/session.server'
 
 function validateEmail(email) {
-  if (typeof email !== 'string' || email.length < 3) {
-    return `email must be at least 3 characters long`
+  if (typeof email !== 'string' || email.length < 6) {
+    return `Email must be at least 6 characters long.`
   }
 }
 
 function validatePassword(password) {
   if (typeof password !== 'string' || password.length < 6) {
-    return `Passwords must be at least 6 characters long`
+    return `Password must be at least 6 characters long.`
   }
 }
 
@@ -136,13 +137,13 @@ export default function Login() {
           </fieldset>
           <div className="mb-4">
             <label
-              className="block text-gray-800 text-sm font-bold mb-2"
+              className="block text-gray-800 dark:text-gray-100 text-sm font-bold mb-2"
               htmlFor="email"
             >
               Email
             </label>
             <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 dark:bg-gray-600"
+              className="shadow appearance-none border rounded w-full p-2 mb-4 text-gray-900 dark:text-gray-100 dark:bg-gray-600"
               type="email"
               id="email-input"
               name="email"
@@ -151,11 +152,11 @@ export default function Login() {
               aria-errormessage={
                 actionData?.fieldErrors?.email ? 'email-error' : undefined
               }
-              placeholder="email"
+              placeholder="Enter your email"
             />
             {actionData?.fieldErrors?.email ? (
               <p
-                className="form-validation-error text-red-600 text-sm mt-2"
+                className="form-validation-error text-red-600 dark:text-red-400 text-sm"
                 role="alert"
                 id="email-error"
               >
@@ -165,13 +166,13 @@ export default function Login() {
           </div>
           <div className="mb-2">
             <label
-              className="block text-gray-800 text-sm font-bold mb-2"
+              className="block text-gray-800 dark:text-gray-100 text-sm font-bold mb-2"
               htmlFor="password"
             >
               Password
             </label>
             <input
-              className="shadow appearance-none border border-red rounded w-full py-2 px-3 text-gray-800 mb-3 dark:text-gray-100 dark:bg-gray-600"
+              className="shadow appearance-none border rounded w-full p-2 mb-4 text-gray-800 dark:text-gray-100 dark:bg-gray-600"
               type="password"
               id="password-input"
               name="password"
@@ -182,7 +183,7 @@ export default function Login() {
               aria-errormessage={
                 actionData?.fieldErrors?.password ? 'password-error' : undefined
               }
-              placeholder="password"
+              placeholder="Enter your password"
             />
             {actionData?.fieldErrors?.password ? (
               <p
@@ -206,7 +207,7 @@ export default function Login() {
           </div>
           <div className="flex items-center justify-center">
             <button
-              className="bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 dark:focus:bg-purple-900 hover:scale-110 font-bold py-2 px-4 rounded mt-2"
+              className="bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 dark:focus:bg-purple-900 hover:scale-110 font-bold py-2 px-4 rounded-full mt-2"
               type="submit"
             >
               Submit

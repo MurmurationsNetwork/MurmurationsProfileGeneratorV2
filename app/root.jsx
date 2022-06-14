@@ -14,7 +14,7 @@ export function links() {
 }
 
 export function meta() {
-  return { title: 'MPGv2' }
+  return { title: 'Murmuration Profile Generator' }
 }
 
 export default function App() {
@@ -27,7 +27,7 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-white dark:bg-gray-900 text-black dark:text-gray-50 leading-normal text-md md:text-xl">
-        <div className="container max-w-full mx-auto px-2 py-2 md:px-4 md:py-4">
+        <div className="container max-w-full mx-auto px-0 py-0">
           <Outlet />
           <ScrollRestoration />
           <Scripts />
@@ -43,7 +43,7 @@ export function ErrorBoundary({ error }) {
   return (
     <html>
       <head>
-        <title>MPGv2 - Fatal Error</title>
+        <title>MPG - Fatal Error</title>
         <Meta />
         <Links />
       </head>

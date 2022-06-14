@@ -1,5 +1,6 @@
-import { getProfile } from '~/utils/profile.server'
 import { json } from '@remix-run/node'
+
+import { getProfile } from '~/utils/profile.server'
 
 export const loader = async ({ params }) => {
   const profile = await getProfile(params.profileId)
