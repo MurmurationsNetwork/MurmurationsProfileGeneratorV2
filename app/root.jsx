@@ -26,7 +26,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body className="bg-white dark:bg-slate-600 text-black dark:text-white leading-normal">
+      <body className="bg-white dark:bg-gray-900 text-black dark:text-gray-50 leading-normal text-md md:text-xl">
         <div className="container max-w-full mx-auto px-2 py-2 md:px-4 md:py-4">
           <Outlet />
           <ScrollRestoration />
@@ -47,7 +47,7 @@ export function ErrorBoundary({ error }) {
         <Meta />
         <Links />
       </head>
-      <body className="bg-white dark:bg-slate-600 text-black dark:text-white leading-normal">
+      <body className="bg-white dark:bg-gray-900 text-black dark:text-gray-50 leading-normal">
         <div className="container mx-auto px-4 h-screen flex justify-center items-center flex-col">
           <span className="text-5xl mb-8">💥😱</span>
           <h1 className="text-xl font-bold mb-8">
