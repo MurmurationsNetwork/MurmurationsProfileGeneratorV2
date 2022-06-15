@@ -483,6 +483,7 @@ export default function Index() {
 function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
   const [status, setStatus] = useState(null)
   const [timer, setTimer] = useState(1000)
+  const [deleteModal, setDeleteModal] = useState(false)
 
   useEffect(() => {
     if (status === 'posted') return
@@ -514,88 +515,126 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
   }, [profile.node_id, profile.status, profilePostUrl, status, timer])
 
   return (
-    <div className="w-full md:w-96 rounded-lg overflow-hidden bg-gray-50 dark:bg-purple-800 my-2 md:my-4">
-      <div className="px-6 py-4">
-        <div className="text-lg mb-2">
-          Title:{' '}
-          <Link
-            to={{ pathname: `/profiles/${profile?.cuid}` }}
-            target="_blank"
-            className="no-underline hover:underline text-yellow-600 dark:text-green-300"
-          >
-            {profile?.title}
-          </Link>
-          <br />
-          {profile?.ipfs[0] ? (
-            <>
-              IPFS Address:{' '}
-              <a
-                href={`${ipfsGatewayUrl}/${profile.ipfs[0]}`}
-                target="_blank"
-                rel="noreferrer"
-                className="no-underline hover:underline text-yellow-600 dark:text-green-300"
+    <>
+      <div className="w-full md:w-96 rounded-lg overflow-hidden bg-gray-50 dark:bg-purple-800 my-2 md:my-4">
+        <div className="px-6 py-4">
+          <div className="text-lg mb-2">
+            Title:{' '}
+            <Link
+              to={{ pathname: `/profiles/${profile?.cuid}` }}
+              target="_blank"
+              className="no-underline hover:underline text-yellow-600 dark:text-green-300"
+            >
+              {profile?.title}
+            </Link>
+            <br />
+            {profile?.ipfs[0] ? (
+              <>
+                IPFS Address:{' '}
+                <a
+                  href={`${ipfsGatewayUrl}/${profile.ipfs[0]}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="no-underline hover:underline text-yellow-600 dark:text-green-300"
+                >
+                  {profile.ipfs[0].substring(0, 6) +
+                    '...' +
+                    profile.ipfs[0].substr(53, 10)}
+                </a>
+              </>
+            ) : (
+              ''
+            )}
+          </div>
+          <p>
+            Murmurations Index Status:{' '}
+            {status ? (
+              <span className="font-bold">{status}</span>
+            ) : (
+              'Checking index...'
+            )}
+          </p>
+          <p>
+            Last Updated:{' '}
+            {profile?.last_updated
+              ? new Date(profile.last_updated).toDateString()
+              : ''}
+          </p>
+          <p>
+            Schema List:{' '}
+            {profile?.linked_schemas ? profile?.linked_schemas.join(', ') : ''}
+          </p>
+          <div className="flex flex-row">
+            <Form method="post" className="flex-none">
+              <input
+                type="hidden"
+                name="profile_id"
+                defaultValue={profile?.cuid}
+              />
+              <button
+                className="rounded-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 hover:scale-110 font-bold py-2 px-4 mt-4"
+                type="submit"
+                name="_action"
+                value="modify"
               >
-                {profile.ipfs[0].substring(0, 6) +
-                  '...' +
-                  profile.ipfs[0].substr(53, 10)}
-              </a>
-            </>
-          ) : (
-            ''
-          )}
-        </div>
-        <p>
-          Murmurations Index Status:{' '}
-          {status ? (
-            <span className="font-bold">{status}</span>
-          ) : (
-            'Checking index...'
-          )}
-        </p>
-        <p>
-          Last Updated:{' '}
-          {profile?.last_updated
-            ? new Date(profile.last_updated).toDateString()
-            : ''}
-        </p>
-        <p>
-          Schema List:{' '}
-          {profile?.linked_schemas ? profile?.linked_schemas.join(', ') : ''}
-        </p>
-        <div className="flex flex-row">
-          <Form method="post" className="flex-none">
-            <input
-              type="hidden"
-              name="profile_id"
-              defaultValue={profile?.cuid}
-            />
-            <button
-              className="rounded-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 hover:scale-110 font-bold py-2 px-4 mt-4"
-              type="submit"
-              name="_action"
-              value="modify"
-            >
-              Modify
-            </button>
-          </Form>
-          <Form method="post" className="flex-none pl-16 md:pl-32">
-            <input
-              type="hidden"
-              name="profile_id"
-              defaultValue={profile?.cuid}
-            />
-            <button
-              className="rounded-full bg-yellow-500 dark:bg-green-200 hover:bg-yellow-400 dark:hover:bg-green-100 text-white dark:text-gray-800 font-bold py-2 px-4 mt-4"
-              type="submit"
-              name="_action"
-              value="delete"
-            >
-              Delete
-            </button>
-          </Form>
+                Modify
+              </button>
+            </Form>
+            <div className="flex-none pl-16 md:pl-32">
+              <button
+                className="rounded-full bg-yellow-500 dark:bg-green-200 hover:bg-yellow-400 dark:hover:bg-green-100 text-white dark:text-gray-800 font-bold py-2 px-4 mt-4"
+                type="button"
+                onClick={() => setDeleteModal(true)}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+      {deleteModal ? (
+        <>
+          <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+            <div className="relative w-auto my-6 mx-auto max-w-xs md:max-w-md">
+              <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white dark:bg-gray-900 text-black dark:text-gray-50 outline-none focus:outline-none">
+                <div className="relative p-6 flex-auto">
+                  <p className="my-4 text-lg leading-relaxed">
+                    Are you sure you want to delete this profile?
+                  </p>
+                </div>
+                <div className="flex items-center justify-center p-6 border-t border-solid border-slate-200 dark:border-gray-700 rounded-b">
+                  <Form method="post">
+                    <input
+                      type="hidden"
+                      name="profile_id"
+                      defaultValue={profile?.cuid}
+                    />
+                    <button
+                      className="rounded-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 hover:scale-110 font-bold py-2 px-4 mt-4"
+                      type="submit"
+                      name="_action"
+                      value="delete"
+                    >
+                      Confirm Delete
+                    </button>
+                  </Form>
+                  <div className="flex-none pl-4 md:pl-8">
+                    <button
+                      className="rounded-full bg-yellow-500 dark:bg-green-200 hover:bg-yellow-400 dark:hover:bg-green-100 text-white dark:text-gray-800 font-bold py-2 px-4 mt-4"
+                      type="button"
+                      onClick={() => setDeleteModal(false)}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="opacity-75 fixed inset-0 z-40 bg-black"></div>
+        </>
+      ) : null}
+    </>
   )
 }
 
