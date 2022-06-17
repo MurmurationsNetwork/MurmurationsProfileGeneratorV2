@@ -36,6 +36,10 @@ export default function Index() {
       ? b[sortProp]?.localeCompare(a[sortProp])
       : a[sortProp]?.localeCompare(b[sortProp])
   })
+  let date = date =>
+    new Date(date * 1000).toISOString().substring(0, 10) +
+    ' ' +
+    new Date(date * 1000).toISOString().substring(11, 19)
 
   return (
     <div className="max-w-6xl py-8 mx-auto lg:py-16 ">
@@ -85,7 +89,7 @@ export default function Index() {
                           {node.locality}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {new Date(node.last_updated * 1000).toDateString()}
+                          {date(node.last_updated)}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50">
                           <div className="flex flex-wrap">
