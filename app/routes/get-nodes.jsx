@@ -2,7 +2,6 @@ import { json } from '@remix-run/node'
 import { Link, useLoaderData, useSearchParams } from '@remix-run/react'
 
 import { fetchGet } from '~/utils/fetcher'
-import { renderToString } from 'react-dom/server'
 
 export async function loader(request) {
   try {
