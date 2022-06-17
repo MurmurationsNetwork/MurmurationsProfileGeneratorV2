@@ -85,9 +85,7 @@ export default function Index() {
                           {node.locality}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {new Date(node.last_updated * 1000)
-                            .toString()
-                            .substring(0, 15)}
+                          {new Date(node.last_updated * 1000).toDateString()}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50">
                           <div className="flex flex-wrap">
