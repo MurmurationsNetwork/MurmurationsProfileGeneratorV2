@@ -29,6 +29,9 @@ export default function Index() {
   let nodes = loaderData.nodes
   let [sortProp, desc] = searchParams.get('sort')?.split(':') ?? []
   let sortedNodes = [...nodes.data].sort((a, b) => {
+    if (sortProp === 'last_updated') {
+      return desc ? b[sortProp] - a[sortProp] : a[sortProp] - b[sortProp]
+    }
     return desc
       ? b[sortProp]?.localeCompare(a[sortProp])
       : a[sortProp]?.localeCompare(b[sortProp])
@@ -54,25 +57,13 @@ export default function Index() {
                   <thead className="bg-gray-100 dark:bg-gray-500">
                     <tr>
                       <SortableColumn prop="primary_url">
-                        <span className="text-gray-900 dark:text-gray-50">
-                          Primary URL
-                        </span>
+                        Primary URL
                       </SortableColumn>
-                      <SortableColumn prop="locality">
-                        <span className="text-gray-900 dark:text-gray-50">
-                          Locality
-                        </span>
-                      </SortableColumn>
+                      <SortableColumn prop="locality">Locality</SortableColumn>
                       <SortableColumn prop="last_updated">
-                        <span className="text-gray-900 dark:text-gray-50">
-                          Last Updated
-                        </span>
+                        Last Updated
                       </SortableColumn>
-                      <SortableColumn prop="tags">
-                        <span className="text-gray-900 dark:text-gray-50">
-                          Tags
-                        </span>
-                      </SortableColumn>
+                      <SortableColumn>Tags</SortableColumn>
                     </tr>
                   </thead>
                   <tbody className="bg-gray-50 dark:bg-gray-600 divide-y divide-gray-200">
@@ -128,25 +119,26 @@ function SortableColumn({ prop, children }) {
   let newSearchParams = new URLSearchParams({ sort: newSort })
 
   return (
-    <th
-      scope="col"
-      className="py-3.5 px-3 first:pl-4 text-left text-sm text-gray-900 first:sm:pl-6"
-    >
-      <Link
-        to={newSort ? `/get-nodes?${newSearchParams}` : '/get-nodes'}
-        className="inline-flex font-semibold group"
-      >
-        {children}
-        <span
-          className={`${
-            sortProp === prop
-              ? 'text-gray-900 bg-gray-200 group-hover:bg-gray-300'
-              : 'invisible text-gray-400 group-hover:visible'
-          } flex-none ml-2 rounded`}
+    <th scope="col" className="p-1 md:p-2 text-left text-sm text-gray-900">
+      {prop ? (
+        <Link
+          to={newSort ? `/get-nodes?${newSearchParams}` : '/get-nodes'}
+          className="inline-flex font-semibold group"
         >
-          {desc ? '▼' : '▲'}
-        </span>
-      </Link>
+          <span className="text-gray-900 dark:text-gray-50">{children}</span>
+          <span
+            className={`${
+              sortProp === prop
+                ? 'text-gray-900 bg-gray-200 group-hover:bg-gray-300'
+                : 'invisible text-gray-400 group-hover:visible'
+            } flex-none ml-2 rounded`}
+          >
+            {desc ? '▼' : '▲'}
+          </span>
+        </Link>
+      ) : (
+        <span className="text-gray-900 dark:text-gray-50">{children}</span>
+      )}
     </th>
   )
 }
