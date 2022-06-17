@@ -6,7 +6,7 @@ import { fetchGet } from '~/utils/fetcher'
 export async function loader(request) {
   try {
     let response = await fetchGet(
-      `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=karte_von_morgen-v1.0.0`
+      `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=karte_von_morgen-v1.0.0&tags=demeter`
     )
     if (!response.ok) {
       throw new Response('Schema list loading error', {
@@ -41,7 +41,8 @@ export default function Index() {
           <div className="sm:flex-auto text-gray-900 dark:text-gray-50">
             <h1 className="text-xl font-semibold">Nodes</h1>
             <p className="mt-2 text-sm">
-              A list of the first 30 nodes in the Index using the KVM schema.
+              A list of the first 30 nodes in the Index using the KVM schema and
+              the tag <code>demeter</code>.
             </p>
           </div>
         </div>
@@ -78,9 +79,16 @@ export default function Index() {
                     {sortedNodes?.map(node => (
                       <tr key={node.profile_url}>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.primary_url?.length > 30
-                            ? `${node.primary_url?.substr(0, 30)}...`
-                            : node.primary_url}
+                          <a
+                            href={`https://${node.primary_url}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="no-underline hover:underline text-yellow-600 dark:text-green-300"
+                          >
+                            {node.primary_url?.length > 30
+                              ? `${node.primary_url?.substr(0, 30)}...`
+                              : node.primary_url}
+                          </a>
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
                           {node.locality}
@@ -91,7 +99,7 @@ export default function Index() {
                             .substr(0, 15)}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.tags?.join(', ')}
+                          <code>{node.tags?.join(', ')}</code>
                         </td>
                       </tr>
                     ))}
