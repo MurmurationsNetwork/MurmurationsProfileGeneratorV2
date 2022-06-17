@@ -2,6 +2,7 @@ import { json } from '@remix-run/node'
 import { Link, useLoaderData, useSearchParams } from '@remix-run/react'
 
 import { fetchGet } from '~/utils/fetcher'
+import { renderToString } from 'react-dom/server'
 
 export async function loader(request) {
   try {
@@ -41,7 +42,7 @@ export default function Index() {
           <div className="sm:flex-auto text-gray-900 dark:text-gray-50">
             <h1 className="text-xl font-semibold">Nodes</h1>
             <p className="mt-2 text-sm">
-              A list of all the nodes using the KVM schema.
+              A list of the first 30 nodes in the Index using the KVM schema.
             </p>
           </div>
         </div>
@@ -50,16 +51,16 @@ export default function Index() {
             <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
               <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
                 <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-200 dark:bg-gray-500">
+                  <thead className="bg-gray-100 dark:bg-gray-500">
                     <tr>
                       <SortableColumn prop="primary_url">
                         <span className="text-gray-900 dark:text-gray-50">
                           Primary URL
                         </span>
                       </SortableColumn>
-                      <SortableColumn prop="profile_url">
+                      <SortableColumn prop="locality">
                         <span className="text-gray-900 dark:text-gray-50">
-                          Profile URL
+                          Locality
                         </span>
                       </SortableColumn>
                       <SortableColumn prop="last_updated">
@@ -74,20 +75,24 @@ export default function Index() {
                       </SortableColumn>
                     </tr>
                   </thead>
-                  <tbody className="bg-gray-100 dark:bg-gray-600 divide-y divide-gray-200">
+                  <tbody className="bg-gray-50 dark:bg-gray-600 divide-y divide-gray-200">
                     {sortedNodes?.map(node => (
                       <tr key={node.profile_url}>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.primary_url}
+                          {node.primary_url?.length > 30
+                            ? `${node.primary_url?.substr(0, 30)}...`
+                            : node.primary_url}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.profile_url}
+                          {node.locality}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.last_updated}
+                          {new Date(node.last_updated * 1000)
+                            .toString()
+                            .substr(0, 15)}
                         </td>
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.tags}
+                          {node.tags?.join(', ')}
                         </td>
                       </tr>
                     ))}
