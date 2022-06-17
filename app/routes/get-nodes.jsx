@@ -87,10 +87,19 @@ export default function Index() {
                         <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
                           {new Date(node.last_updated * 1000)
                             .toString()
-                            .substr(0, 15)}
+                            .substring(0, 15)}
                         </td>
-                        <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          <code>{node.tags?.join(', ')}</code>
+                        <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50">
+                          <div className="flex flex-wrap">
+                            {node.tags?.map(tag => (
+                              <div
+                                key={tag}
+                                className="bg-red-200 dark:bg-purple-400 px-1 md:px-2 md:py-1 m-1 rounded-lg"
+                              >
+                                {tag}
+                              </div>
+                            ))}
+                          </div>
                         </td>
                       </tr>
                     ))}
