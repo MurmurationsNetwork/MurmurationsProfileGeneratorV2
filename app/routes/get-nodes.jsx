@@ -8,10 +8,17 @@ import {
 } from '@remix-run/react'
 
 import { fetchGet } from '~/utils/fetcher'
+import { useEffect, useState } from 'react'
 
 export async function action({ request }) {
   let formData = await request.formData()
   let values = Object.fromEntries(formData)
+  if (values?.schema === '') {
+    return json({
+      message: 'The schema is required',
+      success: false
+    })
+  }
   let searchParams = ''
   if (values?.tags) {
     searchParams += '&tags=' + values.tags
@@ -20,7 +27,7 @@ export async function action({ request }) {
   let tags_exact = values?.tags_exact ? values.tags_exact : 'false'
   searchParams += '&tags_filter=' + tags_filter + '&tags_exact=' + tags_exact
   let response = await fetchGet(
-    `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=karte_von_morgen-v1.0.0${searchParams}`
+    `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=${values.schema}${searchParams}`
   )
   if (!response.ok) {
     return new Response('Schema list loading error', {
@@ -35,17 +42,15 @@ export async function action({ request }) {
 
 export async function loader(request) {
   try {
-    let response = await fetchGet(
-      `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=karte_von_morgen-v1.0.0&tags=demeter`
-    )
+    let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
     if (!response.ok) {
       return new Response('Schema list loading error', {
         status: response.status
       })
     }
-    const nodes = await response.json()
+    const schemas = await response.json()
     return json({
-      nodes: nodes
+      schemas: schemas
     })
   } catch (error) {
     console.error(error)
@@ -57,7 +62,20 @@ export default function GetNodes() {
   const [searchParams] = useSearchParams()
   const loaderData = useLoaderData()
   const actionData = useActionData()
-  const nodes = actionData?.nodes ? actionData.nodes : loaderData.nodes
+  let schema = loaderData.schemas
+  let [schemas, setSchemas] = useState(null)
+  let [error, setError] = useState(null)
+  useEffect(() => {
+    if (schema?.data) {
+      setSchemas(schema.data)
+    }
+    if (actionData?.success === false) {
+      setError(actionData?.message)
+    } else {
+      setError(null)
+    }
+  }, [actionData, schema])
+  const nodes = actionData?.nodes
   let [sortProp, desc] = searchParams.get('sort')?.split(':') ?? []
   let sortedNodes = null
   if (nodes?.data) {
@@ -85,11 +103,17 @@ export default function GetNodes() {
         <div className="px-4 sm:px-6 lg:px-8">
           <Form method="post">
             <div className="flex flex-col md:flex-row justify-around items-center bg-gray-50 dark:bg-gray-600 py-1 px-2 md:py-2 md:px-4 md:h-20 mb-2 md:mb-4">
-              <select className="dark:bg-gray-700 mt-1 md:mt-0">
+              <select className="dark:bg-gray-700 mt-1 md:mt-0" name="schema">
                 <option value="">Select a schema</option>
-                <option value="karte_von_morgen-v1.0.0">
-                  karte_von_morgen-v1.0.0
-                </option>
+                {schemas?.map(schema => (
+                  <option
+                    className="text-sm mb-1 border-gray-50 py-0 px-2"
+                    value={schema.name}
+                    key={schema.name}
+                  >
+                    {schema.name}
+                  </option>
+                ))}
               </select>
               <input
                 className="px-2 py-2 dark:bg-gray-700 my-2 md:my-0"
@@ -143,56 +167,64 @@ export default function GetNodes() {
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
             <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
               <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-300">
-                  <thead className="bg-gray-100 dark:bg-gray-500">
-                    <tr>
-                      <SortableColumn prop="primary_url">
-                        Primary URL
-                      </SortableColumn>
-                      <SortableColumn prop="locality">Locality</SortableColumn>
-                      <SortableColumn prop="last_updated">
-                        Last Updated
-                      </SortableColumn>
-                      <SortableColumn>Tags</SortableColumn>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-gray-50 dark:bg-gray-600 divide-y divide-gray-200">
-                    {sortedNodes?.map(node => (
-                      <tr key={node.profile_url}>
-                        <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          <a
-                            href={`https://${node.primary_url}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="no-underline hover:underline text-yellow-600 dark:text-green-300"
-                          >
-                            {node.primary_url?.length > 30
-                              ? `${node.primary_url?.substr(0, 30)}...`
-                              : node.primary_url}
-                          </a>
-                        </td>
-                        <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {node.locality}
-                        </td>
-                        <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                          {date(node.last_updated)}
-                        </td>
-                        <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50">
-                          <div className="flex flex-wrap">
-                            {node.tags?.map(tag => (
-                              <div
-                                key={tag}
-                                className="bg-red-200 dark:bg-purple-400 px-1 md:px-2 md:py-1 m-1 rounded-lg"
-                              >
-                                {tag}
-                              </div>
-                            ))}
-                          </div>
-                        </td>
+                {error ? (
+                  'Error: ' + error
+                ) : nodes?.data ? (
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <thead className="bg-gray-100 dark:bg-gray-500">
+                      <tr>
+                        <SortableColumn prop="primary_url">
+                          Primary URL
+                        </SortableColumn>
+                        <SortableColumn prop="locality">
+                          Locality
+                        </SortableColumn>
+                        <SortableColumn prop="last_updated">
+                          Last Updated
+                        </SortableColumn>
+                        <SortableColumn>Tags</SortableColumn>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-gray-50 dark:bg-gray-600 divide-y divide-gray-200">
+                      {sortedNodes?.map(node => (
+                        <tr key={node.profile_url}>
+                          <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
+                            <a
+                              href={`https://${node.primary_url}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="no-underline hover:underline text-yellow-600 dark:text-green-300"
+                            >
+                              {node.primary_url?.length > 30
+                                ? `${node.primary_url?.substr(0, 30)}...`
+                                : node.primary_url}
+                            </a>
+                          </td>
+                          <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
+                            {node.locality}
+                          </td>
+                          <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
+                            {date(node.last_updated)}
+                          </td>
+                          <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50">
+                            <div className="flex flex-wrap">
+                              {node.tags?.map(tag => (
+                                <div
+                                  key={tag}
+                                  className="bg-red-200 dark:bg-purple-400 px-1 md:px-2 md:py-1 m-1 rounded-lg"
+                                >
+                                  {tag}
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div>Result not found, try to search again</div>
+                )}
               </div>
             </div>
           </div>
