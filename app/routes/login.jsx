@@ -86,6 +86,12 @@ export const action = async ({ request }) => {
           formError: `Something went wrong trying to create a new user.`
         })
       }
+      if (!user.success) {
+        return badRequest({
+          fields,
+          formError: `Something went wrong trying to create a new user. ${user.error}`
+        })
+      }
       return createUserSession(user.userEmail, redirectTo)
     }
     default: {

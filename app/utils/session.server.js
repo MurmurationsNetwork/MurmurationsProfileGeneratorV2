@@ -39,7 +39,7 @@ export async function register(email, password) {
       ipns: res?.Id
     }
     await mongoSaveUser(client, data)
-    return { userEmail: email }
+    return { success: true, userEmail: email }
   } catch (err) {
     throw new Response(`register failed: ${err}`, {
       status: 500
