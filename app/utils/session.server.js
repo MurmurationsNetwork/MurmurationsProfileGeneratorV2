@@ -11,6 +11,7 @@ import {
   mongoSaveUser,
   mongoUpdateUserLogin
 } from '~/utils/mongo.server'
+import cuid from 'cuid'
 
 export async function register(email, password) {
   const emailHash = crypto.createHash('sha256').update(email).digest('hex')
@@ -24,7 +25,8 @@ export async function register(email, password) {
         error: 'User existed'
       }
     }
-    const res = await ipfsKeyGen(emailHash)
+    const usersCuid = cuid()
+    const res = await ipfsKeyGen(emailHash + '_' + usersCuid)
     if (res?.Type === 'error') {
       return {
         success: false,
@@ -36,7 +38,8 @@ export async function register(email, password) {
       last_login: Date.now(),
       password: passwordHash,
       profiles: [],
-      ipns: res?.Id
+      ipns: res?.Id,
+      cuid: usersCuid
     }
     await mongoSaveUser(client, data)
     return { success: true, userEmail: email }
@@ -120,10 +123,11 @@ export async function retrieveUser(request) {
   const client = await mongoConnect()
   try {
     const user = await mongoGetUser(client, emailHash)
-    return (({ email_hash, last_login, ipns }) => ({
+    return (({ email_hash, last_login, ipns, cuid }) => ({
       email_hash,
       last_login,
-      ipns
+      ipns,
+      cuid
     }))(user)
   } catch (err) {
     throw new Response(`retrieveUser failed: ${err}`, {
