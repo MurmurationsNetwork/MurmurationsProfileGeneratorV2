@@ -1,5 +1,3 @@
-import * as path from 'path'
-
 const { MongoClient } = require('mongodb')
 
 const url =
@@ -13,13 +11,7 @@ const url =
 const db = 'mpgdata'
 
 export async function mongoConnect() {
-  const sslCA = path.resolve(__dirname + '/ca-certificate.crt')
-  const client = new MongoClient(url, {
-    ssl: true,
-    sslValidate: true,
-    sslCA: sslCA
-  })
-
+  const client = new MongoClient(url)
   try {
     return await client.connect()
   } catch (err) {
@@ -44,8 +36,7 @@ export async function mongoCountUser(client, emailHash) {
     return await client
       .db(db)
       .collection('users')
-      .find({ email_hash: emailHash })
-      .count()
+      .countDocuments({ email_hash: emailHash })
   } catch (err) {
     throw new Response(`MongoDB CountUser error: ${err}`, {
       status: 500
