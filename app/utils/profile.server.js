@@ -33,7 +33,7 @@ async function postNode(profileId) {
   }
 }
 
-async function publishIpns(client, emailHash) {
+async function publishIpns(client, emailHash, userCuid) {
   // get the latest profile list
   const user = await mongoGetUser(client, emailHash)
   const profileList = await mongoGetProfiles(client, user.profiles)
@@ -42,7 +42,7 @@ async function publishIpns(client, emailHash) {
   const ipfsProfile = await ipfsUpload(JSON.stringify(profileList))
   await mongoUpdateUserIpfs(client, emailHash, ipfsProfile.Hash)
   const path = '/ipfs/' + ipfsProfile.Hash
-  ipfsPublish(path, emailHash)
+  ipfsPublish(path, emailHash + '_' + user.cuid)
 
   return await mongoGetUser(client, emailHash)
 }
