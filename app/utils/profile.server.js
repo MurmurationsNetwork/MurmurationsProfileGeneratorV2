@@ -42,11 +42,7 @@ async function publishIpns(client, emailHash, userCuid) {
   const ipfsProfile = await ipfsUpload(JSON.stringify(profileList))
   await mongoUpdateUserIpfs(client, emailHash, ipfsProfile.Hash)
   const path = '/ipfs/' + ipfsProfile.Hash
-  let key = emailHash
-  if (user?.cuid) {
-    key += '_' + user.cuid
-  }
-  ipfsPublish(path, key)
+  ipfsPublish(path, emailHash + '_' + user.cuid)
 
   return await mongoGetUser(client, emailHash)
 }
