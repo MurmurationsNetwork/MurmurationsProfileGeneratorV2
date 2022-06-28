@@ -9,6 +9,7 @@ import {
 
 import { fetchGet } from '~/utils/fetcher'
 import { useEffect, useState } from 'react'
+import { loadSchema } from '~/utils/schema'
 
 function getSearchUrl(params) {
   let searchParams = ''
@@ -36,13 +37,7 @@ export async function action({ request }) {
 
 export async function loader({ request }) {
   try {
-    let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
-    if (!response.ok) {
-      return new Response('Schema list loading error', {
-        status: response.status
-      })
-    }
-    const schemas = await response.json()
+    const schemas = await loadSchema()
 
     const url = new URL(request.url)
     let params = {}
@@ -64,7 +59,7 @@ export async function loader({ request }) {
     }
 
     let searchParams = await getSearchUrl(params)
-    response = await fetchGet(
+    let response = await fetchGet(
       `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=${params.schema}${searchParams}`
     )
     if (!response.ok) {
@@ -93,8 +88,8 @@ export default function GetNodes() {
   let [schemas, setSchemas] = useState(null)
   let [error, setError] = useState(null)
   useEffect(() => {
-    if (schema?.data) {
-      setSchemas(schema.data)
+    if (schema) {
+      setSchemas(schema)
     }
     if (actionData?.success === false) {
       setError(actionData?.message)
