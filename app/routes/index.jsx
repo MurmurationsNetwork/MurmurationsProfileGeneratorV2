@@ -23,6 +23,7 @@ import {
   updateProfile
 } from '~/utils/profile.server'
 import { requireUserEmail, retrieveUser } from '~/utils/session.server'
+import { loadSchema } from '~/utils/schema'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -153,13 +154,7 @@ export async function action({ request }) {
 }
 
 export async function loader(request) {
-  let response = await fetchGet(process.env.PUBLIC_LIBRARY_URL)
-  if (!response.ok) {
-    throw new Response('Schema list loading error', {
-      status: response.status
-    })
-  }
-  const schema = await response.json()
+  const schema = await loadSchema()
   const cookieHeader = request.request.headers.get('Cookie')
   let cookie = await userCookie.parse(cookieHeader)
   let loginSession = cookieHeader
@@ -385,7 +380,7 @@ export default function Index() {
               size={6}
               defaultValue={defaultSchema}
             >
-              {schemas.data.map(schema => (
+              {schemas.map(schema => (
                 <option
                   className="text-sm mb-1 border-gray-50 py-0 px-2"
                   value={schema.name}
