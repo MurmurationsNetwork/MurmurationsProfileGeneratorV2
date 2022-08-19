@@ -351,32 +351,39 @@ function Pagination({ totalPages, currentPage, searchParams }) {
   }
   // generate pagination array
   let pagination = [1]
-  if (currentPage < 5) {
-    for (let i = 2; i <= currentPage; i++) {
+  if (totalPages > 1 && totalPages <= 5) {
+    for (let i = 2; i <= totalPages; i++) {
       pagination.push(i)
     }
-    pagination.push(currentPage + 1)
-    if (currentPage === 1) {
-      pagination.push(currentPage + 2)
+  } else if (totalPages > 5) {
+    if (currentPage < 5) {
+      for (let i = 2; i <= currentPage; i++) {
+        pagination.push(i)
+      }
+      pagination.push(currentPage + 1)
+      if (currentPage === 1) {
+        pagination.push(currentPage + 2)
+      }
+      pagination.push(0)
+    } else if (currentPage > totalPages - 4) {
+      pagination.push(0)
+      for (
+        let i =
+          currentPage > totalPages - 1 ? currentPage - 2 : currentPage - 1;
+        i < totalPages;
+        i++
+      ) {
+        pagination.push(i)
+      }
+    } else {
+      pagination.push(0)
+      for (let i = currentPage - 1; i < currentPage + 2; i++) {
+        pagination.push(i)
+      }
+      pagination.push(0)
     }
-    pagination.push(0)
-  } else if (currentPage > totalPages - 4) {
-    pagination.push(0)
-    for (
-      let i = currentPage > totalPages - 1 ? currentPage - 2 : currentPage - 1;
-      i < totalPages;
-      i++
-    ) {
-      pagination.push(i)
-    }
-  } else {
-    pagination.push(0)
-    for (let i = currentPage - 1; i < currentPage + 2; i++) {
-      pagination.push(i)
-    }
-    pagination.push(0)
+    pagination.push(totalPages)
   }
-  pagination.push(totalPages)
 
   return (
     <nav>
