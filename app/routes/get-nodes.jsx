@@ -349,6 +349,35 @@ function Pagination({ totalPages, currentPage, searchParams }) {
   if (currentPage < 1 || !currentPage) {
     currentPage = 1
   }
+  // generate pagination array
+  let pagination = [1]
+  if (currentPage < 5) {
+    for (let i = 2; i <= currentPage; i++) {
+      pagination.push(i)
+    }
+    pagination.push(currentPage + 1)
+    if (currentPage === 1) {
+      pagination.push(currentPage + 2)
+    }
+    pagination.push(0)
+  } else if (currentPage > totalPages - 4) {
+    pagination.push(0)
+    for (
+      let i = currentPage > totalPages - 1 ? currentPage - 2 : currentPage - 1;
+      i < totalPages;
+      i++
+    ) {
+      pagination.push(i)
+    }
+  } else {
+    pagination.push(0)
+    for (let i = currentPage - 1; i < currentPage + 2; i++) {
+      pagination.push(i)
+    }
+    pagination.push(0)
+  }
+  pagination.push(totalPages)
+
   return (
     <nav>
       <ul className="inline-flex -space-x-px">
@@ -362,85 +391,39 @@ function Pagination({ totalPages, currentPage, searchParams }) {
             Previous
           </Link>
         </li>
-        {currentPage < 3 ? (
-          ''
-        ) : currentPage > 3 ? (
-          <li>
-            <Link
-              to={'#'}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              ...
-            </Link>
-          </li>
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=1`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              1
-            </Link>
-          </li>
-        )}
-        {currentPage - 1 < 1 ? (
-          ''
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
-                currentPage - 1
-              }`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              {currentPage - 1}
-            </Link>
-          </li>
-        )}
-        <li>
-          <Link
-            to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${currentPage}`}
-            aria-current="page"
-            className="py-2 px-3 text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-          >
-            {currentPage}
-          </Link>
-        </li>
-        {currentPage + 1 >= totalPages ? (
-          ''
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
-                currentPage + 1
-              }`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              {currentPage + 1}
-            </Link>
-          </li>
-        )}
-        {currentPage === totalPages ? (
-          ''
-        ) : totalPages - currentPage > 2 ? (
-          <li>
-            <Link
-              to={'#'}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              ...
-            </Link>
-          </li>
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${totalPages}`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              {totalPages}
-            </Link>
-          </li>
-        )}
+        {pagination.map(page => {
+          if (page === 0) {
+            return (
+              <li key={page}>
+                <text className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                  ...
+                </text>
+              </li>
+            )
+          } else if (page === currentPage) {
+            return (
+              <li key={page}>
+                <Link
+                  to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${page}`}
+                  className="py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                >
+                  {page}
+                </Link>
+              </li>
+            )
+          } else {
+            return (
+              <li key={page}>
+                <Link
+                  to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${page}`}
+                  className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  {page}
+                </Link>
+              </li>
+            )
+          }
+        })}
         <li>
           <Link
             to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
