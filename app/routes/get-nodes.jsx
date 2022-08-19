@@ -86,6 +86,9 @@ export default function GetNodes() {
   let schema = loaderData?.schemas
   let searchParams = loaderData?.params
   let [schemas, setSchemas] = useState(null)
+  let [currentSchema, setCurrentSchema] = useState(
+    searchParams?.schema ? searchParams.schema : ''
+  )
   let [error, setError] = useState(null)
   useEffect(() => {
     if (schema) {
@@ -127,28 +130,22 @@ export default function GetNodes() {
         <div className="px-4 sm:px-6 lg:px-8">
           <Form method="post">
             <div className="flex flex-col md:flex-row justify-around items-center bg-gray-50 dark:bg-gray-600 py-1 px-2 md:py-2 md:px-4 md:h-20 mb-2 md:mb-4">
-              <select className="dark:bg-gray-700 mt-1 md:mt-0" name="schema">
+              <select
+                className="dark:bg-gray-700 mt-1 md:mt-0"
+                name="schema"
+                value={currentSchema}
+                onChange={e => setCurrentSchema(e.target.value)}
+              >
                 <option value="">Select a schema</option>
-                {schemas?.map(schema =>
-                  schema.name === searchParams?.schema ? (
-                    <option
-                      className="text-sm mb-1 border-gray-50 py-0 px-2"
-                      value={schema.name}
-                      key={schema.name}
-                      selected={true}
-                    >
-                      {schema.name}
-                    </option>
-                  ) : (
-                    <option
-                      className="text-sm mb-1 border-gray-50 py-0 px-2"
-                      value={schema.name}
-                      key={schema.name}
-                    >
-                      {schema.name}
-                    </option>
-                  )
-                )}
+                {schemas?.map(schema => (
+                  <option
+                    className="text-sm mb-1 border-gray-50 py-0 px-2"
+                    value={schema.name}
+                    key={schema.name}
+                  >
+                    {schema.name}
+                  </option>
+                ))}
               </select>
               <input
                 className="px-2 py-2 dark:bg-gray-700 my-2 md:my-0"
