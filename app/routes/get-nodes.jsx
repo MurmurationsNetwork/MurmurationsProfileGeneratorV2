@@ -16,6 +16,9 @@ function getSearchUrl(params) {
   if (params?.tags) {
     searchParams += '&tags=' + params.tags
   }
+  if (params?.primary_url) {
+    searchParams += '&primary_url=' + params.primary_url
+  }
   let tags_filter = params?.tags_filter ? params.tags_filter : 'or'
   let tags_exact = params?.tags_exact ? params.tags_exact : 'false'
   searchParams += '&tags_filter=' + tags_filter + '&tags_exact=' + tags_exact
@@ -148,11 +151,18 @@ export default function GetNodes() {
                 ))}
               </select>
               <input
-                className="px-2 py-2 dark:bg-gray-700 my-2 md:my-0"
+                className="px-2 py-2 dark:bg-gray-700 m-2 md:my-0"
                 placeholder="tag search"
                 type="text"
                 name="tags"
                 defaultValue={searchParams?.tags}
+              />
+              <input
+                className="px-2 py-2 dark:bg-gray-700 m-2 md:my-0"
+                placeholder="primary_url search"
+                type="text"
+                name="primary_url"
+                defaultValue={searchParams?.primary_url}
               />
               <div className="flex flex-row items-center">
                 {searchParams?.tags_filter === 'and' ? (
