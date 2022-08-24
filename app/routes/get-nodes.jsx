@@ -86,6 +86,9 @@ export default function GetNodes() {
   let schema = loaderData?.schemas
   let searchParams = loaderData?.params
   let [schemas, setSchemas] = useState(null)
+  let [currentSchema, setCurrentSchema] = useState(
+    searchParams?.schema ? searchParams.schema : ''
+  )
   let [error, setError] = useState(null)
   useEffect(() => {
     if (schema) {
@@ -127,28 +130,22 @@ export default function GetNodes() {
         <div className="px-4 sm:px-6 lg:px-8">
           <Form method="post">
             <div className="flex flex-col md:flex-row justify-around items-center bg-gray-50 dark:bg-gray-600 py-1 px-2 md:py-2 md:px-4 md:h-20 mb-2 md:mb-4">
-              <select className="dark:bg-gray-700 mt-1 md:mt-0" name="schema">
+              <select
+                className="dark:bg-gray-700 mt-1 md:mt-0"
+                name="schema"
+                value={currentSchema}
+                onChange={e => setCurrentSchema(e.target.value)}
+              >
                 <option value="">Select a schema</option>
-                {schemas?.map(schema =>
-                  schema.name === searchParams?.schema ? (
-                    <option
-                      className="text-sm mb-1 border-gray-50 py-0 px-2"
-                      value={schema.name}
-                      key={schema.name}
-                      selected={true}
-                    >
-                      {schema.name}
-                    </option>
-                  ) : (
-                    <option
-                      className="text-sm mb-1 border-gray-50 py-0 px-2"
-                      value={schema.name}
-                      key={schema.name}
-                    >
-                      {schema.name}
-                    </option>
-                  )
-                )}
+                {schemas?.map(schema => (
+                  <option
+                    className="text-sm mb-1 border-gray-50 py-0 px-2"
+                    value={schema.name}
+                    key={schema.name}
+                  >
+                    {schema.name}
+                  </option>
+                ))}
               </select>
               <input
                 className="px-2 py-2 dark:bg-gray-700 my-2 md:my-0"
@@ -349,6 +346,42 @@ function Pagination({ totalPages, currentPage, searchParams }) {
   if (currentPage < 1 || !currentPage) {
     currentPage = 1
   }
+  // generate pagination array
+  let pagination = [1]
+  if (totalPages > 1 && totalPages <= 5) {
+    for (let i = 2; i <= totalPages; i++) {
+      pagination.push(i)
+    }
+  } else if (totalPages > 5) {
+    if (currentPage < 5) {
+      for (let i = 2; i <= currentPage; i++) {
+        pagination.push(i)
+      }
+      pagination.push(currentPage + 1)
+      if (currentPage === 1) {
+        pagination.push(currentPage + 2)
+      }
+      pagination.push(0)
+    } else if (currentPage > totalPages - 4) {
+      pagination.push(0)
+      for (
+        let i =
+          currentPage > totalPages - 1 ? currentPage - 2 : currentPage - 1;
+        i < totalPages;
+        i++
+      ) {
+        pagination.push(i)
+      }
+    } else {
+      pagination.push(0)
+      for (let i = currentPage - 1; i < currentPage + 2; i++) {
+        pagination.push(i)
+      }
+      pagination.push(0)
+    }
+    pagination.push(totalPages)
+  }
+
   return (
     <nav>
       <ul className="inline-flex -space-x-px">
@@ -362,85 +395,39 @@ function Pagination({ totalPages, currentPage, searchParams }) {
             Previous
           </Link>
         </li>
-        {currentPage < 3 ? (
-          ''
-        ) : currentPage > 3 ? (
-          <li>
-            <Link
-              to={'#'}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              ...
-            </Link>
-          </li>
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=1`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              1
-            </Link>
-          </li>
-        )}
-        {currentPage - 1 < 1 ? (
-          ''
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
-                currentPage - 1
-              }`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              {currentPage - 1}
-            </Link>
-          </li>
-        )}
-        <li>
-          <Link
-            to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${currentPage}`}
-            aria-current="page"
-            className="py-2 px-3 text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-          >
-            {currentPage}
-          </Link>
-        </li>
-        {currentPage + 1 >= totalPages ? (
-          ''
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
-                currentPage + 1
-              }`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              {currentPage + 1}
-            </Link>
-          </li>
-        )}
-        {currentPage === totalPages ? (
-          ''
-        ) : totalPages - currentPage > 2 ? (
-          <li>
-            <Link
-              to={'#'}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              ...
-            </Link>
-          </li>
-        ) : (
-          <li>
-            <Link
-              to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${totalPages}`}
-              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              {totalPages}
-            </Link>
-          </li>
-        )}
+        {pagination.map(page => {
+          if (page === 0) {
+            return (
+              <li key={page}>
+                <label className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                  ...
+                </label>
+              </li>
+            )
+          } else if (page === currentPage) {
+            return (
+              <li key={page}>
+                <Link
+                  to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${page}`}
+                  className="py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                >
+                  {page}
+                </Link>
+              </li>
+            )
+          } else {
+            return (
+              <li key={page}>
+                <Link
+                  to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${page}`}
+                  className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  {page}
+                </Link>
+              </li>
+            )
+          }
+        })}
         <li>
           <Link
             to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
