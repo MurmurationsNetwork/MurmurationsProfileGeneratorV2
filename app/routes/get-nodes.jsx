@@ -11,7 +11,7 @@ import { fetchGet } from '~/utils/fetcher'
 import { useEffect, useState } from 'react'
 import { loadSchema } from '~/utils/schema'
 
-function getSearchUrl(params) {
+function getSearchUrl(params, removePage) {
   let searchParams = ''
   if (params?.tags) {
     searchParams += '&tags=' + params.tags
@@ -22,6 +22,9 @@ function getSearchUrl(params) {
   let tags_filter = params?.tags_filter ? params.tags_filter : 'or'
   let tags_exact = params?.tags_exact ? params.tags_exact : 'false'
   searchParams += '&tags_filter=' + tags_filter + '&tags_exact=' + tags_exact
+  if (params?.page && removePage === false) {
+    searchParams += '&page=' + params.page
+  }
   return searchParams
 }
 
@@ -34,7 +37,7 @@ export async function action({ request }) {
       success: false
     })
   }
-  let searchParams = getSearchUrl(values)
+  let searchParams = getSearchUrl(values, false)
   return redirect(`/get-nodes?schema=${values.schema}${searchParams}`)
 }
 
@@ -61,7 +64,7 @@ export async function loader({ request }) {
       })
     }
 
-    let searchParams = await getSearchUrl(params)
+    let searchParams = await getSearchUrl(params, false)
     let response = await fetchGet(
       `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=${params.schema}${searchParams}`
     )
@@ -71,6 +74,15 @@ export async function loader({ request }) {
       })
     }
     const nodes = await response.json()
+
+    if (nodes?.status && nodes.status === 400) {
+      return json({
+        schemas: schemas,
+        params: params,
+        message: nodes.message,
+        success: false
+      })
+    }
 
     return json({
       schemas: schemas,
@@ -99,10 +111,12 @@ export default function GetNodes() {
     }
     if (actionData?.success === false) {
       setError(actionData?.message)
+    } else if (loaderData?.success === false) {
+      setError(loaderData?.message)
     } else {
       setError(null)
     }
-  }, [actionData, schema])
+  }, [loaderData, actionData, schema])
   const nodes = loaderData?.nodes
   const meta = nodes?.meta
   const currentPage = searchParams?.page ? searchParams.page : 1
@@ -349,7 +363,7 @@ function SortableColumn({ prop, children }) {
 }
 
 function Pagination({ totalPages, currentPage, searchParams }) {
-  let searchUrl = getSearchUrl(searchParams)
+  let searchUrl = getSearchUrl(searchParams, true)
   if (currentPage > totalPages) {
     currentPage = totalPages
   }
