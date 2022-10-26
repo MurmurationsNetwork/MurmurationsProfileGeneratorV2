@@ -176,14 +176,6 @@ export async function deleteProfile(userEmail, profileId) {
         error: 'Cannot delete the node from the Murmurations Index.'
       }
     }
-    const resJson = await res.json()
-    if (resJson.status !== 200) {
-      await mongoSaveProfile(client, profile)
-      return {
-        success: false,
-        error: resJson.message
-      }
-    }
     await mongoDeleteUserProfile(client, emailHash, profileId)
     const newUser = await publishIpns(client, emailHash)
 
