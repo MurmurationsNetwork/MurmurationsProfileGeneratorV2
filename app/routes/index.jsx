@@ -50,17 +50,17 @@ export async function action({ request }) {
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )
+      body = await response.json()
+      if (response.status === 400) {
+        return json(body, { status: 400 })
+      }
+      if (response.status === 404) {
+        return json(body, { status: 404 })
+      }
       if (!response.ok) {
         throw new Response('Profile validation error', {
           status: response.status
         })
-      }
-      body = await response.json()
-      if (body.status === 400) {
-        return json(body, { status: 400 })
-      }
-      if (body.status === 404) {
-        return json(body, { status: 404 })
       }
       return json(profile, { status: 200 })
     case 'select':
@@ -103,24 +103,24 @@ export async function action({ request }) {
         process.env.PUBLIC_PROFILE_VALIDATION_URL,
         profile
       )
+      body = await response.json()
+      if (response.status === 400) {
+        return json({
+          errors: body?.errors,
+          schema: schema,
+          profileData: profile
+        })
+      }
+      if (response.status === 404) {
+        return json({
+          errors: body?.errors,
+          schema: schema,
+          profileData: profile
+        })
+      }
       if (!response.ok) {
         throw new Response('Profile validation error', {
           status: response.status
-        })
-      }
-      body = await response.json()
-      if (body.status === 400) {
-        return json({
-          failure_reasons: body?.failure_reasons,
-          schema: schema,
-          profileData: profile
-        })
-      }
-      if (body.status === 404) {
-        return json({
-          failure_reasons: body?.failure_reasons,
-          schema: schema,
-          profileData: profile
         })
       }
       response = await updateProfile(
@@ -237,8 +237,21 @@ export default function Index() {
     if (data?.error) {
       toast.error(data.error)
     }
-    if (data?.failure_reasons) {
-      setErrors(data.failure_reasons)
+    if (data?.errors) {
+      // errors needs to be string array
+      let errs = []
+      for (let key in data.errors) {
+        let obj = data.errors[key]
+        let str =
+          'Title: ' +
+          obj?.title +
+          ',Source: ' +
+          obj?.source?.pointer +
+          ',Detail: ' +
+          obj?.detail
+        errs.push(str)
+      }
+      setErrors(errs)
     }
     setProfileTitle(data?.profileTitle)
   }, [data])
