@@ -6,17 +6,9 @@ export async function fetchGet(url) {
   })
 }
 
-export async function fetchPostWithAuth(url) {
-  const username = process.env.PRIVATE_IPFS_USERNAME
-  const password = process.env.PRIVATE_IPFS_PASSWORD
-  let headers = new Headers()
-  headers.set(
-    'Authorization',
-    'Basic ' + Buffer.from(username + ':' + password).toString('base64')
-  )
+export async function fetchPost(url) {
   return fetch(url, {
-    method: 'POST',
-    headers: headers
+    method: 'POST'
   }).catch(err => {
     throw new Response(`fetchPost error: ${err}`, {
       status: 500
@@ -39,17 +31,9 @@ export async function fetchJsonPost(url, body) {
   })
 }
 
-export async function fetchFilePostWithAuth(url, formData) {
-  const username = process.env.PRIVATE_IPFS_USERNAME
-  const password = process.env.PRIVATE_IPFS_PASSWORD
-  let headers = new Headers()
-  headers.set(
-    'Authorization',
-    'Basic ' + Buffer.from(username + ':' + password).toString('base64')
-  )
+export async function fetchFilePost(url, formData) {
   return fetch(url, {
     method: 'POST',
-    headers: headers,
     body: formData
   }).catch(err => {
     throw new Response(`fetchPost error: ${err}`, {
