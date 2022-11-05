@@ -1,11 +1,5 @@
 import { json, redirect } from '@remix-run/node'
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useSearchParams
-} from '@remix-run/react'
+import { Form, Link, useActionData, useLoaderData } from '@remix-run/react'
 
 import { fetchGet } from '~/utils/fetcher'
 import { useEffect, useState } from 'react'
@@ -64,7 +58,7 @@ export async function loader({ request }) {
       })
     }
 
-    let searchParams = await getSearchUrl(params, false)
+    let searchParams = getSearchUrl(params, false)
     let response = await fetchGet(
       `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=${params.schema}${searchParams}`
     )
@@ -253,13 +247,22 @@ export default function GetNodes() {
                     <table className="min-w-full divide-y divide-gray-300">
                       <thead className="bg-gray-100 dark:bg-gray-500">
                         <tr>
-                          <SortableColumn prop="primary_url">
+                          <SortableColumn
+                            prop="primary_url"
+                            searchParams={searchParams}
+                          >
                             Primary URL
                           </SortableColumn>
-                          <SortableColumn prop="locality">
+                          <SortableColumn
+                            prop="locality"
+                            searchParams={searchParams}
+                          >
                             Locality
                           </SortableColumn>
-                          <SortableColumn prop="last_updated">
+                          <SortableColumn
+                            prop="last_updated"
+                            searchParams={searchParams}
+                          >
                             Last Updated
                           </SortableColumn>
                           <SortableColumn>Tags</SortableColumn>
@@ -324,9 +327,8 @@ export default function GetNodes() {
   )
 }
 
-function SortableColumn({ prop, children }) {
-  let [searchParams] = useSearchParams()
-  let [sortProp, desc] = searchParams.get('sort')?.split(':') ?? []
+function SortableColumn({ prop, children, searchParams }) {
+  let [sortProp, desc] = searchParams?.sort?.split(':') ?? []
   let newSort = null
 
   if (sortProp !== prop) {
@@ -335,13 +337,16 @@ function SortableColumn({ prop, children }) {
     newSort = `${prop}:desc`
   }
 
-  let newSearchParams = new URLSearchParams({ sort: newSort })
+  let searchQueries = getSearchUrl(searchParams, false)
+  if (newSort != null) {
+    searchQueries += '&sort=' + newSort
+  }
 
   return (
     <th scope="col" className="p-1 md:p-2 text-left text-sm text-gray-900">
       {prop ? (
         <Link
-          to={newSort ? `/get-nodes?${newSearchParams}` : '/get-nodes'}
+          to={`/get-nodes?schema=${searchParams.schema}${searchQueries}`}
           className="inline-flex font-semibold group"
         >
           <span className="text-gray-900 dark:text-gray-50">{children}</span>
