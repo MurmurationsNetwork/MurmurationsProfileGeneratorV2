@@ -145,92 +145,144 @@ export default function GetNodes() {
         <h1 className="text-xl md:text-3xl">Murmurations Index Explorer</h1>
       </div>
       <div className="max-w-6xl py-2 mx-auto">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <Form method="post">
-            <div className="flex flex-col md:flex-row justify-around items-center bg-gray-50 dark:bg-gray-600 py-1 px-2 md:py-2 md:px-4 md:h-20 mb-2 md:mb-4">
-              <select
-                className="dark:bg-gray-700 mt-1 md:mt-0"
-                name="schema"
-                value={currentSchema}
-                onChange={e => setCurrentSchema(e.target.value)}
-              >
-                <option value="">Select a schema</option>
-                <option value="all">All schemas</option>
-                {schemas?.map(schema => (
-                  <option
-                    className="text-sm mb-1 border-gray-50 py-0 px-2"
-                    value={schema.name}
-                    key={schema.name}
-                  >
-                    {schema.name}
-                  </option>
-                ))}
-              </select>
-              <input
-                className="px-2 py-2 dark:bg-gray-700 m-2 md:my-0"
-                placeholder="tag search"
-                type="text"
-                name="tags"
-                defaultValue={searchParams?.tags}
-              />
-              <input
-                className="px-2 py-2 dark:bg-gray-700 m-2 md:my-0"
-                placeholder="primary_url search"
-                type="text"
-                name="primary_url"
-                defaultValue={searchParams?.primary_url}
-              />
-              <div className="flex flex-row items-center">
-                {searchParams?.tags_filter === 'and' ? (
-                  <input
-                    type="checkbox"
-                    id="tags_filter"
-                    name="tags_filter"
-                    value="and"
-                    className="mr-2"
-                    checked={true}
-                  />
-                ) : (
-                  <input
-                    type="checkbox"
-                    id="tags_filter"
-                    name="tags_filter"
-                    value="and"
-                    className="mr-2"
-                  />
-                )}
-                <label htmlFor="tags_filter">all tags</label>
-              </div>
-              <div className="flex flex-row items-center">
-                {searchParams?.tags_exact === 'true' ? (
-                  <input
-                    type="checkbox"
-                    id="tags_exact"
-                    name="tags_exact"
-                    value="true"
-                    className="mr-2"
-                    checked={true}
-                  />
-                ) : (
-                  <input
-                    type="checkbox"
-                    id="tags_exact"
-                    name="tags_exact"
-                    value="true"
-                    className="mr-2"
-                  />
-                )}
-                <label htmlFor="tags_exact">exact matches only</label>
-              </div>
-              <button
-                className="inline-block rounded-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 font-bold py-0 px-4 hover:scale-110 mx-0 my-2 md:my-8 h-6 md:h-8"
-                type="submit"
-              >
-                Search
-              </button>
+        <Form method="post">
+          <div className="grid grid-cols-4 gap-2 bg-gray-50 dark:bg-gray-600 p-6">
+            <select
+              className="dark:bg-gray-700 col-span-2 rounded"
+              name="schema"
+              value={currentSchema}
+              onChange={e => setCurrentSchema(e.target.value)}
+            >
+              <option value="">Select a schema</option>
+              <option value="all">All schemas</option>
+              {schemas?.map(schema => (
+                <option
+                  className="text-sm mb-1 border-gray-50 py-0 px-2"
+                  value={schema.name}
+                  key={schema.name}
+                >
+                  {schema.name}
+                </option>
+              ))}
+            </select>
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="tag search"
+              type="text"
+              name="tags"
+              defaultValue={searchParams?.tags}
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="primary_url search"
+              type="text"
+              name="primary_url"
+              defaultValue={searchParams?.primary_url}
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="last_updated search"
+              type="text"
+              name="last_updated"
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="lat search"
+              type="text"
+              name="lat"
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="lon search"
+              type="text"
+              name="lon"
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="range search"
+              type="text"
+              name="range"
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="locality search"
+              type="text"
+              name="locality"
+            />
+            <input
+              className="px-2 py-2 dark:bg-gray-700 rounded"
+              placeholder="region search"
+              type="text"
+              name="region"
+            />
+            <select
+              className="dark:bg-gray-700 col-span-2 rounded"
+              name="country"
+            >
+              <option value="">Select a Country</option>
+            </select>
+            <select
+              className="dark:bg-gray-700 col-span-2 rounded"
+              name="status"
+            >
+              <option value="">Select a Status</option>
+            </select>
+            <select
+              className="dark:bg-gray-700 col-span-2 rounded"
+              name="page_size"
+            >
+              <option value="">Select the Page Size</option>
+            </select>
+            <div className="flex flex-row items-center">
+              {searchParams?.tags_filter === 'and' ? (
+                <input
+                  type="checkbox"
+                  id="tags_filter"
+                  name="tags_filter"
+                  value="and"
+                  className="mr-2"
+                  checked={true}
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  id="tags_filter"
+                  name="tags_filter"
+                  value="and"
+                  className="mr-2"
+                />
+              )}
+              <label htmlFor="tags_filter">all tags</label>
             </div>
-          </Form>
-        </div>
+            <div className="flex flex-row items-center">
+              {searchParams?.tags_exact === 'true' ? (
+                <input
+                  type="checkbox"
+                  id="tags_exact"
+                  name="tags_exact"
+                  value="true"
+                  className="mr-2"
+                  checked={true}
+                />
+              ) : (
+                <input
+                  type="checkbox"
+                  id="tags_exact"
+                  name="tags_exact"
+                  value="true"
+                  className="mr-2"
+                />
+              )}
+              <label htmlFor="tags_exact">exact matches only</label>
+            </div>
+            <button
+              className="col-span-4 bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 font-bold rounded py-1"
+              type="submit"
+            >
+              Search
+            </button>
+          </div>
+        </Form>
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto text-gray-900 dark:text-gray-50">
             <p className="text-sm">
