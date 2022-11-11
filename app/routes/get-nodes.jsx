@@ -7,6 +7,9 @@ import { loadSchema } from '~/utils/schema'
 
 function getSearchUrl(params, removePage) {
   let searchParams = ''
+  if (params?.schema) {
+    searchParams += 'schema=' + params.schema
+  }
   if (params?.tags) {
     searchParams += '&tags=' + params.tags
   }
@@ -32,7 +35,7 @@ export async function action({ request }) {
     })
   }
   let searchParams = getSearchUrl(values, false)
-  return redirect(`/get-nodes?schema=${values.schema}${searchParams}`)
+  return redirect(`/get-nodes?${searchParams}`)
 }
 
 export async function loader({ request }) {
@@ -51,16 +54,20 @@ export async function loader({ request }) {
       })
     }
 
-    if (params?.schema === '') {
+    if (!params?.schema) {
       return json({
+        schemas: schemas,
         message: 'The schema is required',
         success: false
       })
     }
 
     let searchParams = getSearchUrl(params, false)
+    if (params.schema === 'all') {
+      searchParams = searchParams.replace('schema=all', '')
+    }
     let response = await fetchGet(
-      `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?schema=${params.schema}${searchParams}`
+      `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?${searchParams}`
     )
     if (!response.ok) {
       return new Response('Schema list loading error', {
@@ -148,6 +155,7 @@ export default function GetNodes() {
                 onChange={e => setCurrentSchema(e.target.value)}
               >
                 <option value="">Select a schema</option>
+                <option value="all">All schemas</option>
                 {schemas?.map(schema => (
                   <option
                     className="text-sm mb-1 border-gray-50 py-0 px-2"
@@ -346,7 +354,7 @@ function SortableColumn({ prop, children, searchParams }) {
     <th scope="col" className="p-1 md:p-2 text-left text-sm text-gray-900">
       {prop ? (
         <Link
-          to={`/get-nodes?schema=${searchParams.schema}${searchQueries}`}
+          to={`/get-nodes?${searchQueries}`}
           className="inline-flex font-semibold group"
         >
           <span className="text-gray-900 dark:text-gray-50">{children}</span>
@@ -416,7 +424,7 @@ function Pagination({ totalPages, currentPage, searchParams }) {
       <ul className="inline-flex -space-x-px">
         <li>
           <Link
-            to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
+            to={`/get-nodes?${searchUrl}&page=${
               currentPage - 1 > 0 ? currentPage - 1 : 1
             }`}
             className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -437,7 +445,7 @@ function Pagination({ totalPages, currentPage, searchParams }) {
             return (
               <li key={page}>
                 <Link
-                  to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${page}`}
+                  to={`/get-nodes?${searchUrl}&page=${page}`}
                   className="py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
                 >
                   {page}
@@ -448,7 +456,7 @@ function Pagination({ totalPages, currentPage, searchParams }) {
             return (
               <li key={page}>
                 <Link
-                  to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${page}`}
+                  to={`/get-nodes?${searchUrl}&page=${page}`}
                   className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   {page}
@@ -459,7 +467,7 @@ function Pagination({ totalPages, currentPage, searchParams }) {
         })}
         <li>
           <Link
-            to={`/get-nodes?schema=${searchParams.schema}${searchUrl}&page=${
+            to={`/get-nodes?${searchUrl}&page=${
               currentPage + 1 < totalPages ? currentPage + 1 : totalPages
             }`}
             className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
