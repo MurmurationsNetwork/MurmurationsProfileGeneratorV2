@@ -4,6 +4,7 @@ import { Form, Link, useActionData, useLoaderData } from '@remix-run/react'
 import { fetchGet } from '~/utils/fetcher'
 import { useEffect, useState } from 'react'
 import { loadSchema } from '~/utils/schema'
+import { loadCountries } from '~/utils/countries'
 
 function getSearchUrl(params, removePage) {
   let searchParams = ''
@@ -15,6 +16,30 @@ function getSearchUrl(params, removePage) {
   }
   if (params?.primary_url) {
     searchParams += '&primary_url=' + params.primary_url
+  }
+  if (params?.lat) {
+    searchParams += '&lat=' + params.lat
+  }
+  if (params?.lon) {
+    searchParams += '&lon=' + params.lon
+  }
+  if (params?.range) {
+    searchParams += '&range=' + params.range
+  }
+  if (params?.locality) {
+    searchParams += '&locality=' + params.locality
+  }
+  if (params?.region) {
+    searchParams += '&region=' + params.region
+  }
+  if (params?.country) {
+    searchParams += '&country=' + params.country
+  }
+  if (params?.status) {
+    searchParams += '&status=' + params.status
+  }
+  if (params?.page_size) {
+    searchParams += '&page_size=' + params.page_size
   }
   let tags_filter = params?.tags_filter ? params.tags_filter : 'or'
   let tags_exact = params?.tags_exact ? params.tags_exact : 'false'
@@ -41,6 +66,7 @@ export async function action({ request }) {
 export async function loader({ request }) {
   try {
     const schemas = await loadSchema()
+    const countries = await loadCountries()
 
     const url = new URL(request.url)
     let params = {}
@@ -50,13 +76,15 @@ export async function loader({ request }) {
 
     if (Object.keys(params).length === 0) {
       return json({
-        schemas: schemas
+        schemas: schemas,
+        countries: countries
       })
     }
 
     if (!params?.schema) {
       return json({
         schemas: schemas,
+        countries: countries,
         message: 'The schema is required',
         success: false
       })
@@ -79,6 +107,7 @@ export async function loader({ request }) {
     if (nodes?.status && nodes.status === 400) {
       return json({
         schemas: schemas,
+        countries: countries,
         params: params,
         message: nodes.message,
         success: false
@@ -87,6 +116,7 @@ export async function loader({ request }) {
 
     return json({
       schemas: schemas,
+      countries: countries,
       nodes: nodes,
       params: params
     })
@@ -100,8 +130,10 @@ export default function GetNodes() {
   const loaderData = useLoaderData()
   const actionData = useActionData()
   let schema = loaderData?.schemas
+  let countryList = loaderData?.countries
   let searchParams = loaderData?.params
   let [schemas, setSchemas] = useState(null)
+  let [countries, setCountries] = useState(null)
   let [currentSchema, setCurrentSchema] = useState(
     searchParams?.schema ? searchParams.schema : ''
   )
@@ -110,6 +142,9 @@ export default function GetNodes() {
     if (schema) {
       setSchemas(schema)
     }
+    if (countryList) {
+      setCountries(countryList)
+    }
     if (actionData?.success === false) {
       setError(actionData?.message)
     } else if (loaderData?.success === false) {
@@ -117,7 +152,7 @@ export default function GetNodes() {
     } else {
       setError(null)
     }
-  }, [loaderData, actionData, schema])
+  }, [loaderData, actionData, schema, countryList])
   const nodes = loaderData?.nodes
   const meta = nodes?.meta
   const currentPage = searchParams?.page ? searchParams.page : 1
@@ -188,50 +223,68 @@ export default function GetNodes() {
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
               placeholder="lat search"
-              type="text"
+              type="number"
               name="lat"
+              defaultValue={searchParams?.lat}
             />
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
               placeholder="lon search"
-              type="text"
+              type="number"
               name="lon"
+              defaultValue={searchParams?.lon}
             />
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
               placeholder="range search"
               type="text"
               name="range"
+              defaultValue={searchParams?.range}
             />
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
               placeholder="locality search"
               type="text"
               name="locality"
+              defaultValue={searchParams?.locality}
             />
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
               placeholder="region search"
               type="text"
               name="region"
+              defaultValue={searchParams?.region}
             />
             <select
               className="dark:bg-gray-700 col-span-2 rounded"
               name="country"
             >
               <option value="">Select a Country</option>
+              {countries &&
+                countries.map(country => (
+                  <option
+                    className="text-sm mb-1 border-gray-50 py-0 px-2"
+                    value={country.name}
+                    key={country.name}
+                  >
+                    {country.name}
+                  </option>
+                ))}
             </select>
             <select
               className="dark:bg-gray-700 col-span-2 rounded"
               name="status"
             >
-              <option value="">Select a Status</option>
+              <option value="">Select a Status(default: posted)</option>
+              <option value="deleted">deleted</option>
             </select>
             <select
               className="dark:bg-gray-700 col-span-2 rounded"
               name="page_size"
             >
-              <option value="">Select the Page Size</option>
+              <option value="">Select the Page Size(default: 30)</option>
+              <option value="100">100</option>
+              <option value="500">500</option>
             </select>
             <div className="flex flex-row items-center">
               {searchParams?.tags_filter === 'and' ? (
