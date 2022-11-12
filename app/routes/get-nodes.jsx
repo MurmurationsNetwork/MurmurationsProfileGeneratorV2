@@ -5,6 +5,7 @@ import { fetchGet } from '~/utils/fetcher'
 import { useEffect, useState } from 'react'
 import { loadSchema } from '~/utils/schema'
 import { loadCountries } from '~/utils/countries'
+import { timestampToDatetime } from '~/utils/datetime'
 
 function getSearchUrl(params, removePage) {
   let searchParams = ''
@@ -16,6 +17,9 @@ function getSearchUrl(params, removePage) {
   }
   if (params?.primary_url) {
     searchParams += '&primary_url=' + params.primary_url
+  }
+  if (params?.last_updated) {
+    searchParams += '&last_updated=' + params.last_updated
   }
   if (params?.lat) {
     searchParams += '&lat=' + params.lat
@@ -58,6 +62,9 @@ export async function action({ request }) {
       message: 'The schema is required',
       success: false
     })
+  }
+  if (values?.last_updated) {
+    values.last_updated = new Date(values.last_updated).valueOf() / 1000
   }
   let searchParams = getSearchUrl(values, false)
   return redirect(`/get-nodes?${searchParams}`)
@@ -169,11 +176,6 @@ export default function GetNodes() {
     })
   }
 
-  let date = date =>
-    new Date(date * 1000).toISOString().substring(0, 10) +
-    ' ' +
-    new Date(date * 1000).toISOString().substring(11, 19)
-
   return (
     <div>
       <div className="flex flex-row justify-between items-center bg-gray-50 dark:bg-gray-800 py-1 px-2 md:py-2 md:px-4 h-12 md:h-20 mb-2 md:mb-4">
@@ -217,8 +219,13 @@ export default function GetNodes() {
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
               placeholder="last_updated search"
-              type="text"
+              type="datetime-local"
               name="last_updated"
+              defaultValue={
+                searchParams?.last_updated
+                  ? timestampToDatetime(searchParams.last_updated)
+                  : ''
+              }
             />
             <input
               className="px-2 py-2 dark:bg-gray-700 rounded"
@@ -400,7 +407,7 @@ export default function GetNodes() {
                               {node.locality}
                             </td>
                             <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50 whitespace-nowrap">
-                              {date(node.last_updated)}
+                              {timestampToDatetime(node.last_updated)}
                             </td>
                             <td className="p-1 md:p-2 text-sm text-gray-900 dark:text-gray-50">
                               <div className="flex flex-wrap">
