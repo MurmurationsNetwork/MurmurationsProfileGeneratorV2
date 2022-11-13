@@ -182,10 +182,10 @@ export default function GetNodes() {
         <h1 className="text-xl md:text-3xl">Murmurations Index Explorer</h1>
       </div>
       <div className="max-w-6xl py-2 mx-auto">
-        <Form method="post">
-          <div className="grid grid-cols-4 gap-2 bg-gray-50 dark:bg-gray-600 p-6">
+        <Form method="post" className="mb-2">
+          <div className="flex flex-row flex-wrap items-center gap-2 bg-gray-50 dark:bg-gray-600 p-6">
             <select
-              className="dark:bg-gray-700 col-span-2 rounded"
+              className="flex-auto dark:bg-gray-700 rounded"
               name="schema"
               value={currentSchema}
               onChange={e => setCurrentSchema(e.target.value)}
@@ -203,21 +203,21 @@ export default function GetNodes() {
               ))}
             </select>
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="tag search"
               type="text"
               name="tags"
               defaultValue={searchParams?.tags}
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="primary_url search"
               type="text"
               name="primary_url"
               defaultValue={searchParams?.primary_url}
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="last_updated search"
               type="datetime-local"
               name="last_updated"
@@ -228,42 +228,42 @@ export default function GetNodes() {
               }
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="lat search"
               type="number"
               name="lat"
               defaultValue={searchParams?.lat}
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="lon search"
               type="number"
               name="lon"
               defaultValue={searchParams?.lon}
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="range search"
               type="text"
               name="range"
               defaultValue={searchParams?.range}
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="locality search"
               type="text"
               name="locality"
               defaultValue={searchParams?.locality}
             />
             <input
-              className="px-2 py-2 dark:bg-gray-700 rounded"
+              className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="region search"
               type="text"
               name="region"
               defaultValue={searchParams?.region}
             />
             <select
-              className="dark:bg-gray-700 col-span-2 rounded"
+              className="flex-auto dark:bg-gray-700 col-span-2 rounded"
               name="country"
             >
               <option value="">Select a Country</option>
@@ -279,21 +279,21 @@ export default function GetNodes() {
                 ))}
             </select>
             <select
-              className="dark:bg-gray-700 col-span-2 rounded"
+              className="flex-auto dark:bg-gray-700 col-span-2 rounded"
               name="status"
             >
               <option value="">Select a Status(default: posted)</option>
               <option value="deleted">deleted</option>
             </select>
             <select
-              className="dark:bg-gray-700 col-span-2 rounded"
+              className="flex-auto dark:bg-gray-700 col-span-2 rounded"
               name="page_size"
             >
               <option value="">Select the Page Size(default: 30)</option>
               <option value="100">100</option>
               <option value="500">500</option>
             </select>
-            <div className="flex flex-row items-center">
+            <div className="flex-auto">
               {searchParams?.tags_filter === 'and' ? (
                 <input
                   type="checkbox"
@@ -314,7 +314,7 @@ export default function GetNodes() {
               )}
               <label htmlFor="tags_filter">all tags</label>
             </div>
-            <div className="flex flex-row items-center">
+            <div className="flex-auto">
               {searchParams?.tags_exact === 'true' ? (
                 <input
                   type="checkbox"
@@ -336,7 +336,7 @@ export default function GetNodes() {
               <label htmlFor="tags_exact">exact matches only</label>
             </div>
             <button
-              className="col-span-4 bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 font-bold rounded py-1"
+              className="w-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 font-bold rounded py-1"
               type="submit"
             >
               Search
