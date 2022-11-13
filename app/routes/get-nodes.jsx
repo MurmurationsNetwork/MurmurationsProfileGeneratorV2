@@ -104,20 +104,22 @@ export async function loader({ request }) {
     let response = await fetchGet(
       `${process.env.PUBLIC_PROFILE_POST_URL}/nodes?${searchParams}`
     )
-    if (!response.ok) {
-      return new Response('Schema list loading error', {
-        status: response.status
-      })
-    }
+
     const nodes = await response.json()
 
-    if (nodes?.status && nodes.status === 400) {
-      return json({
-        schemas: schemas,
-        countries: countries,
-        params: params,
-        message: nodes.message,
-        success: false
+    if (!response.ok) {
+      if (response.status === 400) {
+        return json({
+          schemas: schemas,
+          countries: countries,
+          params: params,
+          message: nodes.errors?.[0].detail,
+          success: false
+        })
+      }
+
+      return new Response('Schema list loading error', {
+        status: response.status
       })
     }
 
@@ -174,6 +176,14 @@ export default function GetNodes() {
         ? b[sortProp]?.localeCompare(a[sortProp])
         : a[sortProp]?.localeCompare(b[sortProp])
     })
+  }
+  let pageSize = 30,
+    page = 1
+  if (searchParams?.page_size) {
+    pageSize = searchParams.page_size
+  }
+  if (searchParams?.page) {
+    page = searchParams.page
   }
 
   return (
@@ -265,6 +275,7 @@ export default function GetNodes() {
             <select
               className="flex-auto dark:bg-gray-700 col-span-2 rounded"
               name="country"
+              defaultValue={searchParams?.country}
             >
               <option value="">Select a Country</option>
               {countries &&
@@ -281,6 +292,7 @@ export default function GetNodes() {
             <select
               className="flex-auto dark:bg-gray-700 col-span-2 rounded"
               name="status"
+              defaultValue={searchParams?.status}
             >
               <option value="">Select a Status(default: posted)</option>
               <option value="deleted">deleted</option>
@@ -288,6 +300,7 @@ export default function GetNodes() {
             <select
               className="flex-auto dark:bg-gray-700 col-span-2 rounded"
               name="page_size"
+              defaultValue={searchParams?.page_size}
             >
               <option value="">Select the Page Size(default: 30)</option>
               <option value="100">100</option>
@@ -357,6 +370,11 @@ export default function GetNodes() {
           </div>
         </div>
         <div className="flex flex-col mt-2 md:mt-4">
+          <div className="flex-auto mb-2">
+            Result Count: {page > 1 ? (page - 1) * pageSize + 1 : 1}-
+            {page * pageSize} /{' '}
+            {meta?.number_of_results ? meta.number_of_results : 0}
+          </div>
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 text-center">
             {error ? (
               <div className="text-red-500 font-bold">Error: {error}</div>
@@ -430,6 +448,7 @@ export default function GetNodes() {
                 <div className="my-4 text-center">
                   <Pagination
                     totalPages={meta?.total_pages}
+                    resultNumber={meta?.number_of_results}
                     currentPage={parseInt(currentPage)}
                     searchParams={searchParams}
                   />
@@ -487,8 +506,12 @@ function SortableColumn({ prop, children, searchParams }) {
   )
 }
 
-function Pagination({ totalPages, currentPage, searchParams }) {
+function Pagination({ totalPages, resultNumber, currentPage, searchParams }) {
   let searchUrl = getSearchUrl(searchParams, true)
+  // totalPages can show only 10,000 results
+  let pageSize = searchParams?.page_size ? searchParams.page_size : 30
+  totalPages = resultNumber > 10000 ? Math.floor(10000 / pageSize) : totalPages
+
   if (currentPage > totalPages) {
     currentPage = totalPages
   }
