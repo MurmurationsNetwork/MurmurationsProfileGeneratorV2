@@ -192,6 +192,21 @@ export default function GetNodes() {
         <h1 className="text-xl md:text-3xl">Murmurations Index Explorer</h1>
       </div>
       <div className="max-w-6xl py-2 mx-auto">
+        <div className="sm:flex sm:items-center mb-4">
+          <div className="sm:flex-auto text-gray-900 dark:text-gray-50">
+            <p>
+              For a description of the input fields below, please see the{' '}
+              <a
+                className="text-red-500 dark:text-purple-200"
+                target="_blank"
+                href="https://app.swaggerhub.com/apis-docs/MurmurationsNetwork/IndexAPI/2.0.0#/Aggregator%20Endpoints/get_nodes"
+              >
+                GET /nodes endpoint in our API specification
+              </a>
+              .
+            </p>
+          </div>
+        </div>
         <Form method="post" className="mb-2">
           <div className="flex flex-row flex-wrap items-center gap-2 bg-gray-50 dark:bg-gray-600 p-6">
             <select
