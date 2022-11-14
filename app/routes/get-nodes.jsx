@@ -164,7 +164,7 @@ export default function GetNodes() {
   }, [loaderData, actionData, schema, countryList])
   const nodes = loaderData?.nodes
   const meta = nodes?.meta
-  const currentPage = searchParams?.page ? searchParams.page : 1
+  const links = nodes?.links
   let [sortProp, desc] = searchParams?.sort?.split(':') ?? []
   let sortedNodes = null
   if (nodes?.data) {
@@ -380,7 +380,7 @@ export default function GetNodes() {
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 text-center">
             {error ? (
               <div className="text-red-500 font-bold">Error: {error}</div>
-            ) : nodes?.data ? (
+            ) : nodes?.data && Object.keys(nodes.data).length !== 0 ? (
               <div>
                 <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
                   <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
@@ -448,12 +448,7 @@ export default function GetNodes() {
                   </div>
                 </div>
                 <div className="my-4 text-center">
-                  <Pagination
-                    totalPages={meta?.total_pages}
-                    resultNumber={meta?.number_of_results}
-                    currentPage={parseInt(currentPage)}
-                    searchParams={searchParams}
-                  />
+                  <Pagination links={links} searchParams={searchParams} />
                 </div>
               </div>
             ) : (
@@ -508,110 +503,155 @@ function SortableColumn({ prop, children, searchParams }) {
   )
 }
 
-function Pagination({ totalPages, resultNumber, currentPage, searchParams }) {
-  let searchUrl = getSearchUrl(searchParams, true)
-  // totalPages can show only 10,000 results
-  let pageSize = searchParams?.page_size ? searchParams.page_size : 30
-  totalPages = resultNumber > 10000 ? Math.floor(10000 / pageSize) : totalPages
+function Pagination({ links, searchParams }) {
+  // schema needs to be replaced if selecting all, the parameters after "?" need to be kept.
+  let schema = searchParams.schema === 'all' ? 'schema=all' : ''
+  let pages = {
+    first: 0,
+    prev: 0,
+    self: 0,
+    next: 0,
+    last: 0
+  }
+  Object.keys(links).forEach(key => {
+    if (links[key]) {
+      if (searchParams.schema === 'all' && !links[key].includes('schema=all')) {
+        links[key] = schema + links[key].substring(links[key].indexOf('?') + 1)
+      }
+      pages[key] = parseInt(links[key].match(/page=(\d+)/i)[1])
+    }
+  })
 
-  if (currentPage > totalPages) {
-    currentPage = totalPages
+  // second page and the penultimate page needs to deal with it separately.
+  if (pages['self'] === 4) {
+    links['second'] = links['first'].replace('page=1', 'page=2')
   }
-  if (currentPage < 1 || !currentPage) {
-    currentPage = 1
-  }
-  // generate pagination array
-  let pagination = [1]
-  if (totalPages > 1 && totalPages <= 5) {
-    for (let i = 2; i <= totalPages; i++) {
-      pagination.push(i)
-    }
-  } else if (totalPages > 5) {
-    if (currentPage < 5) {
-      for (let i = 2; i <= currentPage; i++) {
-        pagination.push(i)
-      }
-      pagination.push(currentPage + 1)
-      if (currentPage === 1) {
-        pagination.push(currentPage + 2)
-      }
-      pagination.push(0)
-    } else if (currentPage > totalPages - 4) {
-      pagination.push(0)
-      for (
-        let i =
-          currentPage > totalPages - 1 ? currentPage - 2 : currentPage - 1;
-        i < totalPages;
-        i++
-      ) {
-        pagination.push(i)
-      }
-    } else {
-      pagination.push(0)
-      for (let i = currentPage - 1; i < currentPage + 2; i++) {
-        pagination.push(i)
-      }
-      pagination.push(0)
-    }
-    pagination.push(totalPages)
+  if (pages['last'] - pages['self'] === 3) {
+    links['penultimate'] = links['last'].replace(
+      'page=' + pages['last'],
+      'page=' + (pages['last'] - 1)
+    )
   }
 
   return (
     <nav>
       <ul className="inline-flex -space-x-px">
+        {links['prev'] ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['prev']}`}
+              className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              Previous
+            </Link>
+          </li>
+        ) : (
+          ''
+        )}
+        {links['first'] ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['first']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {pages['first']}
+            </Link>
+          </li>
+        ) : (
+          ''
+        )}
+        {pages['self'] === 4 ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['second']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {pages['first'] + 1}
+            </Link>
+          </li>
+        ) : pages['prev'] - pages['first'] > 1 ? (
+          <li key={pages['previous'] - pages['first']}>
+            <label className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+              ...
+            </label>
+          </li>
+        ) : (
+          ''
+        )}
+        {links['prev'] ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['prev']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {pages['prev']}
+            </Link>
+          </li>
+        ) : (
+          ''
+        )}
         <li>
           <Link
-            to={`/get-nodes?${searchUrl}&page=${
-              currentPage - 1 > 0 ? currentPage - 1 : 1
-            }`}
-            className="py-2 px-3 ml-0 leading-tight text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            to={`/get-nodes?${links['self']}`}
+            className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
           >
-            Previous
+            {pages['self']}
           </Link>
         </li>
-        {pagination.map(page => {
-          if (page === 0) {
-            return (
-              <li key={page}>
-                <label className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                  ...
-                </label>
-              </li>
-            )
-          } else if (page === currentPage) {
-            return (
-              <li key={page}>
-                <Link
-                  to={`/get-nodes?${searchUrl}&page=${page}`}
-                  className="py-2 px-3 leading-tight text-blue-600 bg-blue-50 border border-gray-300 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                >
-                  {page}
-                </Link>
-              </li>
-            )
-          } else {
-            return (
-              <li key={page}>
-                <Link
-                  to={`/get-nodes?${searchUrl}&page=${page}`}
-                  className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                >
-                  {page}
-                </Link>
-              </li>
-            )
-          }
-        })}
-        <li>
-          <Link
-            to={`/get-nodes?${searchUrl}&page=${
-              currentPage + 1 < totalPages ? currentPage + 1 : totalPages
-            }`}
-            className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-          >
-            Next
-          </Link>
-        </li>
+        {links['next'] ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['next']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {pages['next']}
+            </Link>
+          </li>
+        ) : (
+          ''
+        )}
+        {pages['last'] - pages['self'] === 3 ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['penultimate']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {pages['next'] + 1}
+            </Link>
+          </li>
+        ) : pages['last'] - pages['next'] > 1 ? (
+          <li key={pages['last'] - pages['next']}>
+            <label className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+              ...
+            </label>
+          </li>
+        ) : (
+          ''
+        )}
+        {links['last'] ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['last']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              {pages['last']}
+            </Link>
+          </li>
+        ) : (
+          ''
+        )}
+        {links['next'] ? (
+          <li>
+            <Link
+              to={`/get-nodes?${links['next']}`}
+              className="py-2 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              Next
+            </Link>
+          </li>
+        ) : (
+          ''
+        )}
       </ul>
     </nav>
   )
