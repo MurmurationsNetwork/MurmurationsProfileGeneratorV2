@@ -199,6 +199,7 @@ export default function GetNodes() {
               <a
                 className="text-red-500 dark:text-purple-200"
                 target="_blank"
+                rel="noreferrer"
                 href="https://app.swaggerhub.com/apis-docs/MurmurationsNetwork/IndexAPI/2.0.0#/Aggregator%20Endpoints/get_nodes"
               >
                 GET /nodes endpoint in our API specification
@@ -365,11 +366,17 @@ export default function GetNodes() {
           </div>
         </div>
         <div className="flex flex-col mt-2 md:mt-4">
-          <div className="flex-auto mb-2">
-            Result Count: {page > 1 ? (page - 1) * pageSize + 1 : 1}-
-            {page * pageSize} /{' '}
-            {meta?.number_of_results ? meta.number_of_results : 0}
-          </div>
+          {meta?.number_of_results ? (
+            <div className="flex-auto mb-2">
+              Result Count: {page > 1 ? (page - 1) * pageSize + 1 : 1}-
+              {page * pageSize > meta.number_of_results
+                ? meta.number_of_results
+                : page * pageSize}{' '}
+              / {meta.number_of_results}
+            </div>
+          ) : (
+            ''
+          )}
           <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 text-center">
             {error ? (
               <div className="text-red-500 font-bold">Error: {error}</div>
