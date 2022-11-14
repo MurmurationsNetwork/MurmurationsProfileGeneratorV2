@@ -322,45 +322,25 @@ export default function GetNodes() {
               <option value="500">500</option>
             </select>
             <div className="flex-auto">
-              {searchParams?.tags_filter === 'and' ? (
-                <input
-                  type="checkbox"
-                  id="tags_filter"
-                  name="tags_filter"
-                  value="and"
-                  className="mr-2"
-                  checked={true}
-                />
-              ) : (
-                <input
-                  type="checkbox"
-                  id="tags_filter"
-                  name="tags_filter"
-                  value="and"
-                  className="mr-2"
-                />
-              )}
+              <input
+                type="checkbox"
+                id="tags_filter"
+                name="tags_filter"
+                value="and"
+                className="mr-2"
+                defaultChecked={searchParams?.tags_filter === 'and'}
+              />
               <label htmlFor="tags_filter">all tags</label>
             </div>
             <div className="flex-auto">
-              {searchParams?.tags_exact === 'true' ? (
-                <input
-                  type="checkbox"
-                  id="tags_exact"
-                  name="tags_exact"
-                  value="true"
-                  className="mr-2"
-                  checked={true}
-                />
-              ) : (
-                <input
-                  type="checkbox"
-                  id="tags_exact"
-                  name="tags_exact"
-                  value="true"
-                  className="mr-2"
-                />
-              )}
+              <input
+                type="checkbox"
+                id="tags_exact"
+                name="tags_exact"
+                value="true"
+                className="mr-2"
+                defaultChecked={searchParams?.tags_exact === 'true'}
+              />
               <label htmlFor="tags_exact">exact matches only</label>
             </div>
             <button
