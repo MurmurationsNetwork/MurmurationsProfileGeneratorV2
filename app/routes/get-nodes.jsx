@@ -257,6 +257,7 @@ export default function GetNodes() {
               className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="lat search"
               type="number"
+              step="any"
               name="lat"
               defaultValue={searchParams?.lat}
             />
@@ -264,6 +265,7 @@ export default function GetNodes() {
               className="flex-auto p-2 dark:bg-gray-700 rounded"
               placeholder="lon search"
               type="number"
+              step="any"
               name="lon"
               defaultValue={searchParams?.lon}
             />
