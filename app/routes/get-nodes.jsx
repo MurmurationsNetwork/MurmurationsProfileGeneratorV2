@@ -519,6 +519,8 @@ function Pagination({ links, searchParams }) {
     if (links[key]) {
       if (searchParams.schema === 'all' && !links[key].includes('schema=all')) {
         links[key] = schema + links[key].substring(links[key].indexOf('?') + 1)
+      } else {
+        links[key] = links[key].substring(links[key].indexOf('?') + 1)
       }
       pages[key] = parseInt(links[key].match(/page=(\d+)/i)[1])
     }
