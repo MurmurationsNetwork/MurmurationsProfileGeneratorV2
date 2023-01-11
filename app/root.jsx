@@ -1,4 +1,5 @@
 import {
+  Link,
   Links,
   LiveReload,
   Meta,
@@ -28,6 +29,23 @@ export default function App() {
       </head>
       <body className="bg-white dark:bg-gray-900 text-black dark:text-gray-50 leading-normal text-md md:text-xl">
         <div className="container max-w-full mx-auto p-0">
+          <div className="flex flex-row justify-end items-center bg-gray-50 dark:bg-gray-800 py-1 px-2 md:py-2 md:px-4 h-8 md:h-12 mb-0">
+            <Link to="/">
+              <div className="text-md md:hidden">Profiles</div>
+              <div className="hidden md:contents md:text-xl">
+                Profile Generator
+              </div>
+            </Link>
+            <div className="pl-8 md:pl-16">
+              <Link to="/get-nodes">
+                <div className="text-md md:hidden">Explorer</div>
+                <div className="hidden md:contents md:text-xl">
+                  Index Explorer
+                </div>
+              </Link>
+            </div>
+          </div>
+
           <Outlet />
           <ScrollRestoration />
           <Scripts />
