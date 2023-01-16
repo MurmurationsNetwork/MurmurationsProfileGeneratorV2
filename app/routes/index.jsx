@@ -7,7 +7,8 @@ import {
   useActionData,
   useCatch,
   useLoaderData,
-  useSearchParams
+  useSearchParams,
+  useTransition
 } from '@remix-run/react'
 
 import { userCookie } from '~/utils/cookie'
@@ -492,6 +493,7 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
   const [status, setStatus] = useState(null)
   const [timer, setTimer] = useState(1000)
   const [deleteModal, setDeleteModal] = useState(false)
+  const transition = useTransition()
 
   useEffect(() => {
     if (status === 'posted') return
@@ -622,9 +624,12 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
                       type="submit"
                       name="_action"
                       value="delete"
-                      onSubmitCapture={() => setDeleteModal(false)}
                     >
-                      Confirm Delete
+                      {transition.state === 'submitting'
+                        ? 'Processing...'
+                        : transition.state === 'loading'
+                        ? 'Deleted!'
+                        : 'Confirm Delete'}
                     </button>
                   </Form>
                   <div className="flex-none pl-4 md:pl-8">
