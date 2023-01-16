@@ -622,7 +622,7 @@ function ProfileItem({ ipfsGatewayUrl, profile, profilePostUrl }) {
                       type="submit"
                       name="_action"
                       value="delete"
-                      onSubmit={() => setDeleteModal(false)}
+                      onSubmitCapture={() => setDeleteModal(false)}
                     >
                       Confirm Delete
                     </button>
