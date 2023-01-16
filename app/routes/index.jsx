@@ -196,6 +196,7 @@ export async function loader(request) {
 export const unstable_shouldReload = () => true
 
 export default function Index() {
+  const transition = useTransition()
   const [searchParams] = useSearchParams()
   const defaultSchema = searchParams.get('schema')
     ? searchParams.get('schema').split(',')
@@ -342,7 +343,11 @@ export default function Index() {
                         name="_action"
                         value="save"
                       >
-                        Save Profile
+                        {transition.state === 'submitting'
+                          ? 'Saving...'
+                          : transition.state === 'loading'
+                          ? 'Saved!'
+                          : 'Save Profile'}
                       </button>
                     </Form>
                   )}
@@ -457,7 +462,11 @@ export default function Index() {
                 name="_action"
                 value="update"
               >
-                Update
+                {transition.state === 'submitting'
+                  ? 'Updating...'
+                  : transition.state === 'loading'
+                  ? 'Updated!'
+                  : 'Update Profile'}
               </button>
             </Form>
           ) : schema ? (
@@ -479,7 +488,11 @@ export default function Index() {
                 name="_action"
                 value="submit"
               >
-                Submit
+                {transition.state === 'submitting'
+                  ? 'Processing...'
+                  : transition.state === 'loading'
+                  ? 'Done!'
+                  : 'Submit'}
               </button>
             </Form>
           ) : null}
