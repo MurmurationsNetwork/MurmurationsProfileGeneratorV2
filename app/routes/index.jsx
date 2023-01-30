@@ -309,7 +309,7 @@ export default function Index() {
               {instance && !errors[0] ? (
                 <>
                   <p className="md:text-xl mb-2 md:mb-4">
-                    Your profile has been generated:
+                    Your profile preview has been generated:
                   </p>
                   <pre className="bg-slate-200 dark:bg-slate-800 py-2 px-4 overflow-x-auto">
                     {JSON.stringify(instance, null, 2)}
@@ -347,7 +347,7 @@ export default function Index() {
                           ? 'Saving...'
                           : transition.state === 'loading'
                           ? 'Saved!'
-                          : 'Save Profile'}
+                          : 'Save to Index'}
                       </button>
                     </Form>
                   )}
@@ -492,7 +492,7 @@ export default function Index() {
                   ? 'Processing...'
                   : transition.state === 'loading'
                   ? 'Done!'
-                  : 'Submit'}
+                  : 'Preview'}
               </button>
             </Form>
           ) : null}

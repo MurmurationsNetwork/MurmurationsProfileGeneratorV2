@@ -1,5 +1,11 @@
 import { json, redirect } from '@remix-run/node'
-import { Form, Link, useActionData, useLoaderData } from '@remix-run/react'
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useTransition
+} from '@remix-run/react'
 
 import { fetchGet } from '~/utils/fetcher'
 import { useEffect, useState } from 'react'
@@ -138,6 +144,7 @@ export async function loader({ request }) {
 export default function GetNodes() {
   const loaderData = useLoaderData()
   const actionData = useActionData()
+  const transition = useTransition()
   let schema = loaderData?.schemas
   let countryList = loaderData?.countries
   let searchParams = loaderData?.params
@@ -354,7 +361,11 @@ export default function GetNodes() {
               className="w-full bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 font-bold rounded py-1"
               type="submit"
             >
-              Search
+              {transition.state === 'submitting'
+                ? 'Searching...'
+                : transition.state === 'loading'
+                ? 'Loading Data...'
+                : 'Search'}
             </button>
           </div>
         </Form>
