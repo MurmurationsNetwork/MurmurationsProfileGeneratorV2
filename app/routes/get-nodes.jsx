@@ -361,13 +361,12 @@ export default function GetNodes() {
         <div className="sm:flex sm:items-center">
           <div className="sm:flex-auto text-gray-900 dark:text-gray-50">
             <p className="text-sm">
-              Pick a schema and enter a tag (or comma-separated list of tags) to
-              search for.
+              Pick a schema and enter one or more tags to search for.
             </p>
             <p className="text-sm">
-              Select <em>all tags</em> so only results with all of the tags are
-              shown. Select <em>exact matches only</em> so that spelling
-              variations are not shown.
+              Select <em>all tags</em> so only results with all of the tags
+              entered are shown. Select <em>exact matches only</em> so that
+              spelling variations are not shown.
             </p>
           </div>
         </div>
