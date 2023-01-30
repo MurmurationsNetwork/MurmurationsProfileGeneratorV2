@@ -315,7 +315,8 @@ export default function GetNodes() {
               name="status"
               defaultValue={searchParams?.status}
             >
-              <option value="">Select a Status(default: posted)</option>
+              <option value="">Select a Status (default: all)</option>
+              <option value="posted">posted</option>
               <option value="deleted">deleted</option>
             </select>
             <select
@@ -323,7 +324,7 @@ export default function GetNodes() {
               name="page_size"
               defaultValue={searchParams?.page_size}
             >
-              <option value="">Select the Page Size(default: 30)</option>
+              <option value="">Select the Page Size (default: 30)</option>
               <option value="100">100</option>
               <option value="500">500</option>
             </select>
