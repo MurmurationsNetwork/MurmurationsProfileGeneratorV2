@@ -212,6 +212,7 @@ export default function Index() {
   let [profileTitle, setProfileTitle] = useState('')
   let [instance, setInstance] = useState('')
   let [errors, setErrors] = useState([])
+  const [submitType, setSubmitType] = useState('')
   useEffect(() => {
     if (data?.$schema) {
       setSchema(data)
@@ -342,10 +343,13 @@ export default function Index() {
                         type="submit"
                         name="_action"
                         value="save"
+                        onClick={() => setSubmitType('save')}
                       >
-                        {transition.state === 'submitting'
+                        {transition.state === 'submitting' &&
+                        submitType === 'save'
                           ? 'Saving...'
-                          : transition.state === 'loading'
+                          : transition.state === 'loading' &&
+                            submitType === 'save'
                           ? 'Saved!'
                           : 'Save to Index'}
                       </button>
@@ -414,8 +418,13 @@ export default function Index() {
               type="submit"
               name="_action"
               value="select"
+              onClick={() => setSubmitType('select')}
             >
-              Select
+              {transition.state === 'submitting' && submitType === 'select'
+                ? 'Loading...'
+                : transition.state === 'loading' && submitType === 'select'
+                ? 'Loaded!'
+                : 'Select'}
             </button>
           </Form>
           {schema && profileData ? (
@@ -461,10 +470,11 @@ export default function Index() {
                 type="submit"
                 name="_action"
                 value="update"
+                onClick={() => setSubmitType('update')}
               >
-                {transition.state === 'submitting'
+                {transition.state === 'submitting' && submitType === 'update'
                   ? 'Updating...'
-                  : transition.state === 'loading'
+                  : transition.state === 'loading' && submitType === 'update'
                   ? 'Updated!'
                   : 'Update Profile'}
               </button>
@@ -487,10 +497,11 @@ export default function Index() {
                 type="submit"
                 name="_action"
                 value="submit"
+                onClick={() => setSubmitType('preview')}
               >
-                {transition.state === 'submitting'
+                {transition.state === 'submitting' && submitType === 'preview'
                   ? 'Processing...'
-                  : transition.state === 'loading'
+                  : transition.state === 'loading' && submitType === 'preview'
                   ? 'Done!'
                   : 'Preview'}
               </button>
