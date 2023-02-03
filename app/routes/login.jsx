@@ -1,9 +1,12 @@
 import { json } from '@remix-run/node'
+import { useState } from 'react'
 import {
+  Form,
   Link,
   useActionData,
   useCatch,
-  useSearchParams
+  useSearchParams,
+  useTransition
 } from '@remix-run/react'
 
 import {
@@ -106,11 +109,14 @@ export const action = async ({ request }) => {
 export default function Login() {
   const actionData = useActionData()
   const [searchParams] = useSearchParams()
+  const transition = useTransition()
+  const [submitType, setSubmitType] = useState('login')
+
   return (
     <div className="flex flex-col h-screen justify-center items-center">
       <div className="top-0 mx-auto w-full md:w-96 bg-yellow-500 dark:bg-purple-800 shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col dark:text-gray-100">
         <h1 className="text-3xl text-center">Login</h1>
-        <form method="post">
+        <Form method="post">
           <input
             type="hidden"
             name="redirectTo"
@@ -127,6 +133,7 @@ export default function Login() {
                   !actionData?.fields?.loginType ||
                   actionData?.fields?.loginType === 'login'
                 }
+                onClick={() => setSubmitType('login')}
               />{' '}
               Login
             </label>
@@ -137,6 +144,7 @@ export default function Login() {
                 name="loginType"
                 value="register"
                 defaultChecked={actionData?.fields?.loginType === 'register'}
+                onClick={() => setSubmitType('register')}
               />{' '}
               Register
             </label>
@@ -213,13 +221,23 @@ export default function Login() {
           </div>
           <div className="flex items-center justify-center">
             <button
-              className="bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 dark:focus:bg-purple-900 hover:scale-110 font-bold py-2 px-4 rounded-full mt-2"
+              className="bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 hover:scale-110 font-bold py-2 px-4 rounded-full mt-2"
               type="submit"
             >
-              Submit
+              {transition.state === 'submitting'
+                ? submitType === 'login'
+                  ? 'Logging In...'
+                  : 'Registering...'
+                : transition.state === 'loading'
+                ? submitType === 'login'
+                  ? 'Logged In!'
+                  : 'Registered!'
+                : submitType === 'login'
+                ? 'Login'
+                : 'Register'}
             </button>
           </div>
-        </form>
+        </Form>
       </div>
       <div className="links text-center">
         <ul>
