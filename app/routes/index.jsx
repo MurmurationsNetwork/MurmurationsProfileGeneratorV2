@@ -374,7 +374,7 @@ export default function Index() {
                   </ul>
                 </div>
               ) : null}
-              {user?.profiles ? (
+              {user?.profiles && submitType !== 'preview' ? (
                 <div className="md:mt-4">
                   <h1 className="hidden md:contents md:text-2xl">
                     My Profiles
