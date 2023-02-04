@@ -231,6 +231,8 @@ export default function Login() {
                 : transition.state === 'loading'
                 ? submitType === 'login'
                   ? 'Logged In!'
+                  : submitType === 'home'
+                  ? 'Loading...'
                   : 'Registered!'
                 : submitType === 'login'
                 ? 'Login'
@@ -242,7 +244,9 @@ export default function Login() {
       <div className="links text-center">
         <ul>
           <li>
-            <Link to="/">Home</Link>
+            <Link to="/" onClick={() => setSubmitType('home')}>
+              Home
+            </Link>
           </li>
         </ul>
       </div>
