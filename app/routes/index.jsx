@@ -288,7 +288,7 @@ export default function Index() {
         )}
       </div>
       <div className="flex flex-col md:flex-row box-border">
-        <div className="basis-full md:basis-1/2 inset-0 md:overflow-y-scroll md:h-screen md:sticky md:top-0">
+        <div className="basis-full md:basis-1/2 inset-0 md:overflow-y-auto md:h-screen md:sticky md:top-0">
           <div className="px-2 md:px-4">
             {user?.source ? <span>Data source: {user.source}</span> : null}
             {user || schema ? null : (
