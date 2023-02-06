@@ -115,7 +115,7 @@ export default function Login() {
   return (
     <div className="flex flex-col h-screen justify-center items-center">
       <div className="top-0 mx-auto w-full md:w-96 bg-yellow-500 dark:bg-purple-800 shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col dark:text-gray-100">
-        <h1 className="text-3xl text-center">Login</h1>
+        {/* <h1 className="text-3xl text-center">Login</h1> */}
         <Form method="post">
           <input
             type="hidden"
@@ -168,7 +168,7 @@ export default function Login() {
               }
               placeholder="Enter your email"
             />
-            {actionData?.fieldErrors?.email ? (
+            {actionData?.fieldErrors?.email && transition.state === 'idle' ? (
               <p
                 className="form-validation-error text-red-600 dark:text-red-400 text-sm"
                 role="alert"
@@ -199,7 +199,8 @@ export default function Login() {
               }
               placeholder="Enter your password"
             />
-            {actionData?.fieldErrors?.password ? (
+            {actionData?.fieldErrors?.password &&
+            transition.state === 'idle' ? (
               <p
                 className="form-validation-error text-red-600 dark:text-red-400 text-sm"
                 role="alert"
@@ -210,7 +211,7 @@ export default function Login() {
             ) : null}
           </div>
           <div id="form-error-message" className="mb-2">
-            {actionData?.formError ? (
+            {actionData?.formError && transition.state === 'idle' ? (
               <p
                 className="form-validation-error text-red-600 dark:text-red-400 text-sm"
                 role="alert"
