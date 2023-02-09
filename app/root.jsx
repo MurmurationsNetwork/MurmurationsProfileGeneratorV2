@@ -44,8 +44,13 @@ export default function App() {
                 </div>
               </Link>
             </div>
+            <div className="pl-8 md:pl-16">
+              <Link to="/tools">
+                <div className="text-md md:hidden">Tools</div>
+                <div className="hidden md:contents md:text-xl">Index Tools</div>
+              </Link>
+            </div>
           </div>
-
           <Outlet />
           <ScrollRestoration />
           <Scripts />
