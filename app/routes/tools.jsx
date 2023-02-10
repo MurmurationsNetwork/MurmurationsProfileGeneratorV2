@@ -3,7 +3,7 @@ import { json } from '@remix-run/node'
 import { useState } from 'react'
 import crypto from 'crypto'
 
-import { getNodeStatus, postNode } from '~/utils/index-api'
+import { deleteNode, getNodeStatus, postNode } from '~/utils/index-api'
 
 export async function action({ request }) {
   let formData = await request.formData()
@@ -25,8 +25,14 @@ export async function action({ request }) {
           postErrors: postResponse.errors
         })
       }
+      if (postResponse.data) {
+        return json({
+          postResponse: postResponse.data
+        })
+      }
       return json({
-        postResponse: postResponse.data
+        postErrors:
+          'There was an error when attempting to post the profile. Please check your network connection and try again.'
       })
     case 'check':
       let checkResponse = await getNodeStatus(nodeId)
@@ -35,8 +41,30 @@ export async function action({ request }) {
           checkErrors: checkResponse.errors
         })
       }
+      if (checkResponse.data) {
+        return json({
+          checkResponse: checkResponse.data
+        })
+      }
       return json({
-        checkResponse: checkResponse.data
+        checkErrors:
+          "There was an error when attempting to get the profile's status. Please check your network connection and try again."
+      })
+    case 'delete':
+      let deleteResponse = await deleteNode(nodeId)
+      if (deleteResponse.errors) {
+        return json({
+          deleteErrors: deleteResponse.errors
+        })
+      }
+      if (deleteResponse.meta) {
+        return json({
+          deleteResponse: deleteResponse.meta
+        })
+      }
+      return json({
+        deleteErrors:
+          'There was an error when attempting to delete the profile. Please check your network connection and try again.'
       })
     default:
       return null
@@ -133,6 +161,47 @@ export default function Tools() {
           {data?.checkErrors ? (
             <div className="bg-red-200 dark:bg-red-700 p-2 my-2 md:p-4 md:my-4 overflow-auto text-sm rounded-xl">
               <pre>{JSON.stringify(data.checkErrors, null, 2)}</pre>
+            </div>
+          ) : null}
+        </div>
+      </div>
+      <div className="mx-1 md:mx-4 mt-4 md:mt-8">
+        <Form method="post">
+          <label>
+            <h2 className="font-bold text-lg md:text-2xl mb-2 md:mb-4">
+              Delete Profile from Index
+            </h2>
+            <input
+              className="form-input w-full md:w-1/2 dark:bg-gray-700 md:mr-2"
+              type="text"
+              name="profile_url"
+              required="required"
+              placeholder="https://your.site/directory/profile.json"
+            />
+          </label>
+          <button
+            className="bg-red-500 dark:bg-purple-200 hover:bg-red-400 dark:hover:bg-purple-100 text-white dark:text-gray-800 font-bold py-2 px-4 w-full md:w-1/3 mt-2 md:mt-0"
+            type="submit"
+            name="_action"
+            value="delete"
+            onClick={() => setSubmitType('delete')}
+          >
+            {transition.state === 'submitting' && submitType === 'delete'
+              ? 'Deleting...'
+              : transition.state === 'loading' && submitType === 'delete'
+              ? 'Done!'
+              : 'Delete Profile'}
+          </button>
+        </Form>
+        <div className="flex flex-auto">
+          {data?.deleteResponse ? (
+            <div className="bg-green-100 dark:bg-green-700 p-2 my-2 md:p-4 md:my-4 overflow-auto text-sm rounded-xl">
+              <pre>{JSON.stringify(data.deleteResponse, null, 2)}</pre>
+            </div>
+          ) : null}
+          {data?.deleteErrors ? (
+            <div className="bg-red-200 dark:bg-red-700 p-2 my-2 md:p-4 md:my-4 overflow-auto text-sm rounded-xl">
+              <pre>{JSON.stringify(data.deleteErrors, null, 2)}</pre>
             </div>
           ) : null}
         </div>
