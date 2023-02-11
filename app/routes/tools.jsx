@@ -106,8 +106,6 @@ export default function Tools() {
           >
             {transition.state === 'submitting' && submitType === 'post'
               ? 'Posting...'
-              : transition.state === 'loading' && submitType === 'post'
-              ? 'Done!'
               : 'Post Profile'}
           </button>
         </Form>
@@ -147,8 +145,6 @@ export default function Tools() {
           >
             {transition.state === 'submitting' && submitType === 'check'
               ? 'Checking...'
-              : transition.state === 'loading' && submitType === 'check'
-              ? 'Done!'
               : 'Check Status'}
           </button>
         </Form>
@@ -188,8 +184,6 @@ export default function Tools() {
           >
             {transition.state === 'submitting' && submitType === 'delete'
               ? 'Deleting...'
-              : transition.state === 'loading' && submitType === 'delete'
-              ? 'Done!'
               : 'Delete Profile'}
           </button>
         </Form>
