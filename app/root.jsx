@@ -5,8 +5,10 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLoaderData
 } from '@remix-run/react'
+import { json } from '@remix-run/node'
 
 import styles from '~/styles/app.css'
 
@@ -18,7 +20,16 @@ export function meta() {
   return { title: 'Murmuration Profile Generator' }
 }
 
+export async function loader() {
+  return json({
+    ENV: {
+      VERCEL_ENV: process.env.NODE_ENV
+    }
+  })
+}
+
 export default function App() {
+  const data = useLoaderData()
   return (
     <html lang="en">
       <head>
@@ -58,6 +69,11 @@ export default function App() {
             </div>
           </div>
           <Outlet />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.ENV = ${JSON.stringify(data.ENV)}`
+            }}
+          />
           <ScrollRestoration />
           <Scripts />
           {process.env.NODE_ENV === 'development' && <LiveReload />}
