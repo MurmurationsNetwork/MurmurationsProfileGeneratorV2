@@ -22,9 +22,7 @@ export function meta() {
 
 export async function loader() {
   return json({
-    ENV: {
-      NODE_ENV: process.env.NODE_ENV
-    }
+    NODE_ENV: process.env.NODE_ENV
   })
 }
 
