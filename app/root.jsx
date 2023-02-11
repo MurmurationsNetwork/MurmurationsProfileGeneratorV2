@@ -5,8 +5,10 @@ import {
   Meta,
   Outlet,
   Scripts,
-  ScrollRestoration
+  ScrollRestoration,
+  useLoaderData
 } from '@remix-run/react'
+import { json } from '@remix-run/node'
 
 import styles from '~/styles/app.css'
 
@@ -18,7 +20,15 @@ export function meta() {
   return { title: 'Murmuration Profile Generator' }
 }
 
+export async function loader({ request }) {
+  return json({
+    url: new URL(request.url)
+  })
+}
+
 export default function App() {
+  const { url } = useLoaderData()
+  const production = !!url?.match(/\/profiles/)
   return (
     <html lang="en">
       <head>
@@ -28,6 +38,11 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-white dark:bg-gray-900 text-black dark:text-gray-50 leading-normal text-md md:text-xl">
+        {production ? null : (
+          <div className="flex flex-row bg-fuchsia-200 dark:bg-fuchsia-700 py-1 px-2 md:py-2 md:px-4 h-8 md:h-12 justify-center">
+            T E S T &nbsp; E N V I R O N M E N T
+          </div>
+        )}
         <div className="container max-w-full mx-auto p-0">
           <div className="flex flex-row justify-end items-center bg-gray-50 dark:bg-gray-800 py-1 px-2 md:py-2 md:px-4 h-8 md:h-12 mb-0">
             <Link to="/">
