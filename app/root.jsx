@@ -28,8 +28,8 @@ export default function App() {
         <Links />
       </head>
       <body className="bg-white dark:bg-gray-900 text-black dark:text-gray-50 leading-normal text-md md:text-xl">
-        {process.env.NODE_ENV !== 'production' ||
-        process.env.VERCEL_ENV !== 'production' ? (
+        {process?.env?.NODE_ENV !== 'production' ||
+        process?.env?.VERCEL_ENV !== 'production' ? (
           <div className="flex flex-row bg-fuchsia-200 dark:bg-fuchsia-700 py-1 px-2 md:py-2 md:px-4 h-8 md:h-12 justify-center">
             T E S T &nbsp; E N V I R O N M E N T
           </div>
